@@ -1,11 +1,14 @@
 package vsphere
 
 import (
+	"bytes"
+	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
+	"io/ioutil"
+	"log"
 	"net"
+	"net/http"
 	"os"
 	"path"
 	"reflect"
@@ -14,6 +17,12 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/dnaeon/go-vcr/cassette"
+	"github.com/dnaeon/go-vcr/recorder"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -25,6 +34,7 @@ import (
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/structure"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/virtualdisk"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/virtualdevice"
+	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
 )
@@ -40,8 +50,90 @@ const (
 	testAccResourceVSphereVirtualMachineDatastoreClusterAlt = "testacc-datastore-cluster2"
 )
 
+var vimConfig *govmomi.Client
+
+func getTestAccProviders(name string) map[string]terraform.ResourceProvider {
+	prov := Provider().(*schema.Provider)
+	old := prov.ConfigureFunc
+	prov.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
+		c, err := old(d)
+		if err != nil {
+			return nil, err
+		}
+		//r, err := recorder.NewAsMode("/home/hrich/vsphere", recorder.ModeRecording, c.(*VSphereClient).vimClient.Transport)
+		r, err := recorder.NewAsMode("/home/hrich/vsphere", recorder.ModeReplaying, c.(*VSphereClient).vimClient.Transport)
+		if err != nil {
+			return nil, err
+		}
+		r.SetMatcher(func(r *http.Request, i cassette.Request) bool {
+			// Default matcher compares method and URL only
+			if !cassette.DefaultMatcher(r, i) {
+				return false
+			}
+			if r.Body == nil {
+				return true
+			}
+			contentType := r.Header.Get("Content-Type")
+			// If body contains media, don't try to compare
+			if strings.Contains(contentType, "multipart/related") {
+				return true
+			}
+
+			var b bytes.Buffer
+			if _, err := b.ReadFrom(r.Body); err != nil {
+				log.Printf("[DEBUG] Failed to read request body from cassette: %v", err)
+				return false
+			}
+			r.Body = ioutil.NopCloser(&b)
+			reqBody := b.String()
+			// If body matches identically, we are done
+			if reqBody == i.Body {
+				return true
+			}
+
+			// JSON might be the same, but reordered. Try parsing json and comparing
+			if strings.Contains(contentType, "text/xml") {
+				var reqJson, cassetteJson interface{}
+				if err := xml.Unmarshal([]byte(reqBody), &reqJson); err != nil {
+					log.Printf("[DEBUG] Failed to unmarshall request json: %v", err)
+					return false
+				}
+				if err := xml.Unmarshal([]byte(i.Body), &cassetteJson); err != nil {
+					log.Printf("[DEBUG] Failed to unmarshall cassette json: %v", err)
+					return false
+				}
+				return reflect.DeepEqual(reqJson, cassetteJson)
+			}
+			return false
+		})
+
+		c.(*VSphereClient).vimClient.Transport = r
+		vimConfig = c.(*VSphereClient).vimClient
+		return c, nil
+	}
+	testAccProvider = prov
+	testAccProviders["vsphere"] = prov
+
+	return map[string]terraform.ResourceProvider{
+		"vsphere": prov,
+		"null":    testAccNullProvider,
+		"random":  testAccRandomProvider,
+	}
+}
+
+func vcrTest(t *testing.T, c resource.TestCase) {
+	providers := getTestAccProviders(t.Name())
+	c.Providers = providers
+	defer closeRecorder(t)
+	resource.Test(t, c)
+}
+
+func closeRecorder(t *testing.T) {
+	vimConfig.Transport.(*recorder.Recorder).Stop()
+}
+
 func TestAccResourceVSphereVirtualMachine_basic(t *testing.T) {
-	resource.Test(t, resource.TestCase{
+	vcrTest(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)

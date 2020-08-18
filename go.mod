@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/aws/aws-sdk-go v1.28.8 // indirect
 	github.com/davecgh/go-spew v1.1.1
+	github.com/dnaeon/go-vcr v0.0.0-20180920040454-5637cf3d8a31
 	github.com/dustinkirkland/golang-petname v0.0.0-20191129215211-8e5a1ed0cff0 // indirect
 	github.com/hashicorp/terraform v0.12.21 // indirect
 	github.com/hashicorp/terraform-plugin-sdk v1.7.0

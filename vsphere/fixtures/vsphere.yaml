@@ -1,0 +1,1132 @@
+---
+version: 1
+interactions:
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Folder">group-d1</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "538"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Folder</type><pathSet>name</pathSet><pathSet>childType</pathSet></propSet><propSet><type>Datacenter</type><pathSet>name</pathSet></propSet><propSet><type>VirtualApp</type><pathSet>name</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>name</pathSet></propSet><propSet><type>Network</type><pathSet>name</pathSet></propSet><propSet><type>ComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>ClusterComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>Datastore</type><pathSet>name</pathSet></propSet><propSet><type>DistributedVirtualSwitch</type><pathSet>name</pathSet></propSet><objectSet><obj type="Folder">group-d1</obj><skip>true</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>Folder</type><path>childEntity</path><skip>false</skip></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "551"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "792"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "792"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "792"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "792"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "792"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Datacenter</type><pathSet>name</pathSet><pathSet>vmFolder</pathSet><pathSet>hostFolder</pathSet><pathSet>datastoreFolder</pathSet><pathSet>networkFolder</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>datastoreFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-s2688</val></propSet><propSet><name>hostFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-h2687</val></propSet><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>networkFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-n2689</val></propSet><propSet><name>vmFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-v2686</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1005"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Datacenter</type><pathSet>name</pathSet><pathSet>vmFolder</pathSet><pathSet>hostFolder</pathSet><pathSet>datastoreFolder</pathSet><pathSet>networkFolder</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>datastoreFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-s2688</val></propSet><propSet><name>hostFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-h2687</val></propSet><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>networkFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-n2689</val></propSet><propSet><name>vmFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-v2686</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1005"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Datacenter</type><pathSet>name</pathSet><pathSet>vmFolder</pathSet><pathSet>hostFolder</pathSet><pathSet>datastoreFolder</pathSet><pathSet>networkFolder</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>datastoreFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-s2688</val></propSet><propSet><name>hostFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-h2687</val></propSet><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>networkFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-n2689</val></propSet><propSet><name>vmFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-v2686</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1005"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Datacenter</type><pathSet>name</pathSet><pathSet>vmFolder</pathSet><pathSet>hostFolder</pathSet><pathSet>datastoreFolder</pathSet><pathSet>networkFolder</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>datastoreFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-s2688</val></propSet><propSet><name>hostFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-h2687</val></propSet><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>networkFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-n2689</val></propSet><propSet><name>vmFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-v2686</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1005"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Datacenter</type><pathSet>name</pathSet><pathSet>vmFolder</pathSet><pathSet>hostFolder</pathSet><pathSet>datastoreFolder</pathSet><pathSet>networkFolder</pathSet></propSet><objectSet><obj type="Datacenter">datacenter-2685</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>datastoreFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-s2688</val></propSet><propSet><name>hostFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-h2687</val></propSet><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>networkFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-n2689</val></propSet><propSet><name>vmFolder</name><val type="Folder" xsi:type="ManagedObjectReference">group-v2686</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1005"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Folder">group-n2689</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Folder">group-n2689</obj><propSet><name>name</name><val xsi:type="xsd:string">network</val></propSet><propSet><name>parent</name><val type="Datacenter" xsi:type="ManagedObjectReference">datacenter-2685</val></propSet></returnval><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1043"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Folder">group-h2687</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Folder">group-h2687</obj><propSet><name>name</name><val xsi:type="xsd:string">host</val></propSet><propSet><name>parent</name><val type="Datacenter" xsi:type="ManagedObjectReference">datacenter-2685</val></propSet></returnval><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1040"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Folder">group-s2688</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Folder">group-s2688</obj><propSet><name>name</name><val xsi:type="xsd:string">datastore</val></propSet><propSet><name>parent</name><val type="Datacenter" xsi:type="ManagedObjectReference">datacenter-2685</val></propSet></returnval><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1045"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Folder">group-h2687</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Folder">group-h2687</obj><propSet><name>name</name><val xsi:type="xsd:string">host</val></propSet><propSet><name>parent</name><val type="Datacenter" xsi:type="ManagedObjectReference">datacenter-2685</val></propSet></returnval><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1040"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ManagedEntity</type><pathSet>name</pathSet><pathSet>parent</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>parentVApp</pathSet></propSet><objectSet><obj type="Folder">group-h2687</obj><skip>false</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><name>traverseParent</name><type>ManagedEntity</type><path>parent</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>VirtualMachine</type><path>parentVApp</path><skip>false</skip><selectSet XMLSchema-instance:type="SelectionSpec"><name>traverseParent</name></selectSet></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Folder">group-h2687</obj><propSet><name>name</name><val xsi:type="xsd:string">host</val></propSet><propSet><name>parent</name><val type="Datacenter" xsi:type="ManagedObjectReference">datacenter-2685</val></propSet></returnval><returnval><obj type="Datacenter">datacenter-2685</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-dc-save</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-d1</val></propSet></returnval><returnval><obj type="Folder">group-d1</obj><propSet><name>name</name><val xsi:type="xsd:string">Datacenters</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1040"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Folder</type><pathSet>name</pathSet><pathSet>childType</pathSet></propSet><propSet><type>Datacenter</type><pathSet>name</pathSet></propSet><propSet><type>VirtualApp</type><pathSet>name</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>name</pathSet></propSet><propSet><type>Network</type><pathSet>name</pathSet></propSet><propSet><type>ComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>ClusterComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>Datastore</type><pathSet>name</pathSet></propSet><propSet><type>DistributedVirtualSwitch</type><pathSet>name</pathSet></propSet><objectSet><obj type="Folder">group-n2689</obj><skip>true</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>Folder</type><path>childEntity</path><skip>false</skip></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="DistributedVirtualPortgroup">dvportgroup-2703</obj><propSet><name>name</name><val xsi:type="xsd:string">terraform-test-portgroup</val></propSet></returnval><returnval><obj type="DistributedVirtualPortgroup">dvportgroup-2701</obj><propSet><name>name</name><val xsi:type="xsd:string">terraform-test-d-DVUplinks-2700</val></propSet></returnval><returnval><obj type="VmwareDistributedVirtualSwitch">dvs-2700</obj><propSet><name>name</name><val xsi:type="xsd:string">terraform-test-dvs</val></propSet></returnval><returnval><obj type="Network">network-2698</obj><propSet><name>name</name><val xsi:type="xsd:string">VM Network</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "1072"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Folder</type><pathSet>name</pathSet><pathSet>childType</pathSet></propSet><propSet><type>Datacenter</type><pathSet>name</pathSet></propSet><propSet><type>VirtualApp</type><pathSet>name</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>name</pathSet></propSet><propSet><type>Network</type><pathSet>name</pathSet></propSet><propSet><type>ComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>ClusterComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>Datastore</type><pathSet>name</pathSet></propSet><propSet><type>DistributedVirtualSwitch</type><pathSet>name</pathSet></propSet><objectSet><obj type="Folder">group-h2687</obj><skip>true</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>Folder</type><path>childEntity</path><skip>false</skip></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="ClusterComputeResource">domain-c2690</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-cluster</val></propSet><propSet><name>resourcePool</name><val type="ResourcePool" xsi:type="ManagedObjectReference">resgroup-2691</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "682"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Folder</type><pathSet>name</pathSet><pathSet>childType</pathSet></propSet><propSet><type>Datacenter</type><pathSet>name</pathSet></propSet><propSet><type>VirtualApp</type><pathSet>name</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>name</pathSet></propSet><propSet><type>Network</type><pathSet>name</pathSet></propSet><propSet><type>ComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>ClusterComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>Datastore</type><pathSet>name</pathSet></propSet><propSet><type>DistributedVirtualSwitch</type><pathSet>name</pathSet></propSet><objectSet><obj type="Folder">group-s2688</obj><skip>true</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>Folder</type><path>childEntity</path><skip>false</skip></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datastore">datastore-6053</obj><propSet><name>name</name><val xsi:type="xsd:string">datastore1 (1)</val></propSet></returnval><returnval><obj type="Datastore">datastore-6054</obj><propSet><name>name</name><val xsi:type="xsd:string">nfs1</val></propSet></returnval><returnval><obj type="Datastore">datastore-2697</obj><propSet><name>name</name><val xsi:type="xsd:string">datastore1</val></propSet></returnval><returnval><obj type="Datastore">datastore-6012</obj><propSet><name>name</name><val xsi:type="xsd:string">vsanDatastore</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "979"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Folder</type><pathSet>name</pathSet><pathSet>childType</pathSet></propSet><propSet><type>Datacenter</type><pathSet>name</pathSet></propSet><propSet><type>VirtualApp</type><pathSet>name</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>name</pathSet></propSet><propSet><type>Network</type><pathSet>name</pathSet></propSet><propSet><type>ComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>ClusterComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>Datastore</type><pathSet>name</pathSet></propSet><propSet><type>DistributedVirtualSwitch</type><pathSet>name</pathSet></propSet><objectSet><obj type="Folder">group-h2687</obj><skip>true</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>Folder</type><path>childEntity</path><skip>false</skip></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="ClusterComputeResource">domain-c2690</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-cluster</val></propSet><propSet><name>resourcePool</name><val type="ResourcePool" xsi:type="ManagedObjectReference">resgroup-2691</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "682"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>Folder</type><pathSet>name</pathSet><pathSet>childType</pathSet></propSet><propSet><type>Datacenter</type><pathSet>name</pathSet></propSet><propSet><type>VirtualApp</type><pathSet>name</pathSet></propSet><propSet><type>VirtualMachine</type><pathSet>name</pathSet></propSet><propSet><type>Network</type><pathSet>name</pathSet></propSet><propSet><type>ComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>ClusterComputeResource</type><pathSet>name</pathSet><pathSet>resourcePool</pathSet></propSet><propSet><type>Datastore</type><pathSet>name</pathSet></propSet><propSet><type>DistributedVirtualSwitch</type><pathSet>name</pathSet></propSet><objectSet><obj type="Folder">group-h2687</obj><skip>true</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>Folder</type><path>childEntity</path><skip>false</skip></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="ClusterComputeResource">domain-c2690</obj><propSet><name>name</name><val xsi:type="xsd:string">hashi-cluster</val></propSet><propSet><name>resourcePool</name><val type="ResourcePool" xsi:type="ManagedObjectReference">resgroup-2691</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "682"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ClusterComputeResource</type><all>true</all></propSet><objectSet><obj type="ClusterComputeResource">domain-c2690</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="ClusterComputeResource">domain-c2690</obj><propSet><name>actionHistory</name><val xsi:type="ArrayOfClusterActionHistory"><ClusterActionHistory xsi:type="ClusterActionHistory"><action xsi:type="ClusterInitialPlacementAction"><type>VmPowerV1</type><target type="VirtualMachine">vm-6055</target><targetHost type="HostSystem">host-6052</targetHost></action><time>2020-08-06T23:10:46.164Z</time></ClusterActionHistory><ClusterActionHistory xsi:type="ClusterActionHistory"><action xsi:type="ClusterInitialPlacementAction"><type>VmPowerV1</type><target type="VirtualMachine">vm-6055</target><targetHost type="HostSystem">host-6052</targetHost></action><time>2020-08-06T23:25:45.643Z</time></ClusterActionHistory><ClusterActionHistory xsi:type="ClusterActionHistory"><action xsi:type="ClusterInitialPlacementAction"><type>VmPowerV1</type><target type="VirtualMachine">vm-6062</target><targetHost type="HostSystem">host-6052</targetHost></action><time>2020-08-06T23:30:16.243999Z</time></ClusterActionHistory></val></propSet><propSet><name>alarmActionsEnabled</name><val xsi:type="xsd:boolean">true</val></propSet><propSet><name>availableField</name><val xsi:type="ArrayOfCustomFieldDef"></val></propSet><propSet><name>configIssue</name><val xsi:type="ArrayOfEvent"><Event xsi:type="EventEx"><key>179666</key><chainId>179666</chainId><createdTime>2020-08-18T21:34:12.19981Z</createdTime><userName></userName><datacenter><name>hashi-dc-save</name><datacenter type="Datacenter">datacenter-2685</datacenter></datacenter><computeResource><name>hashi-cluster</name><computeResource type="ClusterComputeResource">domain-c2690</computeResource></computeResource><fullFormattedMessage>vSAN datastore vsanDatastore in cluster hashi-cluster in datacenter hashi-dc-save does not have capacity</fullFormattedMessage><changeTag></changeTag><eventTypeId>com.vmware.vc.vsan.DatastoreNoCapacityEvent</eventTypeId><arguments><key>datastoreName</key><value xsi:type="xsd:string">vsanDatastore</value></arguments><objectId>domain-c2690</objectId><objectType>ClusterComputeResource</objectType><objectName>hashi-cluster</objectName></Event></val></propSet><propSet><name>configStatus</name><val xsi:type="ManagedEntityStatus">yellow</val></propSet><propSet><name>configuration</name><val xsi:type="ClusterConfigInfo"><dasConfig><enabled>false</enabled><vmMonitoring>vmMonitoringDisabled</vmMonitoring><hostMonitoring>enabled</hostMonitoring><vmComponentProtecting>enabled</vmComponentProtecting><failoverLevel>1</failoverLevel><admissionControlPolicy xsi:type="ClusterFailoverResourcesAdmissionControlPolicy"><resourceReductionToToleratePercent>100</resourceReductionToToleratePercent><cpuFailoverResourcesPercent>100</cpuFailoverResourcesPercent><memoryFailoverResourcesPercent>100</memoryFailoverResourcesPercent><failoverLevel>1</failoverLevel><autoComputePercentages>true</autoComputePercentages></admissionControlPolicy><admissionControlEnabled>true</admissionControlEnabled><defaultVmSettings><restartPriority>medium</restartPriority><restartPriorityTimeout>600</restartPriorityTimeout><isolationResponse>none</isolationResponse><vmToolsMonitoringSettings><enabled>false</enabled><vmMonitoring>vmMonitoringDisabled</vmMonitoring><clusterSettings>true</clusterSettings><failureInterval>30</failureInterval><minUpTime>120</minUpTime><maxFailures>3</maxFailures><maxFailureWindow>-1</maxFailureWindow></vmToolsMonitoringSettings><vmComponentProtectionSettings><vmStorageProtectionForAPD>disabled</vmStorageProtectionForAPD><enableAPDTimeoutForHosts>false</enableAPDTimeoutForHosts><vmTerminateDelayForAPDSec>3</vmTerminateDelayForAPDSec><vmReactionOnAPDCleared>none</vmReactionOnAPDCleared><vmStorageProtectionForPDL>disabled</vmStorageProtectionForPDL></vmComponentProtectionSettings></defaultVmSettings><hBDatastoreCandidatePolicy>allFeasibleDsWithUserPreference</hBDatastoreCandidatePolicy></dasConfig><drsConfig><enabled>true</enabled><enableVmBehaviorOverrides>true</enableVmBehaviorOverrides><defaultVmBehavior>manual</defaultVmBehavior><vmotionRate>3</vmotionRate></drsConfig></val></propSet><propSet><name>configurationEx</name><val xsi:type="ClusterConfigInfoEx"><vmSwapPlacement>vmDirectory</vmSwapPlacement><spbmEnabled>true</spbmEnabled><dasConfig><enabled>false</enabled><vmMonitoring>vmMonitoringDisabled</vmMonitoring><hostMonitoring>enabled</hostMonitoring><vmComponentProtecting>enabled</vmComponentProtecting><failoverLevel>1</failoverLevel><admissionControlPolicy xsi:type="ClusterFailoverResourcesAdmissionControlPolicy"><resourceReductionToToleratePercent>100</resourceReductionToToleratePercent><cpuFailoverResourcesPercent>100</cpuFailoverResourcesPercent><memoryFailoverResourcesPercent>100</memoryFailoverResourcesPercent><failoverLevel>1</failoverLevel><autoComputePercentages>true</autoComputePercentages></admissionControlPolicy><admissionControlEnabled>true</admissionControlEnabled><defaultVmSettings><restartPriority>medium</restartPriority><restartPriorityTimeout>600</restartPriorityTimeout><isolationResponse>none</isolationResponse><vmToolsMonitoringSettings><enabled>false</enabled><vmMonitoring>vmMonitoringDisabled</vmMonitoring><clusterSettings>true</clusterSettings><failureInterval>30</failureInterval><minUpTime>120</minUpTime><maxFailures>3</maxFailures><maxFailureWindow>-1</maxFailureWindow></vmToolsMonitoringSettings><vmComponentProtectionSettings><vmStorageProtectionForAPD>disabled</vmStorageProtectionForAPD><enableAPDTimeoutForHosts>false</enableAPDTimeoutForHosts><vmTerminateDelayForAPDSec>3</vmTerminateDelayForAPDSec><vmReactionOnAPDCleared>none</vmReactionOnAPDCleared><vmStorageProtectionForPDL>disabled</vmStorageProtectionForPDL></vmComponentProtectionSettings></defaultVmSettings><hBDatastoreCandidatePolicy>allFeasibleDsWithUserPreference</hBDatastoreCandidatePolicy></dasConfig><drsConfig><enabled>true</enabled><enableVmBehaviorOverrides>true</enableVmBehaviorOverrides><defaultVmBehavior>manual</defaultVmBehavior><vmotionRate>3</vmotionRate></drsConfig><orchestration><defaultVmReadiness><readyCondition>none</readyCondition><postReadyDelay>0</postReadyDelay></defaultVmReadiness></orchestration><dpmConfigInfo><enabled>false</enabled><defaultDpmBehavior>manual</defaultDpmBehavior><hostPowerActionRate>3</hostPowerActionRate></dpmConfigInfo><vsanConfigInfo><enabled>true</enabled><defaultConfig><uuid>5265531c-dd18-f28c-5d07-c9a1c3907f74</uuid><autoClaimStorage>false</autoClaimStorage></defaultConfig></vsanConfigInfo><vsanHostConfig><enabled>true</enabled><hostSystem type="HostSystem">host-2694</hostSystem><clusterInfo><uuid>5265531c-dd18-f28c-5d07-c9a1c3907f74</uuid><nodeUuid>5ea8a6a8-b168-a6e3-e9bb-54b2038d21d8</nodeUuid></clusterInfo><storageInfo><autoClaimStorage>false</autoClaimStorage></storageInfo><networkInfo></networkInfo><faultDomainInfo><name></name></faultDomainInfo></vsanHostConfig><vsanHostConfig><enabled>true</enabled><hostSystem type="HostSystem">host-6052</hostSystem><clusterInfo><uuid>5265531c-dd18-f28c-5d07-c9a1c3907f74</uuid><nodeUuid>5ea9157c-2207-642a-c78d-54b2038cebc7</nodeUuid></clusterInfo><storageInfo><autoClaimStorage>false</autoClaimStorage></storageInfo><networkInfo></networkInfo><faultDomainInfo><name></name></faultDomainInfo></vsanHostConfig><infraUpdateHaConfig><enabled>false</enabled><behavior>Manual</behavior><moderateRemediation>QuarantineMode</moderateRemediation><severeRemediation>QuarantineMode</severeRemediation></infraUpdateHaConfig><proactiveDrsConfig><enabled>false</enabled></proactiveDrsConfig></val></propSet><propSet><name>customValue</name><val xsi:type="ArrayOfCustomFieldValue"></val></propSet><propSet><name>datastore</name><val xsi:type="ArrayOfManagedObjectReference"><ManagedObjectReference type="Datastore" xsi:type="ManagedObjectReference">datastore-2697</ManagedObjectReference><ManagedObjectReference type="Datastore" xsi:type="ManagedObjectReference">datastore-6012</ManagedObjectReference><ManagedObjectReference type="Datastore" xsi:type="ManagedObjectReference">datastore-6053</ManagedObjectReference><ManagedObjectReference type="Datastore" xsi:type="ManagedObjectReference">datastore-6054</ManagedObjectReference></val></propSet><propSet><name>declaredAlarmState</name><val xsi:type="ArrayOfAlarmState"><AlarmState xsi:type="AlarmState"><key>alarm-1.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-1</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-10.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-10</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-109.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-109</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-11.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-11</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-113.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-113</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-114.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-114</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-115.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-115</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-116.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-116</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-117.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-117</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-118.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-118</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-119.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-119</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-12.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-12</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-120.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-120</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-121.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-121</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-122.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-122</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-123.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-123</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-124.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-124</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-125.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-125</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-13.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-13</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-134.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-134</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-135.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-135</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-136.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-136</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-137.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-137</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.131Z</time><acknowledged>false</acknowledged><eventKey>143287</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-138.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-138</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-139.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-139</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-14.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-14</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-140.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-140</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-141.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-141</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-142.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-142</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-143.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-143</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-144.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-144</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-145.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-145</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-146.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-146</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-147.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-147</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.137999Z</time><acknowledged>false</acknowledged><eventKey>143300</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-148.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-148</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-149.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-149</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-15.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-15</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-150.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-150</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-151.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-151</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-152.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-152</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-153.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-153</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-154.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-154</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.134999Z</time><acknowledged>false</acknowledged><eventKey>143296</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-155.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-155</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-156.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-156</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-157.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-157</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.137999Z</time><acknowledged>false</acknowledged><eventKey>143301</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-158.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-158</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-159.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-159</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-16.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-16</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-160.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-160</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-161.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-161</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-162.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-162</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-163.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-163</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-164.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-164</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.131999Z</time><acknowledged>false</acknowledged><eventKey>143291</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-165.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-165</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-166.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-166</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-167.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-167</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-168.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-168</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-169.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-169</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-17.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-17</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-170.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-170</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-171.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-171</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.135999Z</time><acknowledged>false</acknowledged><eventKey>143299</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-172.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-172</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-173.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-173</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.131999Z</time><acknowledged>false</acknowledged><eventKey>143293</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-174.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-174</alarm><overallStatus>yellow</overallStatus><time>2020-08-06T23:09:50.528666Z</time><acknowledged>false</acknowledged><eventKey>148293</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-175.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-175</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:10.13Z</time><acknowledged>false</acknowledged><eventKey>143283</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-176.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-176</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-177.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-177</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-178.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-178</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-179.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-179</alarm><overallStatus>yellow</overallStatus><time>2020-07-16T18:53:15.131999Z</time><acknowledged>false</acknowledged><eventKey>143294</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-180.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-180</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-181.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-181</alarm><overallStatus>yellow</overallStatus><time>2020-08-06T18:07:07.981465Z</time><acknowledged>false</acknowledged><eventKey>146996</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-182.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-182</alarm><overallStatus>green</overallStatus><time>2020-08-18T06:57:21.422098Z</time><acknowledged>false</acknowledged><eventKey>178200</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-183.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-183</alarm><overallStatus>yellow</overallStatus><time>2020-08-06T18:15:01.054625Z</time><acknowledged>false</acknowledged><eventKey>147416</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-184.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-184</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-185.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-185</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-186.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-186</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-187.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-187</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-188.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-188</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-189.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-189</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-19.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-19</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-190.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-190</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-191.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-191</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-192.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-192</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-193.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-193</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-194.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-194</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-195.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-195</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-196.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-196</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-197.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-197</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-198.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-198</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-199.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-199</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-2.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-2</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-20.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-20</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-200.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-200</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-201.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-201</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-202.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-202</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-203.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-203</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-204.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-204</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-205.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-205</alarm><overallStatus>red</overallStatus><time>2020-08-06T18:15:01.054456Z</time><acknowledged>false</acknowledged><eventKey>147414</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-206.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-206</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-207.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-207</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-208.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-208</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-209.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-209</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-21.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-21</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-210.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-210</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-211.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-211</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.131Z</time><acknowledged>false</acknowledged><eventKey>143288</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-212.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-212</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-213.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-213</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-214.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-214</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-215.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-215</alarm><overallStatus>green</overallStatus><time>2020-08-06T18:15:01.054842Z</time><acknowledged>false</acknowledged><eventKey>147418</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-216.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-216</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-217.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-217</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-218.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-218</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-219.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-219</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-22.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-22</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-220.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-220</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-221.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-221</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-222.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-222</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-223.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-223</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-224.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-224</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-225.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-225</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-226.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-226</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-227.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-227</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-228.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-228</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-229.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-229</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-23.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-23</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-230.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-230</alarm><overallStatus>red</overallStatus><time>2020-08-06T23:09:50.528459Z</time><acknowledged>false</acknowledged><eventKey>148291</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-231.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-231</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-232.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-232</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.134999Z</time><acknowledged>false</acknowledged><eventKey>143297</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-233.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-233</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-234.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-234</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-235.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-235</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-236.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-236</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-237.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-237</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-238.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-238</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.137999Z</time><acknowledged>false</acknowledged><eventKey>143302</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-239.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-239</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-240.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-240</alarm><overallStatus>green</overallStatus><time>2020-08-06T18:15:01.054562Z</time><acknowledged>false</acknowledged><eventKey>147415</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-241.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-241</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-242.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-242</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-243.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-243</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-244.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-244</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-245.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-245</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-246.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-246</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-247.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-247</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-248.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-248</alarm><overallStatus>green</overallStatus><time>2020-08-06T19:15:04.561828Z</time><acknowledged>false</acknowledged><eventKey>147512</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-249.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-249</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-25.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-25</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-250.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-250</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-251.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-251</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-252.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-252</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.135999Z</time><acknowledged>false</acknowledged><eventKey>143298</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-253.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-253</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-254.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-254</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-255.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-255</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-256.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-256</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-257.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-257</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-258.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-258</alarm><overallStatus>red</overallStatus><time>2020-08-06T23:09:50.528615Z</time><acknowledged>false</acknowledged><eventKey>148292</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-259.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-259</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-26.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-26</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-260.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-260</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-261.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-261</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-262.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-262</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-263.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-263</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-264.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-264</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-265.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-265</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-266.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-266</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-267.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-267</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-268.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-268</alarm><overallStatus>green</overallStatus><time>2020-07-16T18:53:15.131999Z</time><acknowledged>false</acknowledged><eventKey>143295</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-269.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-269</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-270.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-270</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-271.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-271</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-272.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-272</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-273.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-273</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-3.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-3</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-34.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-34</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-35.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-35</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-36.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-36</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-37.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-37</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-38.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-38</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-39.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-39</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-4.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-4</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-40.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-40</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-42.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-42</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-43.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-43</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-44.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-44</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-45.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-45</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-46.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-46</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-47.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-47</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-48.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-48</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-49.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-49</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-5.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-5</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-50.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-50</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-51.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-51</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-52.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-52</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-54.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-54</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-6.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-6</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-77.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-77</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-81.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-81</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-82.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-82</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-85.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-85</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-86.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-86</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-88.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-88</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-9.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-9</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-90.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-90</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-91.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-91</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-93.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-93</alarm><overallStatus>gray</overallStatus><time>2020-08-06T18:06:26.610788Z</time><acknowledged>false</acknowledged></AlarmState></val></propSet><propSet><name>disabledMethod</name><val xsi:type="ArrayOfString"></val></propSet><propSet><name>drsFault</name><val xsi:type="ArrayOfClusterDrsFaults"></val></propSet><propSet><name>drsRecommendation</name><val xsi:type="ArrayOfClusterDrsRecommendation"></val></propSet><propSet><name>effectiveRole</name><val xsi:type="ArrayOfInt"><int xsi:type="xsd:int">-1</int></val></propSet><propSet><name>environmentBrowser</name><val type="EnvironmentBrowser" xsi:type="ManagedObjectReference">envbrowser-2690</val></propSet><propSet><name>host</name><val xsi:type="ArrayOfManagedObjectReference"><ManagedObjectReference type="HostSystem" xsi:type="ManagedObjectReference">host-2694</ManagedObjectReference><ManagedObjectReference type="HostSystem" xsi:type="ManagedObjectReference">host-6052</ManagedObjectReference></val></propSet><propSet><name>migrationHistory</name><val xsi:type="ArrayOfClusterDrsMigration"></val></propSet><propSet><name>name</name><val xsi:type="xsd:string">hashi-cluster</val></propSet><propSet><name>network</name><val xsi:type="ArrayOfManagedObjectReference"><ManagedObjectReference type="Network" xsi:type="ManagedObjectReference">network-2698</ManagedObjectReference><ManagedObjectReference type="DistributedVirtualPortgroup" xsi:type="ManagedObjectReference">dvportgroup-2701</ManagedObjectReference><ManagedObjectReference type="DistributedVirtualPortgroup" xsi:type="ManagedObjectReference">dvportgroup-2703</ManagedObjectReference></val></propSet><propSet><name>overallStatus</name><val xsi:type="ManagedEntityStatus">red</val></propSet><propSet><name>parent</name><val type="Folder" xsi:type="ManagedObjectReference">group-h2687</val></propSet><propSet><name>permission</name><val xsi:type="ArrayOfPermission"></val></propSet><propSet><name>recentTask</name><val xsi:type="ArrayOfManagedObjectReference"></val></propSet><propSet><name>recommendation</name><val xsi:type="ArrayOfClusterRecommendation"></val></propSet><propSet><name>resourcePool</name><val type="ResourcePool" xsi:type="ManagedObjectReference">resgroup-2691</val></propSet><propSet><name>summary</name><val xsi:type="ClusterComputeResourceSummary"><totalCpu>24768</totalCpu><totalMemory>68540002304</totalMemory><numCpuCores>8</numCpuCores><numCpuThreads>16</numCpuThreads><effectiveCpu>17212</effectiveCpu><effectiveMemory>45582</effectiveMemory><numHosts>2</numHosts><numEffectiveHosts>2</numEffectiveHosts><overallStatus>red</overallStatus><currentFailoverLevel>1</currentFailoverLevel><numVmotions>58</numVmotions><targetBalance>200</targetBalance><currentBalance>192</currentBalance><usageSummary><totalCpuCapacityMhz>17212</totalCpuCapacityMhz><totalMemCapacityMB>45582</totalMemCapacityMB><cpuReservationMhz>0</cpuReservationMhz><memReservationMB>195</memReservationMB><poweredOffCpuReservationMhz>0</poweredOffCpuReservationMhz><poweredOffMemReservationMB>0</poweredOffMemReservationMB><cpuDemandMhz>6455</cpuDemandMhz><memDemandMB>4006</memDemandMB><statsGenNumber>17476</statsGenNumber><cpuEntitledMhz>6377</cpuEntitledMhz><memEntitledMB>7197</memEntitledMB><poweredOffVmCount>4</poweredOffVmCount><totalVmCount>7</totalVmCount></usageSummary></val></propSet><propSet><name>tag</name><val xsi:type="ArrayOfTag"></val></propSet><propSet><name>triggeredAlarmState</name><val xsi:type="ArrayOfAlarmState"><AlarmState xsi:type="AlarmState"><key>alarm-109.host-2694</key><entity type="HostSystem">host-2694</entity><alarm type="Alarm">alarm-109</alarm><overallStatus>red</overallStatus><time>2020-06-17T16:31:39.670999Z</time><acknowledged>false</acknowledged><eventKey>57837</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-109.host-6052</key><entity type="HostSystem">host-6052</entity><alarm type="Alarm">alarm-109</alarm><overallStatus>red</overallStatus><time>2020-08-06T23:09:47.527989Z</time><acknowledged>false</acknowledged><eventKey>148280</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-174.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-174</alarm><overallStatus>yellow</overallStatus><time>2020-08-06T23:09:50.528666Z</time><acknowledged>false</acknowledged><eventKey>148293</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-179.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-179</alarm><overallStatus>yellow</overallStatus><time>2020-07-16T18:53:15.131999Z</time><acknowledged>false</acknowledged><eventKey>143294</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-181.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-181</alarm><overallStatus>yellow</overallStatus><time>2020-08-06T18:07:07.981465Z</time><acknowledged>false</acknowledged><eventKey>146996</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-183.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-183</alarm><overallStatus>yellow</overallStatus><time>2020-08-06T18:15:01.054625Z</time><acknowledged>false</acknowledged><eventKey>147416</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-205.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-205</alarm><overallStatus>red</overallStatus><time>2020-08-06T18:15:01.054456Z</time><acknowledged>false</acknowledged><eventKey>147414</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-230.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-230</alarm><overallStatus>red</overallStatus><time>2020-08-06T23:09:50.528459Z</time><acknowledged>false</acknowledged><eventKey>148291</eventKey></AlarmState><AlarmState xsi:type="AlarmState"><key>alarm-258.domain-c2690</key><entity type="ClusterComputeResource">domain-c2690</entity><alarm type="Alarm">alarm-258</alarm><overallStatus>red</overallStatus><time>2020-08-06T23:09:50.528615Z</time><acknowledged>false</acknowledged><eventKey>148292</eventKey></AlarmState></val></propSet><propSet><name>value</name><val xsi:type="ArrayOfCustomFieldValue"></val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>HostSystem</type><pathSet>name</pathSet></propSet><propSet><type>ResourcePool</type><pathSet>name</pathSet></propSet><objectSet><obj type="ClusterComputeResource">domain-c2690</obj><skip>true</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>ComputeResource</type><path>host</path><skip>false</skip></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>ComputeResource</type><path>resourcePool</path><skip>false</skip></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="ResourcePool">resgroup-2691</obj><propSet><name>name</name><val xsi:type="xsd:string">Resources</val></propSet></returnval><returnval><obj type="HostSystem">host-2694</obj><propSet><name>name</name><val xsi:type="xsd:string">192.168.10.29</val></propSet></returnval><returnval><obj type="HostSystem">host-6052</obj><propSet><name>name</name><val xsi:type="xsd:string">192.168.10.34</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "833"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>HostSystem</type><pathSet>name</pathSet></propSet><propSet><type>ResourcePool</type><pathSet>name</pathSet></propSet><objectSet><obj type="ClusterComputeResource">domain-c2690</obj><skip>true</skip><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>ComputeResource</type><path>host</path><skip>false</skip></selectSet><selectSet xmlns:XMLSchema-instance="http://www.w3.org/2001/XMLSchema-instance" XMLSchema-instance:type="TraversalSpec"><type>ComputeResource</type><path>resourcePool</path><skip>false</skip></selectSet></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="ResourcePool">resgroup-2691</obj><propSet><name>name</name><val xsi:type="xsd:string">Resources</val></propSet></returnval><returnval><obj type="HostSystem">host-2694</obj><propSet><name>name</name><val xsi:type="xsd:string">192.168.10.29</val></propSet></returnval><returnval><obj type="HostSystem">host-6052</obj><propSet><name>name</name><val xsi:type="xsd:string">192.168.10.34</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "833"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>HostSystem</type><pathSet>parent</pathSet></propSet><objectSet><obj type="HostSystem">host-6052</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="HostSystem">host-6052</obj><propSet><name>parent</name><val type="ClusterComputeResource" xsi:type="ManagedObjectReference">domain-c2690</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "588"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>HostSystem</type><pathSet>parent</pathSet></propSet><objectSet><obj type="HostSystem">host-2694</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="HostSystem">host-2694</obj><propSet><name>parent</name><val type="ClusterComputeResource" xsi:type="ManagedObjectReference">domain-c2690</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "588"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ClusterComputeResource</type><pathSet>resourcePool</pathSet></propSet><objectSet><obj type="ClusterComputeResource">domain-c2690</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="ClusterComputeResource">domain-c2690</obj><propSet><name>resourcePool</name><val type="ResourcePool" xsi:type="ManagedObjectReference">resgroup-2691</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "600"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
+- request:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Body><RetrieveProperties xmlns="urn:vim25"><_this type="PropertyCollector">propertyCollector</_this><specSet><propSet><type>ClusterComputeResource</type><pathSet>resourcePool</pathSet></propSet><objectSet><obj type="ClusterComputeResource">domain-c2690</obj><skip>false</skip></objectSet></specSet></RetrieveProperties></Body></Envelope>
+    form: {}
+    headers:
+      Content-Type:
+      - text/xml; charset="utf-8"
+      Cookie:
+      - vmware_soap_session=99f9c199105ce1dc331dfbe906fd3f772eb95f2e
+      Soapaction:
+      - urn:vim25/7.0
+    url: https://vcenter.computersrfun.org/sdk
+    method: POST
+  response:
+    body: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+      <RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="ClusterComputeResource">domain-c2690</obj><propSet><name>resourcePool</name><val type="ResourcePool" xsi:type="ManagedObjectReference">resgroup-2691</val></propSet></returnval></RetrievePropertiesResponse>
+      </soapenv:Body>
+      </soapenv:Envelope>
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Length:
+      - "600"
+      Content-Type:
+      - text/xml; charset=utf-8
+      Date:
+      - Tue, 18 Aug 2020 21:34:12 GMT
+    status: 200 OK
+    code: 200
+    duration: ""
