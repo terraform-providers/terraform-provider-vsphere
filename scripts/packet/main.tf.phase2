@@ -96,7 +96,7 @@ resource "packet_device" "storage1" {
     ]
     connection {
       host = packet_device.storage1.network.0.address
-      private_key = var.PRIV_KEY
+      private_key = file(var.PRIV_KEY)
     }
   }
 }

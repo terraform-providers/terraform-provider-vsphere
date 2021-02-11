@@ -30,6 +30,8 @@ variable "PACKET_PROJECT" {}
 
 variable "PRIV_KEY" {}
 
+variable "VCSA_DEPLOY_PATH" {}
+
 provider "packet" {
   auth_token = var.PACKET_AUTH
 }
@@ -90,7 +92,7 @@ resource "packet_device" "storage1" {
     ]
     connection {
       host = packet_device.storage1.network.0.address
-      private_key = var.PRIV_KEY
+      private_key = file(var.PRIV_KEY)
     }
   }
 }
@@ -137,7 +139,7 @@ resource "local_file" "vcsa_template" {
   })
   filename = "./tmp/vcsa.json"
   provisioner "local-exec" {
-    command = "sleep 290; echo five more; sleep 290; TERM=xterm-256color ./tmp/mnt/vcsa-cli-installer/lin64/vcsa-deploy install --accept-eula --acknowledge-ceip --no-ssl-certificate-verification --verbose --skip-ovftool-verification ./tmp/vcsa.json"
+    command = "sleep 290; echo five more; sleep 290; TERM=xterm-256color ${var.VCSA_DEPLOY_PATH} install --accept-eula --acknowledge-ceip --no-ssl-certificate-verification --verbose --skip-ovftool-verification $(pwd)/tmp/vcsa.json"
   }
 }
 

@@ -15,11 +15,7 @@
             ],
             "thin_disk_mode": true,
             "deployment_option": "tiny",
-            "name": "vcsa",
-            "image": "https://storage.googleapis.com/acctest-images/VMware-vCenter-Server-Appliance-6.7.0.43000-15976714_OVF10.ova",
-             "image_url_ssl_certificate_verification": {
-               "verification_mode": "NONE"              
-             }
+            "name": "vcsa"
         },
         "network": {
             "ip_family": "ipv4",

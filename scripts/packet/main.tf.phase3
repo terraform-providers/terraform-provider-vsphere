@@ -41,6 +41,10 @@ provider "vsphere" {
   allow_unverified_ssl = true
 }
 
+output "hostname" {
+    value = cidrhost("${data.packet_device.esxi1.network.0.address}/${data.packet_device.esxi1.network.0.cidr}",3)
+}
+
 locals {
   project_id = var.PACKET_PROJECT
 }
@@ -96,7 +100,7 @@ resource "packet_device" "storage1" {
     ]
     connection {
       host = packet_device.storage1.network.0.address
-      private_key = var.PRIV_KEY
+      private_key = file(var.PRIV_KEY)
     }
   }
 }
@@ -249,7 +253,7 @@ resource "vsphere_virtual_machine" "pxe" {
 
   num_cpus = 2
   memory   = 2048
-  guest_id = "ubuntu64Guest"
+  guest_id = "other3xLinux64Guest"
 
   network_interface {
     network_id = data.vsphere_network.vmnet.id
