@@ -139,13 +139,13 @@ data "vsphere_host" "roothost2" {
 func ConfigResDS1() string {
 	return fmt.Sprintf(`
 resource "vsphere_nas_datastore" "ds1" {
-  name            = "testacc-nfsds1"
+  name            = "%s"
   host_system_ids = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   type            = "NFS"
   remote_hosts    = ["%s"]
   remote_path     = "%s"
 }
-`, os.Getenv("TF_VAR_VSPHERE_NAS_HOST"), os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"))
+`, os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME2"), os.Getenv("TF_VAR_VSPHERE_NAS_HOST"), os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"))
 }
 
 func ConfigDataRootComputeCluster1() string {
