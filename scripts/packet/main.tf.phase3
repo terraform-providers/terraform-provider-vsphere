@@ -30,6 +30,22 @@ variable "PACKET_PROJECT" {}
 
 variable "PRIV_KEY" {}
 
+variable "ESXI_VERSION" {
+  default = "vmware_esxi_6_7"
+}
+
+variable "PACKET_FACILITY" {
+  default = "sjc1"
+}
+
+variable ESXI_PLAN {
+  default = "c3.medium.x86"
+}
+
+variable STORAGE_PLAN {
+  default = "c1.small.x86"
+}
+
 provider "packet" {
   auth_token = var.PACKET_AUTH
 }
@@ -57,9 +73,9 @@ data "packet_device" "esxi1" {
 
 resource "packet_device" "esxi1" {
   hostname         = "esxi1.vspheretest.internal"
-  plan             = "c3.medium.x86"
-  facilities         = ["sjc1"]
-  operating_system = "vmware_esxi_6_7"
+  plan             = var.ESXI_PLAN
+  facilities       = [var.PACKET_FACILITY]
+  operating_system = var.ESXI_VERSION
   billing_cycle    = "hourly"
   project_id       = local.project_id
 }
@@ -71,9 +87,9 @@ resource "packet_device_network_type" "esxi1" {
 
 resource "packet_device" "esxi2" {
   hostname         = "esxi2.vspheretest.internal"
-  plan             = "c3.medium.x86"
-  facilities         = ["sjc1"]
-  operating_system = "vmware_esxi_6_7"
+  plan             = var.ESXI_PLAN
+  facilities       = [var.PACKET_FACILITY]
+  operating_system = var.ESXI_VERSION
   billing_cycle    = "hourly"
   project_id       = local.project_id
 }
@@ -85,17 +101,20 @@ resource "packet_device_network_type" "esxi2" {
 
 resource "packet_device" "storage1" {
   hostname         = "storage1.vspheretest.internal"
-  plan             = "c1.small.x86"
-  facilities         = ["sjc1"]
+  plan             = var.STORAGE_PLAN
+  facilities       = [var.PACKET_FACILITY]
   operating_system = "ubuntu_20_04"
   billing_cycle    = "hourly"
   project_id       = local.project_id
   provisioner "remote-exec" {
     inline = [
-      "mkdir /nfs",
+      "mkdir -p /nfs/ds1 /nfs/ds2 /nfs/ds2 /nfs/ds3",
       "apt-get update",
       "apt-get install nfs-common nfs-kernel-server -y",
       "echo \"/nfs *(rw,no_root_squash)\" > /etc/exports",
+      "echo \"/nfs/ds1 *(rw,no_root_squash)\" >> /etc/exports",
+      "echo \"/nfs/ds2 *(rw,no_root_squash)\" >> /etc/exports",
+      "echo \"/nfs/ds3 *(rw,no_root_squash)\" >> /etc/exports",
       "exportfs -a",
     ]
     connection {
@@ -105,15 +124,32 @@ resource "packet_device" "storage1" {
   }
 }
 
+resource "packet_vlan" "vmvlan" {
+  facility   = var.PACKET_FACILITY
+  project_id = local.project_id
+}
+
+resource "packet_port_vlan_attachment" "vmvlan_esxi1" {
+  device_id = packet_device.esxi1.id
+  port_name = "eth1"
+  vlan_vnid = packet_vlan.vmvlan.vxlan
+}
+
+resource "packet_port_vlan_attachment" "vmvlan_esxi2" {
+  device_id = packet_device.esxi2.id
+  port_name = "eth1"
+  vlan_vnid = packet_vlan.vmvlan.vxlan
+}
+
 data "packet_precreated_ip_block" "private" {
-  facility         = "sjc1"
+  facility         = var.PACKET_FACILITY
   project_id       = local.project_id
   address_family   = 4
   public           = false
 }
 
 data "packet_precreated_ip_block" "public" {
-  facility         = "sjc1"
+  facility         = var.PACKET_FACILITY
   project_id       = local.project_id
   address_family   = 4
   public           = true
