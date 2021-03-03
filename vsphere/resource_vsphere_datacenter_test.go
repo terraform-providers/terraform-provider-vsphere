@@ -21,13 +21,13 @@ resource "vsphere_datacenter" "testDC" {
 
 const testAccCheckVSphereDatacenterConfigSubfolder = `
 resource "vsphere_folder" "folder" {
-  name = "%s"
+  path = "%s"
   type = "datacenter"
 }
 
 resource "vsphere_datacenter" "testDC" {
   name   = "testDC"
-  folder = vsphere_folder.folder.name
+  folder = vsphere_folder.folder.path
 }
 `
 

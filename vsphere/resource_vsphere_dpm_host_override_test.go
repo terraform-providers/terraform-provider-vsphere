@@ -133,6 +133,7 @@ func testAccResourceVSphereDPMHostOverridePreCheck(t *testing.T) {
 func testAccResourceVSphereDPMHostOverrideExists(expected bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		info, err := testGetComputeClusterDPMHostConfig(s, "dpm_host_override")
+
 		if err != nil {
 			if expected == false {
 				if viapi.IsManagedObjectNotFoundError(err) {

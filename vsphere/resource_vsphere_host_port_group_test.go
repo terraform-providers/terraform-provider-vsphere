@@ -6,10 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 )
 
 func TestAccResourceVSphereHostPortGroup_basic(t *testing.T) {
@@ -187,7 +186,7 @@ variable "host_nic0" {
 
 data "vsphere_host" "esxi_host" {
   name          = "%s"
-  datacenter_id = "${data.vsphere_datacenter.datacenter.id}"
+  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
 }
 
 resource "vsphere_host_virtual_switch" "switch" {
@@ -204,7 +203,7 @@ resource "vsphere_host_port_group" "pg" {
   host_system_id      = "${data.vsphere_host.esxi_host.id}"
   virtual_switch_name = "${vsphere_host_virtual_switch.switch.name}"
 }
-`, os.Getenv("TF_VAR_VSPHERE_ESXI_TRUNK_NIC"),
+`, os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
 		os.Getenv("TF_VAR_VSPHERE_ESXI1"))
 }
@@ -215,20 +214,24 @@ variable "host_nic0" {
   default = "%s"
 }
 
+variable "host_nic1" {
+  default = "%s"
+}
+
 %s
 
 data "vsphere_host" "esxi_host" {
   name          = "%s"
-  datacenter_id = "${data.vsphere_datacenter.datacenter.id}"
+  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
 }
 
 resource "vsphere_host_virtual_switch" "switch" {
   name           = "vSwitchTerraformTest"
   host_system_id = "${data.vsphere_host.esxi_host.id}"
 
-  network_adapters  = ["${var.host_nic0}"]
+  network_adapters  = ["${var.host_nic0}", "${var.host_nic1}"]
   active_nics       = ["${var.host_nic0}"]
-  standby_nics      = []
+  standby_nics      = ["${var.host_nic1}"]
   allow_promiscuous = false
 }
 
@@ -242,7 +245,8 @@ resource "vsphere_host_port_group" "pg" {
   standby_nics      = ["${var.host_nic1}"]
   allow_promiscuous = true
 }
-`, os.Getenv("TF_VAR_VSPHERE_ESXI_TRUNK_NIC"),
+`, os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
+		os.Getenv("TF_VAR_VSPHERE_HOST_NIC1"),
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
 		os.Getenv("TF_VAR_VSPHERE_ESXI1"))
 }

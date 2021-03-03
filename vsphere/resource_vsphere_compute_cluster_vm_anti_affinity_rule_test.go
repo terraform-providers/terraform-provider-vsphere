@@ -47,7 +47,7 @@ func TestAccResourceVSphereComputeClusterVMAntiAffinityRule_basic(t *testing.T) 
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					cluster, err := testGetComputeClusterFromDataSource(s, "cluster")
+					cluster, err := testGetComputeClusterFromDataSource(s, "rootcompute_cluster1")
 					if err != nil {
 						return "", err
 					}
@@ -342,7 +342,14 @@ resource "vsphere_compute_cluster_vm_anti_affinity_rule" "cluster_vm_anti_affini
 	enabled             = %t
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.CombineConfigs(
+			testhelper.ConfigDataRootDC1(),
+			testhelper.ConfigDataRootHost1(),
+			testhelper.ConfigDataRootHost2(),
+			testhelper.ConfigResDS1(),
+			testhelper.ConfigDataRootComputeCluster1(),
+			testhelper.ConfigResResourcePool1(),
+			testhelper.ConfigDataRootPortGroup1()),
 		count,
 		enabled,
 	)

@@ -15,7 +15,12 @@ import (
 
 // Basic file creation (upload to vSphere)
 func TestAccResourceVSphereFile_basic(t *testing.T) {
-	testVmdkFileData := []byte("# Disk DescriptorFile\n")
+	testVmdkFileData := []byte(`# Disk DescriptorFile
+version=1
+CID=fffffffe
+parentCID=ffffffff
+createType="twoGbMaxExtentSparse"
+`)
 	testVmdkFile := "/tmp/tf_test.vmdk"
 	err := ioutil.WriteFile(testVmdkFile, testVmdkFileData, 0644)
 	if err != nil {

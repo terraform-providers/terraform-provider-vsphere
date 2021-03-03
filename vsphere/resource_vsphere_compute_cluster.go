@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/provider"
+
 	"github.com/vmware/govmomi/vim25/mo"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -794,8 +796,21 @@ func resourceVSphereComputeClusterProcessHostUpdate(
 
 	// Add new hosts first
 	if len(newHosts) > 0 {
-		if err := clustercomputeresource.MoveHostsInto(cluster, newHosts); err != nil {
+		if err := clustercomputeresource.MoveHostsInto(client, cluster, newHosts); err != nil {
 			return fmt.Errorf("error moving new hosts into cluster: %s", err)
+		}
+
+		for _, hs := range newHosts {
+			hsProps, err := hostsystem.Properties(hs)
+			if err != nil {
+				return fmt.Errorf("while fetching properties for host %q: %s", hs.Reference().Value, err)
+			}
+			if hsProps.Runtime.InMaintenanceMode {
+				err := hostsystem.ExitMaintenanceMode(hs, int(provider.DefaultAPITimeout))
+				if err != nil {
+					return fmt.Errorf("while getting host %q out of maintenance mode: %s", hs.Reference().Value, err)
+				}
+			}
 		}
 	}
 

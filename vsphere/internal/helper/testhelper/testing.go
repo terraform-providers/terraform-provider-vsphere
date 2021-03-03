@@ -214,20 +214,6 @@ resource "vsphere_virtual_machine" "nested-esxi1" {
       "VM Network" = data.vsphere_network.vmnet.id
     }
   }
-  disk {
-    label = "disk0"
-    size  = 2
-  }
-
-  disk {
-    label = "disk1"
-    size  = 4
-  }
-
-  disk {
-    label = "disk2"
-    size  = 8
-  }
 
   cdrom {
     client_device = true

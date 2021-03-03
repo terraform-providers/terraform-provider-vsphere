@@ -227,7 +227,7 @@ func resourceVSphereDistributedPortGroupImport(d *schema.ResourceData, meta inte
 		return nil, err
 	}
 	moId := d.Id()
-	pg, err := dvportgroup.FromMOID(client, moId)
+	pg, err := dvportgroup.FromPath(client, moId, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error locating portgroup: %s", err)
 	}

@@ -146,6 +146,9 @@ func testAccVSphereVirtualDiskExists(name string, expected bool) resource.TestCh
 
 		ds, err := finder.Datastore(context.TODO(), rs.Primary.Attributes["datastore"])
 		if err != nil {
+			if err.Error() == fmt.Sprintf("datastore '%s' not found", rs.Primary.Attributes["datastore"]) {
+				return nil
+			}
 			return err
 		}
 
@@ -179,21 +182,16 @@ variable "rstring" {
   default = "%s"
 }
 
-data "vsphere_datastore" "ds" {
-  name          = vsphere_nas_datastore.ds1.name
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-}
-
 resource "vsphere_virtual_disk" "foo" {
   size         = 1
   vmdk_path    = "tfTestDisk-${var.rstring}.vmdk"
   adapter_type = "lsiLogic"
   type         = "thin"
-  datacenter   = "${data.vsphere_datacenter.dc.name}"
-  datastore    = "${data.vsphere_datastore.ds.name}"
+  datacenter   = "${data.vsphere_datacenter.rootdc1.name}"
+  datastore    = vsphere_nas_datastore.ds1.name
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1()),
 		rName,
 	)
 }
@@ -217,7 +215,7 @@ resource "vsphere_virtual_disk" "foo" {
   vmdk_path    = "tfTestDisk-${var.rstring}-${count.index}.vmdk"
   adapter_type = "lsiLogic"
   type         = "thin"
-  datacenter   = "${data.vsphere_datacenter.dc.name}"
+  datacenter   = "${data.vsphere_datacenter.rootdc1.name}"
   datastore    = "${data.vsphere_datastore.ds.name}"
 }
 `,
@@ -245,7 +243,7 @@ resource "vsphere_virtual_disk" "foo" {
   vmdk_path          = "tfTestParent/tfTestDisk-${var.rstring}-${count.index}.vmdk"
   adapter_type       = "lsiLogic"
   type               = "thin"
-  datacenter         = "${data.vsphere_datacenter.dc.name}"
+  datacenter         = "${data.vsphere_datacenter.rootdc1.name}"
   datastore          = "${data.vsphere_datastore.ds.name}"
   create_directories = true
 }
@@ -273,7 +271,7 @@ resource "vsphere_virtual_disk" "foo" {
   vmdk_path          = "tfTestParent-${var.rstring}/tfTestDisk-${var.rstring}.vmdk"
   adapter_type       = "lsiLogic"
   type               = "thin"
-  datacenter         = "${data.vsphere_datacenter.dc.name}"
+  datacenter         = "${data.vsphere_datacenter.rootdc1.name}"
   datastore          = "${data.vsphere_datastore.ds.name}"
   create_directories = true
 }

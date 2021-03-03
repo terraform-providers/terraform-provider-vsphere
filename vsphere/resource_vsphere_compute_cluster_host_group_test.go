@@ -214,16 +214,10 @@ func testAccResourceVSphereComputeClusterHostGroupConfig(count int) string {
 	return fmt.Sprintf(`
 %s
 
-data "vsphere_host" "hosts" {
-  count         = 1
-  name          = vsphere_host.nested-esxi1.hostname
-  datacenter_id = data.vsphere_datacenter.rootdc1.id
-}
-
 resource "vsphere_compute_cluster" "cluster" {
   name            = "testacc-compute-cluster"
   datacenter_id   = "${data.vsphere_datacenter.rootdc1.id}"
-  host_system_ids = "${data.vsphere_host.hosts.*.id}"
+  host_system_ids = [vsphere_host.nested-esxi1.id]
 
   force_evacuate_on_destroy = true
 }
@@ -231,9 +225,16 @@ resource "vsphere_compute_cluster" "cluster" {
 resource "vsphere_compute_cluster_host_group" "cluster_host_group" {
   name               = "terraform-test-cluster-group"
   compute_cluster_id = "${vsphere_compute_cluster.cluster.id}"
-  host_system_ids    = "${data.vsphere_host.hosts.*.id}"
+  host_system_ids    = [vsphere_host.nested-esxi1.id]
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigResNestedEsxi(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigDataRootVMNet()),
-	)
+		testhelper.CombineConfigs(
+			testhelper.ConfigDataRootDC1(),
+			testhelper.ConfigDataRootPortGroup1(),
+			testhelper.ConfigResNestedEsxi(),
+			testhelper.ConfigDataRootComputeCluster1(),
+			testhelper.ConfigDataRootHost2(),
+			testhelper.ConfigDataRootDS1(),
+			testhelper.ConfigDataRootVMNet(),
+		))
 }

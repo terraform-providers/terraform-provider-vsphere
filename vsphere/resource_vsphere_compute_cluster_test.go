@@ -561,30 +561,25 @@ func testAccResourceVSphereComputeClusterConfigHAAdmissionControlPolicyDisabled(
 	return fmt.Sprintf(`
 %s
 
-variable "hosts" {
-  default = [
-    "%s",
-  ]
-}
-
-data "vsphere_host" "hosts" {
-  count         = "${length(var.hosts)}"
-  name          = "${var.hosts[count.index]}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-}
-
 resource "vsphere_compute_cluster" "compute_cluster" {
   name                        = "testacc-compute-cluster"
   datacenter_id               = "${data.vsphere_datacenter.rootdc1.id}"
-  host_system_ids             = "${data.vsphere_host.hosts.*.id}"
+  host_system_ids             = [vsphere_host.nested-esxi1.id]
   ha_enabled                  = true
   ha_admission_control_policy = "disabled"
 
   force_evacuate_on_destroy = true
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigResNestedEsxi()),
-		os.Getenv("TF_VAR_VSPHERE_ESXI_NESTED1"),
+		testhelper.CombineConfigs(
+			testhelper.ConfigDataRootDC1(),
+			testhelper.ConfigDataRootPortGroup1(),
+			testhelper.ConfigResNestedEsxi(),
+			testhelper.ConfigDataRootComputeCluster1(),
+			testhelper.ConfigDataRootHost2(),
+			testhelper.ConfigDataRootDS1(),
+			testhelper.ConfigDataRootVMNet(),
+		),
 	)
 }
 
@@ -601,7 +596,7 @@ data "vsphere_host" "hosts" {
 resource "vsphere_compute_cluster" "compute_cluster" {
   name            = "testacc-compute-cluster"
   datacenter_id   = "${data.vsphere_datacenter.rootdc1.id}"
-  host_system_ids = [ vsphere_host.nested-esxi1.name ]
+  host_system_ids = [ vsphere_host.nested-esxi1.id ]
 
   force_evacuate_on_destroy = true
 }
@@ -614,22 +609,10 @@ func testAccResourceVSphereComputeClusterConfigDRSHABasic() string {
 	return fmt.Sprintf(`
 %s
 
-variable "hosts" {
-  default = [
-    "%s",
-  ]
-}
-
-data "vsphere_host" "hosts" {
-  count         = "${length(var.hosts)}"
-  name          = "${var.hosts[count.index]}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-}
-
 resource "vsphere_compute_cluster" "compute_cluster" {
   name            = "testacc-compute-cluster"
   datacenter_id   = "${data.vsphere_datacenter.rootdc1.id}"
-  host_system_ids = "${data.vsphere_host.hosts.*.id}"
+  host_system_ids = [vsphere_host.nested-esxi1.id]
 
   drs_enabled          = true
   drs_automation_level = "fullyAutomated"
@@ -639,8 +622,15 @@ resource "vsphere_compute_cluster" "compute_cluster" {
 	force_evacuate_on_destroy = true
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigResNestedEsxi()),
-		os.Getenv("TF_VAR_VSPHERE_ESXI_NESTED1"),
+		testhelper.CombineConfigs(
+			testhelper.ConfigDataRootDC1(),
+			testhelper.ConfigDataRootPortGroup1(),
+			testhelper.ConfigResNestedEsxi(),
+			testhelper.ConfigDataRootComputeCluster1(),
+			testhelper.ConfigDataRootHost2(),
+			testhelper.ConfigDataRootDS1(),
+			testhelper.ConfigDataRootVMNet(),
+		),
 	)
 }
 
@@ -648,36 +638,31 @@ func testAccResourceVSphereComputeClusterConfigDRSHABasicExplicitFailoverHost() 
 	return fmt.Sprintf(`
 %s
 
-variable "hosts" {
-  default = [
-    "%s",
-  ]
-}
-
-data "vsphere_host" "hosts" {
-  count         = "${length(var.hosts)}"
-  name          = "${var.hosts[count.index]}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-}
-
 resource "vsphere_compute_cluster" "compute_cluster" {
   name            = "testacc-compute-cluster"
   datacenter_id   = "${data.vsphere_datacenter.rootdc1.id}"
-  host_system_ids = "${data.vsphere_host.hosts.*.id}"
+  host_system_ids = [vsphere_host.nested-esxi1.id, data.vsphere_host.roothost2.id]
 
   drs_enabled          = true
   drs_automation_level = "fullyAutomated"
 
   ha_enabled                                    = true
   ha_admission_control_policy                   = "failoverHosts"
-  ha_admission_control_failover_host_system_ids = "${data.vsphere_host.hosts.*.id}"
+  ha_admission_control_failover_host_system_ids = [data.vsphere_host.roothost2.id]
   ha_admission_control_performance_tolerance    = 0
 
   force_evacuate_on_destroy = true
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigResNestedEsxi()),
-		os.Getenv("TF_VAR_VSPHERE_ESXI_NESTED1"),
+		testhelper.CombineConfigs(
+			testhelper.ConfigDataRootDC1(),
+			testhelper.ConfigDataRootPortGroup1(),
+			testhelper.ConfigResNestedEsxi(),
+			testhelper.ConfigDataRootComputeCluster1(),
+			testhelper.ConfigDataRootHost2(),
+			testhelper.ConfigDataRootDS1(),
+			testhelper.ConfigDataRootVMNet(),
+		),
 	)
 }
 

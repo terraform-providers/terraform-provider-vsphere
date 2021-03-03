@@ -411,8 +411,8 @@ func getNicSpecFromSchema(d *schema.ResourceData) (*types.HostVirtualNicSpec, er
 		oldAddrsIntf, newAddrsIntf := d.GetChange("ipv6.0.addresses")
 		oldAddrs := oldAddrsIntf.([]interface{})
 		newAddrs := newAddrsIntf.([]interface{})
-		removeAddrs := make([]string, len(oldAddrs))
 		addAddrs := make([]string, len(newAddrs))
+		var removeAddrs []string
 
 		// calculate addresses to remove
 		for _, old := range oldAddrs {
@@ -445,8 +445,8 @@ func getNicSpecFromSchema(d *schema.ResourceData) (*types.HostVirtualNicSpec, er
 
 		if len(removeAddrs) > 0 || len(addAddrs) > 0 {
 			addrs := make([]types.HostIpConfigIpV6Address, 0)
-			for _, oldAddr := range oldAddrs {
-				addrParts := strings.Split(oldAddr.(string), "/")
+			for _, removeAddr := range removeAddrs {
+				addrParts := strings.Split(removeAddr, "/")
 				addr := addrParts[0]
 				prefix, err := strconv.ParseInt(addrParts[1], 0, 32)
 				if err != nil {

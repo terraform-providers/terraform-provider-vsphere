@@ -191,12 +191,51 @@ func Hosts(cluster *object.ClusterComputeResource) ([]*object.HostSystem, error)
 // MoveHostsInto moves all of the supplied hosts into the cluster. All virtual
 // machines are moved to the cluster's root resource pool and any resource
 // pools on the host itself are deleted.
-func MoveHostsInto(cluster *object.ClusterComputeResource, hosts []*object.HostSystem) error {
+func MoveHostsInto(client *govmomi.Client, cluster *object.ClusterComputeResource, hosts []*object.HostSystem) error {
+
 	var hsNames []string
 	var hsRefs []types.ManagedObjectReference
+
+	seenClusters := map[string]int{}
+
 	for _, hs := range hosts {
 		hsNames = append(hsNames, hs.Name())
 		hsRefs = append(hsRefs, hs.Reference())
+		hsProps, err := hostsystem.Properties(hs)
+		if err != nil {
+			return fmt.Errorf("while fetching properties for host %q: %s", hs.Reference().Value, err)
+		}
+
+		if hsProps.Parent.Type == "ClusterComputeResource" {
+			cRef := hsProps.Parent.Value
+			parentCluster, err := computeresource.BaseFromReference(client, hsProps.Parent.Reference())
+			if err != nil {
+				return fmt.Errorf("while retrieving parent cluster (%q) object for host %q: %s", cluster.Reference().Value, hs.Reference().Value, err)
+			}
+			c, err := computeresource.BaseProperties(parentCluster)
+			if err != nil {
+				return fmt.Errorf("while retrieving parent cluster (%q) properties for host %q: %s", cluster.Reference().Value, hs.Reference().Value, err)
+			}
+
+			var evacuate bool
+			hostsLeft, ok := seenClusters[cRef]
+			if !ok {
+				seenClusters[cRef] = len(c.Host)
+				if hostsLeft > 1 {
+					evacuate = true
+				}
+			} else {
+				evacuate = false
+				if hostsLeft > 1 {
+					evacuate = true
+				}
+			}
+
+			err = hostsystem.EnterMaintenanceMode(hs, int(provider.DefaultAPITimeout.Seconds())+(int(provider.DefaultAPITimeout.Seconds())*len(hsProps.Vm)), evacuate)
+			if err != nil {
+				return fmt.Errorf("while putting host %q in maintenance mode: %s", hs.Reference().Value, err)
+			}
+		}
 	}
 	log.Printf("[DEBUG] Adding hosts into cluster %q: %s", cluster.Name(), strings.Join(hsNames, ", "))
 
