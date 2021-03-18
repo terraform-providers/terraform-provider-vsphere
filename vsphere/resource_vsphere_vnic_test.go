@@ -290,7 +290,7 @@ func testAccVSphereVNicConfig_hvs(netConfig string) string {
 	  %s
 	}
 	`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
-		os.Getenv("TF_VAR_VSPHERE_ESXI_HOST3"),
+		os.Getenv("TF_VAR_VSPHERE_ESXI3"),
 		os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
 		os.Getenv("TF_VAR_VSPHERE_HOST_NIC1"),
 		os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),

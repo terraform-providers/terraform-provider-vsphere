@@ -6,9 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 )
 
 func TestAccDataSourceVSphereHost_basic(t *testing.T) {
@@ -45,7 +44,7 @@ func TestAccDataSourceVSphereHost_defaultHost(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceVSphereHostConfigDefault,
+				Config: testAccDataSourceVSphereHostConfigDefault(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
 						"data.vsphere_host.host",
@@ -85,10 +84,11 @@ data "vsphere_host" "host" {
 `, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()), os.Getenv("TF_VAR_VSPHERE_ESXI1"))
 }
 
-const testAccDataSourceVSphereHostConfigDefault = `
-data "vsphere_datacenter" "dc" {}
+func testAccDataSourceVSphereHostConfigDefault() string {
+	return fmt.Sprintf(`
+%s
 
 data "vsphere_host" "host" {
   datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
+}`, testhelper.ConfigDataRootDC1())
 }
-`

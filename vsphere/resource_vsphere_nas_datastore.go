@@ -81,11 +81,15 @@ func resourceVSphereNasDatastoreCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	hosts := structure.SliceInterfacesToStrings(d.Get("host_system_ids").(*schema.Set).List())
+	volSpec, err := expandHostNasVolumeSpec(d)
+	if err != nil {
+		return err
+	}
 	p := &nasDatastoreMountProcessor{
 		client:   client,
 		oldHSIDs: nil,
 		newHSIDs: hosts,
-		volSpec:  expandHostNasVolumeSpec(d),
+		volSpec:  volSpec,
 	}
 	ds, err := p.processMountOperations()
 	if ds != nil {
@@ -229,12 +233,15 @@ func resourceVSphereNasDatastoreUpdate(d *schema.ResourceData, meta interface{})
 
 	// Process mount/unmount operations.
 	o, n := d.GetChange("host_system_ids")
-
+	volSpec, err := expandHostNasVolumeSpec(d)
+	if err != nil {
+		return err
+	}
 	p := &nasDatastoreMountProcessor{
 		client:   client,
 		oldHSIDs: structure.SliceInterfacesToStrings(o.(*schema.Set).List()),
 		newHSIDs: structure.SliceInterfacesToStrings(n.(*schema.Set).List()),
-		volSpec:  expandHostNasVolumeSpec(d),
+		volSpec:  volSpec,
 		ds:       ds,
 	}
 	// Unmount first
@@ -261,11 +268,15 @@ func resourceVSphereNasDatastoreDelete(d *schema.ResourceData, meta interface{})
 	// Unmount the datastore from every host. Once the last host is unmounted we
 	// are done and the datastore will delete itself.
 	hosts := structure.SliceInterfacesToStrings(d.Get("host_system_ids").(*schema.Set).List())
+	volSpec, err := expandHostNasVolumeSpec(d)
+	if err != nil {
+		return err
+	}
 	p := &nasDatastoreMountProcessor{
 		client:   client,
 		oldHSIDs: hosts,
 		newHSIDs: nil,
-		volSpec:  expandHostNasVolumeSpec(d),
+		volSpec:  volSpec,
 		ds:       ds,
 	}
 	if err := p.processUnmountOperations(); err != nil {

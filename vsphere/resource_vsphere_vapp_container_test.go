@@ -502,12 +502,6 @@ variable "nas_host" {
   default = "%s"
 }
 
-data "vsphere_host" "esxi_hosts" {
-  count         = 1
-  name          = vsphere_host.nested-esxi1.hostname
-  datacenter_id = data.vsphere_datacenter.rootdc1.id
-}
-
 resource "vsphere_datastore_cluster" "datastore_cluster" {
   name          = "testacc-datastore-cluster"
   datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
@@ -516,7 +510,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore1" {
   name                 = "terraform-datastore-test1"
-  host_system_ids      = "${data.vsphere_host.esxi_hosts.*.id}"
+  host_system_ids      = [data.vsphere_host.roothost3.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -566,12 +560,12 @@ resource "vsphere_virtual_machine" "vm" {
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootPortGroup1(),
 			testhelper.ConfigDataRootComputeCluster1(),
-			testhelper.ConfigResNestedEsxi(),
+			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigDataRootHost2(),
 			testhelper.ConfigDataRootDS1()),
 
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"),
-		os.Getenv("TF_VAR_VSPHERE_NAS_HOST2"),
+		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
 	)
 }
 
@@ -587,12 +581,6 @@ variable "nas_host" {
   default = "%s"
 }
 
-data "vsphere_host" "esxi_hosts" {
-  count         = 1
-  name          = vsphere_host.nested-esxi1.hostname
-  datacenter_id = data.vsphere_datacenter.rootdc1.id
-}
-
 resource "vsphere_datastore_cluster" "datastore_cluster" {
   name          = "testacc-datastore-cluster"
   datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
@@ -601,7 +589,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore1" {
   name                 = "terraform-datastore-test1"
-  host_system_ids      = "${data.vsphere_host.esxi_hosts.*.id}"
+  host_system_ids      = [data.vsphere_host.roothost3.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -647,10 +635,10 @@ resource "vsphere_virtual_machine" "vm" {
   }
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigResNestedEsxi()),
+		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigDataRootHost3()),
 
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"),
-		os.Getenv("TF_VAR_VSPHERE_NAS_HOST2"),
+		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
 	)
 }
 
@@ -670,12 +658,6 @@ variable "template" {
   default = "%s"
 }
 
-data "vsphere_host" "esxi_hosts" {
-  count         = 1
-  name          = vsphere_host.nested-esxi1.hostname
-  datacenter_id = data.vsphere_datacenter.rootdc1.id
-}
-
 data "vsphere_virtual_machine" "template" {
   name          = "${var.template}"
   datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
@@ -689,7 +671,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore1" {
   name                 = "terraform-datastore-test1"
-  host_system_ids      = "${data.vsphere_host.esxi_hosts.*.id}"
+  host_system_ids      = [data.vsphere_host.roothost3.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -746,11 +728,11 @@ resource "vsphere_virtual_machine" "vm" {
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
 			testhelper.ConfigDataRootVMNet(),
-			testhelper.ConfigResNestedEsxi(),
+			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigDataRootPortGroup1()),
 
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"),
-		os.Getenv("TF_VAR_VSPHERE_NAS_HOST2"),
+		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
 		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
 	)
 

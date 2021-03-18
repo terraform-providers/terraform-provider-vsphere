@@ -1,6 +1,8 @@
 package vsphere
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/structure"
@@ -91,18 +93,25 @@ func schemaHostNasVolumeSpec() map[string]*schema.Schema {
 
 // expandHostNasVolumeSpec reads certain ResourceData keys and returns a
 // HostNasVolumeSpec.
-func expandHostNasVolumeSpec(d *schema.ResourceData) *types.HostNasVolumeSpec {
+func expandHostNasVolumeSpec(d *schema.ResourceData) (*types.HostNasVolumeSpec, error) {
+	remoteHosts := d.Get("remote_hosts").([]interface{})
+	var remoteHost string
+	if len(remoteHosts) == 0 || (len(remoteHosts) > 0 && remoteHosts[0] == nil) {
+		return nil, fmt.Errorf("remote hosts cannot be empty")
+	} else {
+		remoteHost = remoteHosts[0].(string)
+	}
 	obj := &types.HostNasVolumeSpec{
 		AccessMode:      d.Get("access_mode").(string),
 		LocalPath:       d.Get("name").(string),
-		RemoteHost:      structure.SliceInterfacesToStrings(d.Get("remote_hosts").([]interface{}))[0],
+		RemoteHost:      remoteHost,
 		RemoteHostNames: structure.SliceInterfacesToStrings(d.Get("remote_hosts").([]interface{})),
 		RemotePath:      d.Get("remote_path").(string),
 		SecurityType:    d.Get("security_type").(string),
 		Type:            d.Get("type").(string),
 	}
 
-	return obj
+	return obj, nil
 }
 
 // flattenHostNasVolume reads various fields from a HostNasVolume into the

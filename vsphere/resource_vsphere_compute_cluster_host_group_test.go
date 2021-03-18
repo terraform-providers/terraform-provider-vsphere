@@ -41,7 +41,7 @@ func TestAccResourceVSphereComputeClusterHostGroup_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					cluster, err := testGetComputeCluster(s, "cluster")
+					cluster, err := testGetComputeCluster(s, "cluster", resourceVSphereComputeClusterName)
 					if err != nil {
 						return "", err
 					}
@@ -214,24 +214,15 @@ func testAccResourceVSphereComputeClusterHostGroupConfig(count int) string {
 	return fmt.Sprintf(`
 %s
 
-resource "vsphere_compute_cluster" "cluster" {
-  name            = "testacc-compute-cluster"
-  datacenter_id   = "${data.vsphere_datacenter.rootdc1.id}"
-  host_system_ids = [vsphere_host.nested-esxi1.id]
-
-  force_evacuate_on_destroy = true
-}
-
 resource "vsphere_compute_cluster_host_group" "cluster_host_group" {
   name               = "terraform-test-cluster-group"
-  compute_cluster_id = "${vsphere_compute_cluster.cluster.id}"
-  host_system_ids    = [vsphere_host.nested-esxi1.id]
+  compute_cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
+  host_system_ids    = [data.vsphere_host.roothost1.id]
 }
 `,
 		testhelper.CombineConfigs(
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootPortGroup1(),
-			testhelper.ConfigResNestedEsxi(),
 			testhelper.ConfigDataRootComputeCluster1(),
 			testhelper.ConfigDataRootHost2(),
 			testhelper.ConfigDataRootDS1(),

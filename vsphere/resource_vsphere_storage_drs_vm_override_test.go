@@ -206,12 +206,6 @@ variable "nfs_path" {
   default = "%s"
 }
 
-data "vsphere_host" "esxi_hosts" {
-  count         = "${length(var.esxi_hosts)}"
-  name          = "${var.esxi_hosts[count.index]}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-}
-
 resource "vsphere_datastore_cluster" "datastore_cluster" {
   name          = "testacc-datastore-cluster"
   datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
@@ -220,7 +214,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore" {
   name                 = "%s"
-  host_system_ids      = "${data.vsphere_host.esxi_hosts.*.id}"
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id, data.vsphere_host.roothost3.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -257,6 +251,7 @@ resource "vsphere_storage_drs_vm_override" "drs_vm_override" {
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
+			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigDataRootComputeCluster1(),
 			testhelper.ConfigResResourcePool1(),
 			testhelper.ConfigDataRootPortGroup1()),
@@ -295,7 +290,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore" {
   name                 = "testacc-nas"
-  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id, data.vsphere_host.roothost3.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -335,6 +330,7 @@ resource "vsphere_storage_drs_vm_override" "drs_vm_override" {
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
+			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigDataRootComputeCluster1(),
 			testhelper.ConfigResResourcePool1(),
 			testhelper.ConfigDataRootPortGroup1()),

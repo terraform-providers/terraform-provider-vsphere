@@ -6089,15 +6089,13 @@ resource "vsphere_virtual_machine" "vm" {
   cdrom {
     client_device = true
   }
-
-  depends_on = ["vsphere_host.nested-esxi1"]
 }
 `,
 
 		testhelper.CombineConfigs(
 			testAccResourceVSphereVirtualMachineConfigBase(),
 			testhelper.ConfigDataRootVMNet(),
-			testhelper.ConfigResNestedEsxi()),
+			testhelper.ConfigDataRootHost3()),
 		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
 		pool,
 		os.Getenv("TF_VAR_VSPHERE_USE_LINKED_CLONE"),
@@ -8265,7 +8263,7 @@ resource "vsphere_virtual_machine" "vm" {
 // Must be able to manage datastore cluster membership outside of datastore
 func testAccResourceVSphereVirtualMachineConfigCloneDatastoreCluster() string {
 	return fmt.Sprintf(`
-
+%s
 
 variable "nfs_host" {
   default = "%s"
@@ -8275,23 +8273,11 @@ variable "nfs_path" {
   default = "%s"
 }
 
-variable "esxi_hosts" {
-  default = [
-    "%s",
-    "%s",
-  ]
-}
-
 data "vsphere_virtual_machine" "template" {
   name          = "%s"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
 }
 
-data "vsphere_host" "esxi_hosts" {
-  count         = "${length(var.esxi_hosts)}"
-  name          = "${var.esxi_hosts[count.index]}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-}
 
 resource "vsphere_datastore_cluster" "datastore_cluster" {
   name          = "testacc-datastore-cluster"
@@ -8301,7 +8287,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore" {
   name                 = "testacc-nas"
-  host_system_ids      = "${data.vsphere_host.esxi_hosts.*.id}"
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -8341,12 +8327,9 @@ resource "vsphere_virtual_machine" "vm" {
   depends_on = ["vsphere_nas_datastore.datastore"]
 }
 `,
-
+		testAccResourceVSphereVirtualMachineConfigBase(),
 		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH"),
-		os.Getenv("TF_VAR_VSPHERE_ESXI1"),
-		os.Getenv("TF_VAR_VSPHERE_ESXI2"),
-
 		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
 	)
 }
@@ -8375,6 +8358,7 @@ func skipTestAccResourceVSphereVirtualMachine_datastoreClusterClone(t *testing.T
 func testAccResourceVSphereVirtualMachineConfigStorageVMotionDatastoreCluster(clusterName string) string {
 	return fmt.Sprintf(`
 
+%s
 
 variable "nfs_host" {
   default = "%s"
@@ -8388,22 +8372,9 @@ variable "nfs_path2" {
   default = "%s"
 }
 
-variable "esxi_hosts" {
-  default = [
-    "%s",
-    "%s",
-  ]
-}
-
 data "vsphere_virtual_machine" "template" {
   name          = "%s"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
-}
-
-data "vsphere_host" "esxi_hosts" {
-  count         = "${length(var.esxi_hosts)}"
-  name          = "${var.esxi_hosts[count.index]}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
 }
 
 resource "vsphere_datastore_cluster" "%s" {
@@ -8430,7 +8401,7 @@ resource "vsphere_datastore_cluster" "%s" {
 
 resource "vsphere_nas_datastore" "datastore2" {
   name                 = "testacc-nas2"
-  host_system_ids      = "${data.vsphere_host.esxi_hosts.*.id}"
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.%s.id}"
 
   type         = "NFS"
@@ -8473,13 +8444,10 @@ resource "vsphere_virtual_machine" "vm" {
 	]
 }
 `,
-
+		testAccResourceVSphereVirtualMachineConfigBase(),
 		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH"),
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"),
-		os.Getenv("TF_VAR_VSPHERE_ESXI1"),
-		os.Getenv("TF_VAR_VSPHERE_ESXI2"),
-
 		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
 		testAccResourceVSphereVirtualMachineDatastoreCluster,
 		testAccResourceVSphereVirtualMachineDatastoreCluster,
@@ -8723,7 +8691,7 @@ func skipTestAccResourceVSphereVirtualMachine_hostVMotionDatastoreCluster(t *tes
 
 func testAccResourceVSphereVirtualMachineConfigStorageVMotionDatastoreClusterSingleDiskStep0() string {
 	return fmt.Sprintf(`
-
+%s
 
 variable "nfs_host" {
   default = "%s"
@@ -8733,22 +8701,10 @@ variable "nfs_path" {
   default = "%s"
 }
 
-variable "esxi_hosts" {
-  default = [
-    "%s",
-    "%s",
-  ]
-}
 
 data "vsphere_virtual_machine" "template" {
   name          = "%s"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
-}
-
-data "vsphere_host" "esxi_hosts" {
-  count         = "${length(var.esxi_hosts)}"
-  name          = "${var.esxi_hosts[count.index]}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
 }
 
 resource "vsphere_datastore_cluster" "datastore_cluster" {
@@ -8759,7 +8715,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore" {
   name                 = "testacc-nas"
-  host_system_ids      = "${data.vsphere_host.esxi_hosts.*.id}"
+  host_system_ids      = "[data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -8807,12 +8763,9 @@ resource "vsphere_virtual_machine" "vm" {
   ]
 }
 `,
-
+		testAccResourceVSphereVirtualMachineConfigBase(),
 		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH"),
-		os.Getenv("TF_VAR_VSPHERE_ESXI1"),
-		os.Getenv("TF_VAR_VSPHERE_ESXI2"),
-
 		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
 	)
 }
@@ -8829,12 +8782,6 @@ variable "nfs_path" {
   default = "%s"
 }
 
-variable "esxi_hosts" {
-  default = [
-    "%s",
-    "%s",
-  ]
-}
 
 %s  // Mix and match config
 
@@ -8845,12 +8792,6 @@ data "vsphere_virtual_machine" "template" {
 
 variable "disk_datastore" {
   default = "%s"
-}
-
-data "vsphere_host" "esxi_hosts" {
-  count         = "${length(var.esxi_hosts)}"
-  name          = "${var.esxi_hosts[count.index]}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
 }
 
 data "vsphere_datastore" "disk_datastore" {
@@ -8866,7 +8807,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore" {
   name                 = "testacc-nas"
-  host_system_ids      = "${data.vsphere_host.esxi_hosts.*.id}"
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -8918,9 +8859,6 @@ resource "vsphere_virtual_machine" "vm" {
 
 		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH"),
-		os.Getenv("TF_VAR_VSPHERE_ESXI1"),
-		os.Getenv("TF_VAR_VSPHERE_ESXI2"),
-
 		testAccResourceVSphereVirtualMachineConfigBase(),
 		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
 		datastore,

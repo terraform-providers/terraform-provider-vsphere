@@ -12,22 +12,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/contentlibrary"
-	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/network"
-	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/spbm"
-	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
-	"github.com/vmware/govmomi/vapi/library"
-	"github.com/vmware/govmomi/vapi/rest"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/clustercomputeresource"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/contentlibrary"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/datastore"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/dvportgroup"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/folder"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/network"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/resourcepool"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/spbm"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/storagepod"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/vappcontainer"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/virtualdisk"
@@ -35,6 +32,8 @@ import (
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/virtualdevice"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/vapi/library"
+	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
@@ -823,8 +822,8 @@ func testGetDatastoreClusterSDRSVMConfig(s *terraform.State, resourceName string
 
 // testGetComputeCluster is a convenience method to fetch a compute cluster by
 // resource name.
-func testGetComputeCluster(s *terraform.State, resourceName string) (*object.ClusterComputeResource, error) {
-	vars, err := testClientVariablesForResource(s, fmt.Sprintf("%s.%s", resourceVSphereComputeClusterName, resourceName))
+func testGetComputeCluster(s *terraform.State, resourceName string, resourceType string) (*object.ClusterComputeResource, error) {
+	vars, err := testClientVariablesForResource(s, fmt.Sprintf("%s.%s", resourceType, resourceName))
 	if err != nil {
 		return nil, err
 	}
@@ -845,7 +844,7 @@ func testGetComputeClusterFromDataSource(s *terraform.State, resourceName string
 // step to testGetComputeCluster to get the properties of a
 // ClusterComputeResource.
 func testGetComputeClusterProperties(s *terraform.State, resourceName string) (*mo.ClusterComputeResource, error) {
-	cluster, err := testGetComputeCluster(s, resourceName)
+	cluster, err := testGetComputeCluster(s, resourceName, resourceVSphereComputeClusterName)
 	if err != nil {
 		return nil, err
 	}

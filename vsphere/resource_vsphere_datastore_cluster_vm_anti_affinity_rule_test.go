@@ -161,14 +161,14 @@ func testAccResourceVSphereDatastoreClusterVMAntiAffinityRulePreCheck(t *testing
 	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
 		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_datastore_cluster_vm_anti_affinity_rule acceptance tests")
 	}
-	if os.Getenv("TF_VAR_VSPHERE_NAS_HOST2") == "" {
+	if os.Getenv("TF_VAR_VSPHERE_NAS_HOST") == "" {
 		t.Skip("set TF_VAR_VSPHERE_NAS_HOST to run vsphere_datastore_cluster_vm_anti_affinity_rule acceptance tests")
 	}
 	if os.Getenv("TF_VAR_VSPHERE_NFS_PATH2") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_PATH to run vsphere_datastore_cluster_vm_anti_affinity_rule acceptance tests")
+		t.Skip("set TF_VAR_VSPHERE_NFS_PATH2 to run vsphere_datastore_cluster_vm_anti_affinity_rule acceptance tests")
 	}
 	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_ESXI_HOST to run vsphere_datastore_cluster_vm_anti_affinity_rule acceptance tests")
+		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME2 to run vsphere_datastore_cluster_vm_anti_affinity_rule acceptance tests")
 	}
 	if os.Getenv("TF_VAR_VSPHERE_CLUSTER") == "" {
 		t.Skip("set TF_VAR_VSPHERE_CLUSTER to run vsphere_datastore_cluster_vm_anti_affinity_rule acceptance tests")
@@ -309,8 +309,12 @@ func testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleGetMultiple(s *terr
 }
 
 func testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleConfig(count int, enabled bool) string {
-	return fmt.Sprintf(`
+	x := fmt.Sprintf(`
 %s
+
+variable "vm_count" {
+  default = %d
+}
 
 variable "nfs_host" {
   default = "%s"
@@ -318,12 +322,6 @@ variable "nfs_host" {
 
 variable "nfs_path" {
   default = "%s"
-}
-
-data "vsphere_host" "esxi_hosts" {
-  count         = 1
-  name          = vsphere_host.nested-esxi1.hostname
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
 }
 
 resource "vsphere_datastore_cluster" "datastore_cluster" {
@@ -334,7 +332,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore" {
   name                 = "testacc-nas"
-  host_system_ids      = "${data.vsphere_host.esxi_hosts.*.id}"
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id, data.vsphere_host.roothost3.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -373,9 +371,11 @@ resource "vsphere_datastore_cluster_vm_anti_affinity_rule" "cluster_vm_anti_affi
   enabled              = %t
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigResNestedEsxi(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigDataRootVMNet()),
-		os.Getenv("TF_VAR_VSPHERE_NAS_HOST2"),
+		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigDataRootHost3(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigDataRootVMNet()),
+		count,
+		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"),
 		enabled,
 	)
+	return x
 }

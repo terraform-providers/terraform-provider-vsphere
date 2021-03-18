@@ -40,11 +40,11 @@ func TestAccResourceVSphereDPMHostOverride_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					cluster, err := testGetComputeCluster(s, "compute_cluster")
+					cluster, err := testGetComputeCluster(s, "compute_cluster", resourceVSphereComputeClusterName)
 					if err != nil {
 						return "", err
 					}
-					host, err := testGetHostFromDataSource(s, "hosts.0")
+					host, err := testGetHostFromDataSource(s, "roothost3")
 					if err != nil {
 						return "", err
 					}
@@ -191,26 +191,20 @@ func testAccResourceVSphereDPMHostOverrideConfigDefaults() string {
 	return fmt.Sprintf(`
 %s
 
-data "vsphere_host" "hosts" {
-  count         = 1
-  name          = vsphere_host.nested-esxi1.hostname
-  datacenter_id = data.vsphere_datacenter.rootdc1.id
-}
-
 resource "vsphere_compute_cluster" "compute_cluster" {
   name            = "testacc-compute-cluster"
   datacenter_id   = "${data.vsphere_datacenter.rootdc1.id}"
-  host_system_ids = "${data.vsphere_host.hosts.*.id}"
+  host_system_ids = [data.vsphere_host.roothost3.id]
 
   force_evacuate_on_destroy = true
 }
 
 resource "vsphere_dpm_host_override" "dpm_host_override" {
   compute_cluster_id   = "${vsphere_compute_cluster.compute_cluster.id}"
-  host_system_id       = "${data.vsphere_host.hosts.0.id}"
+  host_system_id       = "${data.vsphere_host.roothost3.id}"
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigResNestedEsxi(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigDataRootVMNet()),
+		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigDataRootHost3(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigDataRootVMNet()),
 	)
 }
 
@@ -218,23 +212,11 @@ func testAccResourceVSphereDPMHostOverrideConfigOverrides() string {
 	return fmt.Sprintf(`
 %s
 
-variable "hosts" {
-  default = [
-    "%s",
-    "%s",
-  ]
-}
-
-data "vsphere_host" "hosts" {
-  count         = "${length(var.hosts)}"
-  name          = "${var.hosts[count.index]}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-}
 
 resource "vsphere_compute_cluster" "compute_cluster" {
   name            = "testacc-compute-cluster"
   datacenter_id   = "${data.vsphere_datacenter.rootdc1.id}"
-  host_system_ids = "${data.vsphere_host.hosts.*.id}"
+  host_system_ids = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
 
   force_evacuate_on_destroy = true
 }
@@ -246,8 +228,11 @@ resource "vsphere_dpm_host_override" "dpm_host_override" {
   dpm_automation_level = "automated"
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
-		os.Getenv("TF_VAR_VSPHERE_ESXI1"),
-		os.Getenv("TF_VAR_VSPHERE_ESXI2"),
+		testhelper.CombineConfigs(
+			testhelper.ConfigDataRootDC1(),
+			testhelper.ConfigDataRootPortGroup1(),
+			testhelper.ConfigDataRootHost1(),
+			testhelper.ConfigDataRootHost2(),
+		),
 	)
 }
