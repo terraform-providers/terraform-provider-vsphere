@@ -46,7 +46,7 @@ func TestAccResourceVSphereComputeClusterVMDependencyRule_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					cluster, err := testGetComputeCluster(s, "cluster", resourceVSphereComputeClusterName)
+					cluster, err := testGetComputeCluster(s, "rootcompute_cluster1", "data.vsphere_compute_cluster")
 					if err != nil {
 						return "", err
 					}

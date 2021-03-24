@@ -352,7 +352,7 @@ func testAccResourceVSphereComputeClusterVMHostRuleConfigAntiAffinity() string {
 
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
-  resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
+  resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
   datastore_id     = vsphere_nas_datastore.ds1.id
 
   num_cpus = 2
@@ -407,7 +407,7 @@ func testAccResourceVSphereComputeClusterVMHostRuleConfigDisabled() string {
 
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
-  resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
+  resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
   datastore_id     = vsphere_nas_datastore.ds1.id
 
   num_cpus = 2

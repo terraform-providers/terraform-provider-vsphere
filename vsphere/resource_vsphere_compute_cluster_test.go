@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/folder"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
-	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/structure"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 	"github.com/vmware/govmomi/vim25/types"
@@ -121,7 +120,7 @@ func TestAccResourceVSphereComputeCluster_explicitFailoverHost(t *testing.T) {
 					testAccResourceVSphereComputeClusterCheckDRSEnabled(true),
 					testAccResourceVSphereComputeClusterCheckHAEnabled(true),
 					testAccResourceVSphereComputeClusterCheckAdmissionControlMode(clusterAdmissionControlTypeFailoverHosts),
-					testAccResourceVSphereComputeClusterCheckAdmissionControlFailoverHost(os.Getenv("TF_VAR_VSPHERE_ESXI2")),
+					testAccResourceVSphereComputeClusterCheckAdmissionControlFailoverHost(os.Getenv("TF_VAR_VSPHERE_ESXI3")),
 				),
 			},
 		},
@@ -465,7 +464,7 @@ func testAccResourceVSphereComputeClusterCheckAdmissionControlFailoverHost(expec
 			return fmt.Errorf("expected failover host name to be %s, got %s", expected, actual)
 		}
 
-		if failoverHostsPolicy.ResourceReductionToToleratePercent != structure.Int32Ptr(0) {
+		if *failoverHostsPolicy.ResourceReductionToToleratePercent != 0 {
 			return fmt.Errorf("expected ha_admission_control_performance_tolerance be 0, got %d", failoverHostsPolicy.ResourceReductionToToleratePercent)
 		}
 
@@ -642,7 +641,7 @@ resource "vsphere_compute_cluster" "compute_cluster" {
 
   ha_enabled                                    = true
   ha_admission_control_policy                   = "failoverHosts"
-  ha_admission_control_failover_host_system_ids = [data.vsphere_host.roothost2.id]
+  ha_admission_control_failover_host_system_ids = [data.vsphere_host.roothost3.id]
   ha_admission_control_performance_tolerance    = 0
 
   force_evacuate_on_destroy = true
@@ -654,7 +653,6 @@ resource "vsphere_compute_cluster" "compute_cluster" {
 			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigDataRootHost4(),
 			testhelper.ConfigDataRootComputeCluster1(),
-			testhelper.ConfigDataRootHost2(),
 			testhelper.ConfigDataRootDS1(),
 			testhelper.ConfigDataRootVMNet(),
 		),

@@ -1969,8 +1969,7 @@ func TestAccResourceVSphereVirtualMachine_resourcePoolVMotion(t *testing.T) {
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config:             testAccResourceVSphereVirtualMachineConfigResourcePoolVMotion(os.Getenv("TF_VAR_VSPHERE_RESOURCE_POOL")),
-				ExpectNonEmptyPlan: true,
+				Config: testAccResourceVSphereVirtualMachineConfigResourcePoolVMotion(os.Getenv("TF_VAR_VSPHERE_RESOURCE_POOL")),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereVirtualMachineCheckExists(true),
 					testAccResourceVSphereVirtualMachineCheckResourcePool(os.Getenv("TF_VAR_VSPHERE_RESOURCE_POOL")),
@@ -6240,10 +6239,14 @@ data "vsphere_virtual_machine" "template" {
   datacenter_id = data.vsphere_datacenter.rootdc1.id
 }
 
+variable "ds_id" {
+  default = "%s"
+}
+
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = "${vsphere_resource_pool.pool1.id}"
-  datastore_id     = %s
+  datastore_id     = var.ds_id
 
   num_cpus = 2
   memory   = 2048
@@ -6260,6 +6263,7 @@ resource "vsphere_virtual_machine" "vm" {
     size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
     eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
     thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+    datastore_id     = var.ds_id
   }
 
   disk {
@@ -6327,6 +6331,7 @@ resource "vsphere_virtual_machine" "vm" {
     size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
     eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
     thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+	datastore_id     = data.vsphere_datastore.ds.id
   }
 
   clone {
@@ -6362,10 +6367,14 @@ variable "linked_clone" {
   default = "%s"
 }
 
+variable "ds" {
+  default = %s
+}
+
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = "${vsphere_resource_pool.pool1.id}"
-  datastore_id     = %s
+  datastore_id     = var.ds
 
   num_cpus = 2
   memory   = 2048
@@ -6381,6 +6390,7 @@ resource "vsphere_virtual_machine" "vm" {
     size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
     eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
     thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+    datastore_id     = var.ds
   }
 
   clone {
@@ -7115,12 +7125,13 @@ resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = vsphere_resource_pool.pool1.id
   datastore_id     = data.vsphere_datastore.rootds1.id
+  annotation       = "Name: yVM (a very small virtual machine)\nRelease date: 11th November 2015\nFor more information, please visit: cloudarchitectblog.wordpress.com"
 
   num_cpus = 1
   memory   = 2048
 
   wait_for_guest_net_timeout = -1
-  guest_id                   = "ubuntu64Guest"
+  guest_id                   = "otherLinuxGuest"
 
   network_interface {
     network_id = data.vsphere_network.network1.id

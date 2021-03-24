@@ -41,7 +41,7 @@ func TestAccResourceVSphereComputeClusterHostGroup_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					cluster, err := testGetComputeCluster(s, "cluster", resourceVSphereComputeClusterName)
+					cluster, err := testGetComputeCluster(s, "rootcompute_cluster1", "data.vsphere_compute_cluster")
 					if err != nil {
 						return "", err
 					}
@@ -212,20 +212,32 @@ func testAccResourceVSphereComputeClusterHostGroupGetMultiple(s *terraform.State
 
 func testAccResourceVSphereComputeClusterHostGroupConfig(count int) string {
 	return fmt.Sprintf(`
-%s
+variable hosts {
+  default = [ %q, %q ]
+}
+
+%s 
+
+data "vsphere_host" "hosts" {
+  count         = %d
+  name          = "${var.hosts[count.index]}"
+  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
+}
 
 resource "vsphere_compute_cluster_host_group" "cluster_host_group" {
   name               = "terraform-test-cluster-group"
   compute_cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
-  host_system_ids    = [data.vsphere_host.roothost1.id]
+  host_system_ids    = data.vsphere_host.hosts.*.id
 }
 `,
+		os.Getenv("TF_VAR_VSPHERE_ESXI1"),
+		os.Getenv("TF_VAR_VSPHERE_ESXI2"),
 		testhelper.CombineConfigs(
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootPortGroup1(),
 			testhelper.ConfigDataRootComputeCluster1(),
-			testhelper.ConfigDataRootHost2(),
 			testhelper.ConfigDataRootDS1(),
 			testhelper.ConfigDataRootVMNet(),
-		))
+		),
+		count)
 }

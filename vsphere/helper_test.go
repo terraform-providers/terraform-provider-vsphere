@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/clustercomputeresource"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/contentlibrary"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/datacenter"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/datastore"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/dvportgroup"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/folder"
@@ -755,9 +756,17 @@ func testDeleteDatastoreFile(client *govmomi.Client, dsID string, path string) e
 	if err != nil {
 		return err
 	}
-	dc, err := getDatacenter(client, ds.DatacenterPath)
-	if err != nil {
-		return err
+	var dc *object.Datacenter
+	if ds.DatacenterPath != "" {
+		dc, err = getDatacenter(client, ds.DatacenterPath)
+		if err != nil {
+			return err
+		}
+	} else {
+		dc, err = datacenter.DatacenterFromInventoryPath(client, ds.InventoryPath)
+		if err != nil {
+			return err
+		}
 	}
 	fm := object.NewFileManager(client.Client)
 

@@ -40,7 +40,7 @@ func TestAccResourceVSphereDPMHostOverride_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					cluster, err := testGetComputeCluster(s, "compute_cluster", resourceVSphereComputeClusterName)
+					cluster, err := testGetComputeCluster(s, "compute_cluster", "vsphere_compute_cluster")
 					if err != nil {
 						return "", err
 					}
@@ -223,7 +223,7 @@ resource "vsphere_compute_cluster" "compute_cluster" {
 
 resource "vsphere_dpm_host_override" "dpm_host_override" {
   compute_cluster_id   = "${vsphere_compute_cluster.compute_cluster.id}"
-  host_system_id       = "${data.vsphere_host.hosts.0.id}"
+  host_system_id       = data.vsphere_host.roothost1.id
   dpm_enabled          = true
   dpm_automation_level = "automated"
 }

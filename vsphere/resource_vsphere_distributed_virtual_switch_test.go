@@ -142,9 +142,9 @@ func TestAccResourceVSphereDistributedVirtualSwitch_basicToStandbyWithFailover(t
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigStandbyLink(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereDistributedVirtualSwitchExists(true),
-					testAccResourceVSphereDistributedVirtualSwitchHasUplinks([]string{"tfup1", "tfup2"}),
-					testAccResourceVSphereDistributedVirtualSwitchHasActiveUplinks([]string{"tfup1"}),
-					testAccResourceVSphereDistributedVirtualSwitchHasStandbyUplinks([]string{"tfup2"}),
+					testAccResourceVSphereDistributedVirtualSwitchHasUplinks([]string{os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"), os.Getenv("TF_VAR_VSPHERE_HOST_NIC1")}),
+					testAccResourceVSphereDistributedVirtualSwitchHasActiveUplinks([]string{os.Getenv("TF_VAR_VSPHERE_HOST_NIC0")}),
+					testAccResourceVSphereDistributedVirtualSwitchHasStandbyUplinks([]string{os.Getenv("TF_VAR_VSPHERE_HOST_NIC1")}),
 				),
 			},
 		},
@@ -254,8 +254,8 @@ func TestAccResourceVSphereDistributedVirtualSwitch_modifyUplinks(t *testing.T) 
 					testAccResourceVSphereDistributedVirtualSwitchExists(true),
 					testAccResourceVSphereDistributedVirtualSwitchHasUplinks(
 						[]string{
-							"tfup1",
-							"tfup2",
+							os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
+							os.Getenv("TF_VAR_VSPHERE_HOST_NIC1"),
 						},
 					),
 				),
@@ -729,7 +729,7 @@ resource "vsphere_distributed_virtual_switch" "dvs" {
 			testhelper.ConfigDataRootHost2(),
 			testhelper.ConfigDataRootHost3(),
 		),
-		os.Getenv("TF_VAR_VSPHERE_ESXI_TRUNK_NIC"),
+		os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
 	)
 }
 

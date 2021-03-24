@@ -2,11 +2,11 @@ package vsphere
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 )
 
 func TestAccDataSourceVSphereDistributedVirtualSwitch_basic(t *testing.T) {
@@ -28,12 +28,12 @@ func TestAccDataSourceVSphereDistributedVirtualSwitch_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.vsphere_distributed_virtual_switch.dvs-data",
 						"uplinks.0",
-						"tfup1",
+						os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
 					),
 					resource.TestCheckResourceAttr(
 						"data.vsphere_distributed_virtual_switch.dvs-data",
 						"uplinks.1",
-						"tfup2",
+						os.Getenv("TF_VAR_VSPHERE_HOST_NIC1"),
 					),
 					resource.TestCheckResourceAttrPair(
 						"data.vsphere_distributed_virtual_switch.dvs-data", "id",
@@ -64,12 +64,12 @@ func TestAccDataSourceVSphereDistributedVirtualSwitch_absolutePathNoDatacenterSp
 					resource.TestCheckResourceAttr(
 						"data.vsphere_distributed_virtual_switch.dvs-data",
 						"uplinks.0",
-						"tfup1",
+						os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
 					),
 					resource.TestCheckResourceAttr(
 						"data.vsphere_distributed_virtual_switch.dvs-data",
 						"uplinks.1",
-						"tfup2",
+						os.Getenv("TF_VAR_VSPHERE_HOST_NIC1"),
 					),
 					resource.TestCheckResourceAttrPair(
 						"data.vsphere_distributed_virtual_switch.dvs-data", "id",
@@ -105,12 +105,12 @@ func TestAccDataSourceVSphereDistributedVirtualSwitch_CreatePortgroup(t *testing
 					resource.TestCheckResourceAttr(
 						"vsphere_distributed_port_group.pg",
 						"active_uplinks.0",
-						"tfup1",
+						os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
 					),
 					resource.TestCheckResourceAttr(
 						"vsphere_distributed_port_group.pg",
 						"standby_uplinks.0",
-						"tfup2",
+						os.Getenv("TF_VAR_VSPHERE_HOST_NIC1"),
 					),
 				),
 			},
@@ -125,7 +125,7 @@ func testAccDataSourceVSphereDistributedVirtualSwitchConfig() string {
 resource "vsphere_distributed_virtual_switch" "dvs" {
   name          = "testacc-dvs"
   datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-  uplinks       = ["tfup1", "tfup2"]
+  uplinks       = ["%s", "%s"]
 }
 
 data "vsphere_distributed_virtual_switch" "dvs-data" {
@@ -134,6 +134,8 @@ data "vsphere_distributed_virtual_switch" "dvs-data" {
 }
 `,
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
+		os.Getenv("TF_VAR_VSPHERE_HOST_NIC1"),
 	)
 }
 
@@ -144,7 +146,7 @@ func testAccDataSourceVSphereDistributedVirtualSwitchConfigWithPortgroup() strin
 resource "vsphere_distributed_virtual_switch" "dvs" {
   name          = "testacc-dvs"
   datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-  uplinks       = ["tfup1", "tfup2"]
+  uplinks       = ["%s", "%s"]
 }
 
 data "vsphere_distributed_virtual_switch" "dvs-data" {
@@ -161,6 +163,8 @@ resource "vsphere_distributed_port_group" "pg" {
 }
 `,
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
+		os.Getenv("TF_VAR_VSPHERE_HOST_NIC1"),
 	)
 }
 
@@ -171,7 +175,7 @@ func testAccDataSourceVSphereDistributedVirtualSwitchConfigAbsolute() string {
 resource "vsphere_distributed_virtual_switch" "dvs" {
   name          = "testacc-dvs"
   datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-  uplinks       = ["tfup1", "tfup2"]
+  uplinks       = ["%s", "%s"]
 }
 
 data "vsphere_distributed_virtual_switch" "dvs-data" {
@@ -179,5 +183,7 @@ data "vsphere_distributed_virtual_switch" "dvs-data" {
 }
 `,
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
+		os.Getenv("TF_VAR_VSPHERE_HOST_NIC1"),
 	)
 }
