@@ -41,6 +41,7 @@ func vNicSchema() map[string]*schema.Schema {
 }
 
 func resourceVsphereNicRead(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] starting resource_vnic")
 	ctx := context.TODO()
 	client := meta.(*VSphereClient).vimClient
 
@@ -88,6 +89,7 @@ func resourceVsphereNicRead(d *schema.ResourceData, meta interface{}) error {
 			"dhcp":       *vnic.Spec.Ip.IpV6Config.DhcpV6Enabled,
 			"autoconfig": *vnic.Spec.Ip.IpV6Config.AutoConfigurationEnabled,
 		}
+
 		// First we need to filter out addresses that were configured via dhcp or autoconfig
 		// or link local or any other mechanism
 		addrList := make([]string, 0)
@@ -96,16 +98,21 @@ func resourceVsphereNicRead(d *schema.ResourceData, meta interface{}) error {
 				addrList = append(addrList, fmt.Sprintf("%s/%d", addr.IpAddress, addr.PrefixLength))
 			}
 		}
-		ipv6dict["addresses"] = addrList
-		if vnic.Spec.IpRouteSpec != nil {
-			ipv6dict["gw"] = vnic.Spec.IpRouteSpec.IpRouteConfig.GetHostIpRouteConfig().IpV6DefaultGateway
-		} else if _, ok := d.GetOk("ipv6.0.gw"); ok {
-			// There is a gw set in the config, but none set on the Host.
-			ipv6dict["gw"] = ""
-		}
-		err = d.Set("ipv6", []map[string]interface{}{ipv6dict})
-		if err != nil {
-			return err
+		if (len(addrList) == 0) && !*vnic.Spec.Ip.IpV6Config.DhcpV6Enabled && !*vnic.Spec.Ip.IpV6Config.AutoConfigurationEnabled {
+			d.Set("ipv6", nil)
+		} else {
+			ipv6dict["addresses"] = addrList
+
+			if vnic.Spec.IpRouteSpec != nil {
+				ipv6dict["gw"] = vnic.Spec.IpRouteSpec.IpRouteConfig.GetHostIpRouteConfig().IpV6DefaultGateway
+			} else if _, ok := d.GetOk("ipv6.0.gw"); ok {
+				// There is a gw set in the config, but none set on the Host.
+				ipv6dict["gw"] = ""
+			}
+			err = d.Set("ipv6", []map[string]interface{}{ipv6dict})
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
