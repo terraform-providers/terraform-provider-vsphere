@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/customattribute"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/datastore"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/folder"
@@ -419,7 +419,7 @@ func resourceVSphereVmfsDatastoreDelete(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceVSphereVmfsDatastoreCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
+func resourceVSphereVmfsDatastoreCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	// Check all disks and make sure that the entries are not nil, empty, or duplicates.
 	disks := make(map[string]struct{})
 	for i, v := range d.Get("disks").([]interface{}) {

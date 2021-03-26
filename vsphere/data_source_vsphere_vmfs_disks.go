@@ -7,8 +7,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
 )
@@ -32,7 +32,7 @@ func dataSourceVSphereVmfsDisks() *schema.Resource {
 				Type:         schema.TypeString,
 				Description:  "A regular expression to filter the disks against. Only disks with canonical names that match will be included.",
 				Optional:     true,
-				ValidateFunc: validation.ValidateRegexp,
+				ValidateFunc: validation.StringIsValidRegExp,
 			},
 			"disks": {
 				Type:        schema.TypeList,

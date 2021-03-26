@@ -1,10 +1,11 @@
 package vsphere
 
 import (
+	"context"
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/contentlibrary"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/virtualmachine"
 )
@@ -67,7 +68,7 @@ func resourceVSphereContentLibraryItem() *schema.Resource {
 	}
 }
 
-func resourceVSphereContentLibraryItemUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceVSphereContentLibraryItemUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	if len(rawState["file_url"].([]interface{})) < 1 {
 		rawState["file_url"] = interface{}("")
 		return rawState, nil

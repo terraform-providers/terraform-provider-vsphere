@@ -1,7 +1,7 @@
 package vmworkflow
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func VirtualMachineOvfDeploySchema() map[string]*schema.Schema {

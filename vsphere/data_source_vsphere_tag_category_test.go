@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceVSphereTagCategory_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		DisableBinaryDriver: true, // test uses precalculated hash indexes
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)

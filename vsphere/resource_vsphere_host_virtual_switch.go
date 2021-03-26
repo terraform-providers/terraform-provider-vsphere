@@ -5,7 +5,7 @@ import (
 
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/structure"
 )
 
@@ -159,7 +159,7 @@ func resourceVSphereHostVirtualSwitchImport(d *schema.ResourceData, meta interfa
 	return []*schema.ResourceData{d}, nil
 }
 
-func resourceVSphereHostVirtualSwitchCustomizeDiff(d *schema.ResourceDiff, meta interface{}) error {
+func resourceVSphereHostVirtualSwitchCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	// We want to quickly validate that each NIC that is in either active_nics or
 	// standby_nics will be a part of the bridge.
 	bridgeNics := d.Get("network_adapters").([]interface{})

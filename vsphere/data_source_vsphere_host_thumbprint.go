@@ -5,7 +5,8 @@ import (
 	"crypto/sha1"
 	"crypto/tls"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceVSphereHostThumbprint() *schema.Resource {

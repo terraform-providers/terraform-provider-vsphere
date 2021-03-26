@@ -3,11 +3,12 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/vmware/govmomi/object"
-	"github.com/vmware/govmomi/vapi/tags"
 	"log"
 	"regexp"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/vapi/tags"
 )
 
 func dataSourceVSphereDynamic() *schema.Resource {

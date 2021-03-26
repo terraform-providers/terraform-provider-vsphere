@@ -3,13 +3,14 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
+	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/virtualdevice"
 	"github.com/vmware/govmomi/pbm"
 	types2 "github.com/vmware/govmomi/pbm/types"
 	"github.com/vmware/govmomi/vapi/tags"
-	"log"
-	"strings"
 )
 
 const TAG_NAMESPACE = "http://www.vmware.com/storage/tag"

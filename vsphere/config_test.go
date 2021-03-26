@@ -1,7 +1,6 @@
 package vsphere
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"io/ioutil"
 	"log"
 	"os"
@@ -9,7 +8,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func init() {
@@ -202,7 +203,7 @@ func TestNewConfig(t *testing.T) {
 		VimSessionPath: "./baz",
 	}
 
-	r := &schema.Resource{Schema: Provider().(*schema.Provider).Schema}
+	r := &schema.Resource{Schema: Provider().Schema}
 	d := r.Data(nil)
 	d.Set("user", expected.User)
 	d.Set("password", expected.Password)
