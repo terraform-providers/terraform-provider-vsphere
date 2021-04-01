@@ -82,7 +82,7 @@ func schemaHostNasVolumeSpec() map[string]*schema.Schema {
 			),
 		},
 		"protocol_endpoint": {
-			Type:        schema.TypeString,
+			Type:        schema.TypeBool,
 			Description: "Indicates that this NAS volume is a protocol endpoint. This field is only populated if the host supports virtual datastores.",
 			Computed:    true,
 		},

@@ -38,9 +38,9 @@ func TestAccDataSourceVSphereTagCategory_basic(t *testing.T) {
 						"associable_types.#",
 						"1",
 					),
-					resource.TestCheckResourceAttr(
+					resource.TestCheckTypeSetElemAttr(
 						"data.vsphere_tag_category.testacc-category-data",
-						"associable_types.3125094965",
+						"associable_types.*",
 						testAccDataSourceVSphereTagCategoryConfigAssociableType,
 					),
 					resource.TestCheckResourceAttrPair(

@@ -266,7 +266,7 @@ func expandDVSContactInfo(d *schema.ResourceData) *types.DVSContactInfo {
 // DVSContactInfo into the passed in ResourceData.
 func flattenDVSContactInfo(d *schema.ResourceData, obj types.DVSContactInfo) error {
 	d.Set("contact_name", obj.Name)
-	d.Set("conatct_detail", obj.Contact)
+	d.Set("contact_detail", obj.Contact)
 	return nil
 }
 
@@ -617,6 +617,9 @@ func expandDvsHostInfrastructureTrafficResource(d *schema.ResourceData, key stri
 // DvsHostInfrastructureTrafficResource and sets appropriate keys in the
 // supplied ResourceData.
 func flattenDvsHostInfrastructureTrafficResource(d *schema.ResourceData, obj types.DvsHostInfrastructureTrafficResource, key string) error {
+	if strings.ToLower(key) == "backupnfc" { // this key does not appear to be defined in schema and results in a panic
+		return nil
+	}
 	shareLevelKey := fmt.Sprintf("%s_share_level", strings.ToLower(key))
 	shareCountKey := fmt.Sprintf("%s_share_count", strings.ToLower(key))
 	maxMbitKey := fmt.Sprintf("%s_maximum_mbit", strings.ToLower(key))

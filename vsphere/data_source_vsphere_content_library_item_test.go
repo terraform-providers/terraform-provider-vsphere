@@ -44,7 +44,7 @@ func testAccDataSourceVSphereContentLibraryItemPreCheck(t *testing.T) {
 func testAccDataSourceVSphereContentLibraryItemConfig() string {
 	return fmt.Sprintf(`
 variable "datacenter" {
-  type    = "string"
+  type    = string
   default = "%s"
 }
 
