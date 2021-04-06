@@ -214,7 +214,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore" {
   name                 = "%s"
-  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id, data.vsphere_host.roothost3.id]
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -251,7 +251,6 @@ resource "vsphere_storage_drs_vm_override" "drs_vm_override" {
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
-			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigDataRootComputeCluster1(),
 			testhelper.ConfigResResourcePool1(),
 			testhelper.ConfigDataRootPortGroup1()),
@@ -273,15 +272,6 @@ variable "nfs_path" {
   default = "%s"
 }
 
-variable "resource_pool" {
-  default = "%s"
-}
-
-data "vsphere_resource_pool" "pool" {
-  name          = "${var.resource_pool}"
-  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
-}
-
 resource "vsphere_datastore_cluster" "datastore_cluster" {
   name          = "testacc-datastore-cluster"
   datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
@@ -290,7 +280,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore" {
   name                 = "testacc-nas"
-  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id, data.vsphere_host.roothost3.id]
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -300,7 +290,7 @@ resource "vsphere_nas_datastore" "datastore" {
 
 resource "vsphere_virtual_machine" "vm" {
   name                 = "testacc-test"
-  resource_pool_id     = "${vsphere_resource_pool.pool1.id}"
+  resource_pool_id     = "${data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id}"
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   num_cpus = 2
@@ -330,12 +320,10 @@ resource "vsphere_storage_drs_vm_override" "drs_vm_override" {
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
-			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigDataRootComputeCluster1(),
 			testhelper.ConfigResResourcePool1(),
 			testhelper.ConfigDataRootPortGroup1()),
 		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"),
-		os.Getenv("TF_VAR_VSPHERE_RESOURCE_POOL"),
 	)
 }

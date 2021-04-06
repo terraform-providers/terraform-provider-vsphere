@@ -6093,8 +6093,7 @@ resource "vsphere_virtual_machine" "vm" {
 
 		testhelper.CombineConfigs(
 			testAccResourceVSphereVirtualMachineConfigBase(),
-			testhelper.ConfigDataRootVMNet(),
-			testhelper.ConfigDataRootHost3()),
+			testhelper.ConfigDataRootVMNet()),
 		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
 		pool,
 		os.Getenv("TF_VAR_VSPHERE_USE_LINKED_CLONE"),

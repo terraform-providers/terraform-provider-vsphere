@@ -715,11 +715,6 @@ resource "vsphere_distributed_virtual_switch" "dvs" {
     host_system_id = "${data.vsphere_host.roothost2.id}"
     devices = "${var.network_interfaces}"
   }
-
-  host {
-    host_system_id = "${data.vsphere_host.roothost3.id}"
-    devices = "${var.network_interfaces}"
-  }
 }
 `,
 		testhelper.CombineConfigs(
@@ -727,7 +722,6 @@ resource "vsphere_distributed_virtual_switch" "dvs" {
 			testhelper.ConfigDataRootPortGroup1(),
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
-			testhelper.ConfigDataRootHost3(),
 		),
 		os.Getenv("TF_VAR_VSPHERE_HOST_NIC0"),
 	)

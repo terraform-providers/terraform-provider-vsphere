@@ -394,17 +394,20 @@ func testAccVSphereHostConfig() string {
 
 	resource "vsphere_host" "h1" {
 	  # Useful only for connection
-	  hostname = data.vsphere_host.roothost3.hostname
-	  username = data.vsphere_host.roothost3.username
-	  thumbprint = data.vsphere_host.roothost3.password
+	  hostname = "%s"
+	  username = "%s"
+	  password = "%s"
 	  thumbprint = data.vsphere_host_thumbprint.id
 
 	  # Makes sense to update
 	  license = "%s"
 	  cluster = vsphere_compute_cluster.c1.id
 	}
-	`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+	`, testhelper.ConfigDataRootDC1(),
 		"TestCluster",
+		os.Getenv("ESX_HOSTNAME"),
+		os.Getenv("ESX_USERNAME"),
+		os.Getenv("ESX_PASSWORD"),
 		os.Getenv("TF_VAR_VSPHERE_LICENSE"))
 }
 
@@ -414,16 +417,18 @@ func testAccVSphereHostConfig_rootFolder() string {
 
 	resource "vsphere_host" "h1" {
 	  # Useful only for connection
-	  hostname = data.vsphere_host.roothost3.hostname
-	  username = data.vsphere_host.roothost3.username
-	  password = data.vsphere_host.roothost3.password
+	  hostname = "%s"
+	  username = "%s"
+	  password = "%s"
 	  thumbprint = data.vsphere_host_thumbprint.id
 
 	  # Makes sense to update
 	  license = "%s"
 	  datacenter = data.vsphere_datacenter.rootdc1.id
 	}
-	`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+	`, testhelper.ConfigDataRootDC1(), os.Getenv("ESX_HOSTNAME"),
+		os.Getenv("ESX_USERNAME"),
+		os.Getenv("ESX_PASSWORD"),
 		os.Getenv("TF_VAR_VSPHERE_LICENSE"))
 }
 
@@ -432,15 +437,19 @@ func testAccVSphereHostConfig_emptyLicense() string {
 	%s 
 	resource "vsphere_host" "h1" {
 	  # Useful only for connection
-	  hostname = data.vsphere_host.roothost3.hostname
-	  username = data.vsphere_host.roothost3.username
-	  thumbprint = data.vsphere_host.roothost3.password
+	  hostname = "%s"
+	  username = "%s"
+	  password = "%s"
 	  thumbprint = data.vsphere_host_thumbprint.id
 
 	  # Makes sense to update
 	  datacenter = data.vsphere_datacenter.rootdc1.id
 	}
-	`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()))
+	`, testhelper.ConfigDataRootDC1(),
+		os.Getenv("ESX_HOSTNAME"),
+		os.Getenv("ESX_USERNAME"),
+		os.Getenv("ESX_PASSWORD"),
+	)
 }
 
 func testAccVSphereHostConfig_import() string {
@@ -454,17 +463,20 @@ func testAccVSphereHostConfig_import() string {
 		
 	resource "vsphere_host" "h1" {
 	  # Useful only for connection
-	  hostname = data.vsphere_host.roothost3.hostname
-	  username = data.vsphere_host.roothost3.username
-	  thumbprint = data.vsphere_host.roothost3.password
+	  hostname = "%s"
+	  username = "%s"
+	  password = "%s"
 	  thumbprint = data.vsphere_host_thumbprint.id
 	
 	  # Makes sense to update
 	  license = "%s"
 	  cluster = vsphere_compute_cluster.c1.id
 	}	  
-	`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+	`, testhelper.ConfigDataRootDC1(),
 		"TestCluster",
+		os.Getenv("ESX_HOSTNAME"),
+		os.Getenv("ESX_USERNAME"),
+		os.Getenv("ESX_PASSWORD"),
 		os.Getenv("TF_VAR_VSPHERE_LICENSE"))
 }
 
@@ -478,17 +490,20 @@ func testAccVSphereHostConfig_connection(connection bool) string {
 	}
 		
 	resource "vsphere_host" "h1" {
-	  hostname = data.vsphere_host.roothost3.hostname
-	  username = data.vsphere_host.roothost3.username
-	  thumbprint = data.vsphere_host.roothost3.password
+	  hostname = "%s"
+	  username = "%s"
+	  password = "%s"
 	  thumbprint = data.vsphere_host_thumbprint.id
 	
 	  license = "%s"
 	  connected = "%s"
 	  cluster = vsphere_compute_cluster.c1.id
 	}	  
-	`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+	`, testhelper.ConfigDataRootDC1(),
 		"TestCluster",
+		os.Getenv("ESX_HOSTNAME"),
+		os.Getenv("ESX_USERNAME"),
+		os.Getenv("ESX_PASSWORD"),
 		os.Getenv("TF_VAR_VSPHERE_LICENSE"),
 		strconv.FormatBool(connection))
 }
@@ -503,9 +518,9 @@ func testAccVSphereHostConfig_maintenance(maintenance bool) string {
 	}
 		
 	resource "vsphere_host" "h1" {
-	  hostname = data.vsphere_host.roothost3.hostname
-	  username = data.vsphere_host.roothost3.username
-	  thumbprint = data.vsphere_host.roothost3.password
+	  hostname = "%s"
+	  username = "%s"
+	  password = "%s"
 	  thumbprint = data.vsphere_host_thumbprint.id
 	
 	  license = "%s"
@@ -513,8 +528,11 @@ func testAccVSphereHostConfig_maintenance(maintenance bool) string {
 	  maintenance = "%s"
 	  cluster = vsphere_compute_cluster.c1.id
 	}	  
-	`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+	`, testhelper.ConfigDataRootDC1(),
 		"TestCluster",
+		os.Getenv("ESX_HOSTNAME"),
+		os.Getenv("ESX_USERNAME"),
+		os.Getenv("ESX_PASSWORD"),
 		os.Getenv("TF_VAR_VSPHERE_LICENSE"),
 		strconv.FormatBool(maintenance))
 }
@@ -529,9 +547,9 @@ func testAccVSphereHostConfig_lockdown(lockdown string) string {
 	}
 		
 	resource "vsphere_host" "h1" {
-	  hostname = data.vsphere_host.roothost3.hostname
-	  username = data.vsphere_host.roothost3.username
-	  thumbprint = data.vsphere_host.roothost3.password
+	  hostname = "%s"
+	  username = "%s"
+	  password = "%s"
 	  thumbprint = data.vsphere_host_thumbprint.id
 	
 	  license = "%s"
@@ -540,8 +558,11 @@ func testAccVSphereHostConfig_lockdown(lockdown string) string {
 	  lockdown = "%s"
 	  cluster = vsphere_compute_cluster.c1.id
 	}	  
-	`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+	`, testhelper.ConfigDataRootDC1(),
 		"TestCluster",
+		os.Getenv("ESX_HOSTNAME"),
+		os.Getenv("ESX_USERNAME"),
+		os.Getenv("ESX_PASSWORD"),
 		os.Getenv("TF_VAR_VSPHERE_LICENSE"),
 		lockdown)
 }

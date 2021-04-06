@@ -351,7 +351,6 @@ resource "vsphere_compute_cluster_vm_dependency_rule" "cluster_vm_dependency_rul
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
-			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigDataRootComputeCluster1(),
 			testhelper.ConfigResResourcePool1(),
 			testhelper.ConfigDataRootPortGroup1(),
@@ -453,7 +452,7 @@ resource "vsphere_compute_cluster_vm_dependency_rule" "cluster_vm_dependency_rul
   vm_group_name            = "${vsphere_compute_cluster_vm_group.cluster_vm_group.name}"
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootHost3(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
 	)
 }
 
@@ -526,7 +525,6 @@ resource "vsphere_compute_cluster_vm_dependency_rule" "cluster_vm_dependency_rul
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
-			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigResDS1(),
 			testhelper.ConfigDataRootComputeCluster1(),
 			testhelper.ConfigResResourcePool1(),

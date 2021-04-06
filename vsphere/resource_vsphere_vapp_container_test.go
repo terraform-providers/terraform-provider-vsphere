@@ -510,7 +510,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore1" {
   name                 = "terraform-datastore-test1"
-  host_system_ids      = [data.vsphere_host.roothost3.id]
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -560,7 +560,7 @@ resource "vsphere_virtual_machine" "vm" {
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootPortGroup1(),
 			testhelper.ConfigDataRootComputeCluster1(),
-			testhelper.ConfigDataRootHost3(),
+			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
 			testhelper.ConfigDataRootDS1()),
 
@@ -589,7 +589,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore1" {
   name                 = "terraform-datastore-test1"
-  host_system_ids      = [data.vsphere_host.roothost3.id]
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -635,7 +635,11 @@ resource "vsphere_virtual_machine" "vm" {
   }
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigDataRootHost3()),
+		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(),
+			testhelper.ConfigDataRootComputeCluster1(),
+			testhelper.ConfigDataRootPortGroup1(),
+			testhelper.ConfigDataRootHost1(),
+			testhelper.ConfigDataRootHost2()),
 
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"),
 		os.Getenv("TF_VAR_VSPHERE_NAS_HOST"),
@@ -671,7 +675,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
 resource "vsphere_nas_datastore" "datastore1" {
   name                 = "terraform-datastore-test1"
-  host_system_ids      = [data.vsphere_host.roothost3.id]
+  host_system_ids      = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
   datastore_cluster_id = "${vsphere_datastore_cluster.datastore_cluster.id}"
 
   type         = "NFS"
@@ -728,7 +732,6 @@ resource "vsphere_virtual_machine" "vm" {
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2(),
 			testhelper.ConfigDataRootVMNet(),
-			testhelper.ConfigDataRootHost3(),
 			testhelper.ConfigDataRootPortGroup1()),
 
 		os.Getenv("TF_VAR_VSPHERE_NFS_PATH2"),
