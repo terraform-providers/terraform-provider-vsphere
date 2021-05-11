@@ -614,6 +614,8 @@ external disks on virtual machines that are assigned to datastore clusters.
    more details.
  * `pci_device_id` - (Optional) List of host PCI device IDs to create PCI 
    passthroughs for.
+ * `shared_pci_device_id` - (Optional) Shared PCI device ID to create PCI 
+   passthroughs for.
    
 [virtual-machine-hardware-compatibility]: https://kb.vmware.com/s/article/2007240
 

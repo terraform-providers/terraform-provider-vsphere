@@ -1062,3 +1062,63 @@ func PciPassthroughApplyOperation(d *schema.ResourceData, c *govmomi.Client, l o
 	}
 	return applyConfig.VirtualDevice, applyConfig.Spec, nil
 }
+
+// SharedPciPassthroughApplyOperation checks for changes in a virtual machine's
+// Shared PCI passthrough device and creates config specs to apply apply to the
+// virtual machine.
+func SharedPciPassthroughApplyOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) (object.VirtualDeviceList, []types.BaseVirtualDeviceConfigSpec, error) {
+	old, new := d.GetChange("shared_pci_device_id")
+	oldDevId := old.(string)
+	newDevId := new.(string)
+
+	var specs []types.BaseVirtualDeviceConfigSpec
+	if oldDevId == newDevId {
+		return l, specs, nil
+	}
+
+	if oldDevId != "" {
+		vm, err := virtualmachine.FromUUID(c, d.Id())
+		if err != nil {
+			return nil, nil, err
+		}
+		vprops, err := virtualmachine.Properties(vm)
+		if err != nil {
+			return nil, nil, err
+		}
+		// This will only find a device for delete operations.
+		for _, vmDevP := range vprops.Config.Hardware.Device {
+			if vmDev, ok := vmDevP.(*types.VirtualPCIPassthrough); ok {
+				if vmDev.Backing.(*types.VirtualPCIPassthroughVmiopBackingInfo).Vgpu == oldDevId {
+					dspec, err := object.VirtualDeviceList{vmDev}.ConfigSpec(types.VirtualDeviceConfigSpecOperationRemove)
+					if err != nil {
+						return nil, nil, err
+					}
+					specs = append(specs, dspec...)
+
+					l = applyDeviceChange(l, dspec)
+					d.Set("reboot_required", true)
+				}
+			}
+		}
+	}
+
+	if newDevId != "" {
+		dev := &types.VirtualPCIPassthrough{
+			VirtualDevice: types.VirtualDevice{
+				DynamicData: types.DynamicData{},
+				Backing: &types.VirtualPCIPassthroughVmiopBackingInfo{
+					Vgpu: newDevId,
+				},
+			},
+		}
+		dspec, err := object.VirtualDeviceList{dev}.ConfigSpec(types.VirtualDeviceConfigSpecOperationAdd)
+		if err != nil {
+			return nil, nil, err
+		}
+		specs = append(specs, dspec...)
+		l = applyDeviceChange(l, dspec)
+		d.Set("reboot_required", true)
+	}
+
+	return l, specs, nil
+}
