@@ -493,12 +493,15 @@ func resourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("error reading virtual machine configuration: %s", err)
 	}
 
-	// Read the VM Home storage policy if associated.
-	polID, err := spbm.PolicyIDByVirtualMachine(client, moid)
-	if err != nil {
-		return err
+	// Check if running for ESXi or vCenter.
+	if spbm.IsSupported(client) {
+		// Read the VM Home storage policy if associated.
+		polID, err := spbm.PolicyIDByVirtualMachine(client, moid)
+		if err != nil {
+			return err
+		}
+		d.Set("storage_policy_id", polID)
 	}
-	d.Set("storage_policy_id", polID)
 
 	// Read the PCI passthrough devices.
 	var pciDevs []string

@@ -1339,18 +1339,20 @@ func (r *DiskSubresource) Read(l object.VirtualDeviceList) error {
 		}
 	}
 
-	// Set storage policy if the VM exists.
-	vmUUID := r.rdd.Id()
-	if vmUUID != "" {
-		result, err := virtualmachine.MOIDForUUID(r.client, vmUUID)
-		if err != nil {
-			return err
+	if spbm.IsSupported(r.client) {
+		// Set storage policy if the VM exists.
+		vmUUID := r.rdd.Id()
+		if vmUUID != "" {
+			result, err := virtualmachine.MOIDForUUID(r.client, vmUUID)
+			if err != nil {
+				return err
+			}
+			polID, err := spbm.PolicyIDByVirtualDisk(r.client, result.MOID, r.Get("key").(int))
+			if err != nil {
+				return err
+			}
+			r.Set("storage_policy_id", polID)
 		}
-		polID, err := spbm.PolicyIDByVirtualDisk(r.client, result.MOID, r.Get("key").(int))
-		if err != nil {
-			return err
-		}
-		r.Set("storage_policy_id", polID)
 	}
 
 	log.Printf("[DEBUG] %s: Read finished (key and device address may have changed)", r)

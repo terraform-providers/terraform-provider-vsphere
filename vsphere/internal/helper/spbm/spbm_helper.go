@@ -14,6 +14,13 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
+func IsSupported(client *govmomi.Client) bool {
+	if err := viapi.ValidateVirtualCenter(client); err != nil {
+		return false
+	}
+	return true
+}
+
 // pbmClientFromGovmomiClient creates a new pbm client from given govmomi client.
 // Can we have it in govmomi client as a field similar to tag client?
 // We should not create a new pbm client every time we need it.
