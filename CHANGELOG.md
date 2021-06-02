@@ -215,7 +215,7 @@ FEATURES:
 IMPROVEMENTS:
 * Switch to govmomi REST client ([#955](https://github.com/hashicorp/terraform-provider-vsphere/pull/955))
 * Add storage policy to `virtual_machine` resource. ** Requires `profile-driven 
-  storage` permissions for Terraform user. ([#881](https://github.com/hashicorp/terraform-provider-vsphere/pull/881))
+  storage` permissions on vCenter root for Terraform user. ([#881](https://github.com/hashicorp/terraform-provider-vsphere/pull/881))
 
 ## 1.15.0 (January 23, 2020)
 
