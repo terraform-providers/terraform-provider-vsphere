@@ -38,10 +38,10 @@ func dataSourceVSphereNetwork() *schema.Resource {
 }
 
 func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 
 	name := d.Get("name").(string)
-	dvSwitchUuid := d.Get("distributed_virtual_switch_uuid").(string)
+	dvSwitchUUID := d.Get("distributed_virtual_switch_uuid").(string)
 	var dc *object.Datacenter
 	if dcID, ok := d.GetOk("datacenter_id"); ok {
 		var err error
@@ -50,12 +50,12 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("cannot locate datacenter: %s", err)
 		}
 	}
-	net, err := network.FromNameAndDVSUuid(client, name, dc, dvSwitchUuid)
+	net, err := network.FromNameAndDVSUuid(client, name, dc, dvSwitchUUID)
 	if err != nil {
 		return fmt.Errorf("error fetching network: %s", err)
 	}
 
 	d.SetId(net.Reference().Value)
-	d.Set("type", net.Reference().Type)
+	_ = d.Set("type", net.Reference().Type)
 	return nil
 }

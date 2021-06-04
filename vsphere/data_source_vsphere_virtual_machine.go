@@ -153,7 +153,7 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 }
 
 func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 
 	name := d.Get("name").(string)
 	log.Printf("[DEBUG] Looking for VM or template by name/path %q", name)
@@ -189,11 +189,11 @@ func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.SetId(props.Config.Uuid)
-	d.Set("guest_id", props.Config.GuestId)
-	d.Set("alternate_guest_name", props.Config.AlternateGuestName)
-	d.Set("scsi_type", virtualdevice.ReadSCSIBusType(object.VirtualDeviceList(props.Config.Hardware.Device), d.Get("scsi_controller_scan_count").(int)))
-	d.Set("scsi_bus_sharing", virtualdevice.ReadSCSIBusSharing(object.VirtualDeviceList(props.Config.Hardware.Device), d.Get("scsi_controller_scan_count").(int)))
-	d.Set("firmware", props.Config.Firmware)
+	_ = d.Set("guest_id", props.Config.GuestId)
+	_ = d.Set("alternate_guest_name", props.Config.AlternateGuestName)
+	_ = d.Set("scsi_type", virtualdevice.ReadSCSIBusType(object.VirtualDeviceList(props.Config.Hardware.Device), d.Get("scsi_controller_scan_count").(int)))
+	_ = d.Set("scsi_bus_sharing", virtualdevice.ReadSCSIBusSharing(object.VirtualDeviceList(props.Config.Hardware.Device), d.Get("scsi_controller_scan_count").(int)))
+	_ = d.Set("firmware", props.Config.Firmware)
 	disks, err := virtualdevice.ReadDiskAttrsForDataSource(object.VirtualDeviceList(props.Config.Hardware.Device), d)
 	if err != nil {
 		return fmt.Errorf("error reading disk sizes: %s", err)

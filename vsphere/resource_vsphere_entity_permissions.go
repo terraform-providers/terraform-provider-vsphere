@@ -50,14 +50,14 @@ func resourceVsphereEntityPermissions() *schema.Resource {
 
 func resourceEntityPermissionsCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Beginning create permission for entity id %s", d.Get("entity_id").(string))
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 
 	authorizationManager := object.NewAuthorizationManager(client.Client)
 	permissions := d.Get("permissions").([]interface{})
 
 	entityType := d.Get("entity_type").(string)
-	entityId := d.Get("entity_id").(string)
-	entityMoid, err := utils.GetMoid(client, entityType, entityId)
+	entityID := d.Get("entity_id").(string)
+	entityMoid, err := utils.GetMoid(client, entityType, entityID)
 	if err != nil {
 		return err
 	}
@@ -74,21 +74,21 @@ func resourceEntityPermissionsCreate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("user/group %s repeated, there is already a permission defined for the user/group", userOrGroup)
 		}
 		usersAndGroupsMap[userOrGroup] = true
-		roleIdInt, err := strconv.ParseInt(permission.(map[string]interface{})["role_id"].(string), 10, 32)
+		roleIDInt, err := strconv.ParseInt(permission.(map[string]interface{})["role_id"].(string), 10, 32)
 		if err != nil {
 			return fmt.Errorf("error while converting role id %s to integer", permission.(map[string]interface{})["role_id"].(string))
 		}
-		roleId := int32(roleIdInt)
+		roleID := int32(roleIDInt)
 		permissionObjs = append(permissionObjs, types.Permission{
 			Principal: userOrGroup,
 			Group:     permission.(map[string]interface{})["is_group"].(bool),
 			Propagate: permission.(map[string]interface{})["propagate"].(bool),
-			RoleId:    roleId,
+			RoleId:    roleID,
 		})
 	}
 	err = authorizationManager.SetEntityPermissions(context.Background(), entityMor, permissionObjs)
 	if err != nil {
-		return fmt.Errorf("error while creating permission for entity id %s %s", entityId, err)
+		return fmt.Errorf("error while creating permission for entity id %s %s", entityID, err)
 	}
 	d.SetId(entityMoid)
 	return resourceEntityPermissionsRead(d, meta)
@@ -97,7 +97,7 @@ func resourceEntityPermissionsCreate(d *schema.ResourceData, meta interface{}) e
 func resourceEntityPermissionsRead(d *schema.ResourceData, meta interface{}) error {
 	entityType := d.Get("entity_type").(string)
 	log.Printf(" [DEBUG] : Reading vm entity permissions for entity id %s and type %s", d.Id(), entityType)
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	authorizationManager := object.NewAuthorizationManager(client.Client)
 
 	entityMor := types.ManagedObjectReference{
@@ -128,7 +128,7 @@ func resourceEntityPermissionsRead(d *schema.ResourceData, meta interface{}) err
 		return strings.ToLower(permissionObjs[i]["user_or_group"].(string)) <
 			strings.ToLower(permissionObjs[j]["user_or_group"].(string))
 	})
-	d.Set("permissions", permissionObjs)
+	_ = d.Set("permissions", permissionObjs)
 	return nil
 }
 
@@ -137,7 +137,7 @@ func resourceEntityPermissionsUpdate(d *schema.ResourceData, meta interface{}) e
 		oldPermissions, newPermissions := d.GetChange("permissions")
 		log.Printf(" [DEBUG] : Beginning update Permission with entity id %s", d.Id())
 
-		client := meta.(*VSphereClient).vimClient
+		client := meta.(*Client).vimClient
 		authorizationManager := object.NewAuthorizationManager(client.Client)
 
 		entityType := d.Get("entity_type").(string)
@@ -154,16 +154,16 @@ func resourceEntityPermissionsUpdate(d *schema.ResourceData, meta interface{}) e
 				return fmt.Errorf("user/group %s repeated, there is already a permission defined for the user/group", userOrGroup)
 			}
 			usersAndGroups[strings.ToLower(userOrGroup)] = true
-			roleIdInt, err := strconv.ParseInt(permission.(map[string]interface{})["role_id"].(string), 10, 32)
+			roleIDInt, err := strconv.ParseInt(permission.(map[string]interface{})["role_id"].(string), 10, 32)
 			if err != nil {
 				return fmt.Errorf("error while converting role id %s to integer", permission.(map[string]interface{})["role_id"].(string))
 			}
-			roleId := int32(roleIdInt)
+			roleID := int32(roleIDInt)
 			permissionObjs = append(permissionObjs, types.Permission{
 				Principal: userOrGroup,
 				Group:     permission.(map[string]interface{})["is_group"].(bool),
 				Propagate: permission.(map[string]interface{})["propagate"].(bool),
-				RoleId:    roleId,
+				RoleId:    roleID,
 			})
 		}
 		err := authorizationManager.SetEntityPermissions(context.Background(), entityMor, permissionObjs)
@@ -173,7 +173,6 @@ func resourceEntityPermissionsUpdate(d *schema.ResourceData, meta interface{}) e
 
 		// handle removed permissions
 		for _, permission := range oldPermissions.([]interface{}) {
-
 			userOrGroup := permission.(map[string]interface{})["user_or_group"].(string)
 			isGroup := permission.(map[string]interface{})["is_group"].(bool)
 
@@ -191,7 +190,7 @@ func resourceEntityPermissionsUpdate(d *schema.ResourceData, meta interface{}) e
 
 func resourceEntityPermissionsDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf(" [DEBUG] Performing Delete of Entity permission %s", d.Id())
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	authorizationManager := object.NewAuthorizationManager(client.Client)
 	entityType := d.Get("entity_type").(string)
 	entityMor := types.ManagedObjectReference{
@@ -201,7 +200,6 @@ func resourceEntityPermissionsDelete(d *schema.ResourceData, meta interface{}) e
 
 	permissions := d.Get("permissions").([]interface{})
 	for _, permission := range permissions {
-
 		userOrGroup := permission.(map[string]interface{})["user_or_group"].(string)
 		isGroup := permission.(map[string]interface{})["is_group"].(bool)
 		log.Printf(" [DEBUG] Deleting permissions for user/group %s", userOrGroup)
@@ -215,11 +213,11 @@ func resourceEntityPermissionsDelete(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func resourceVSphereEntityPermissionsCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+func resourceVSphereEntityPermissionsCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
 	if d.HasChange("entity_id") {
-		oldEntityId, newEntityId := d.GetChange("entity_id")
-		if oldEntityId.(string) != "" {
-			return fmt.Errorf("change %s in entity id is not allowed post creation", newEntityId)
+		oldEntityID, newEntityID := d.GetChange("entity_id")
+		if oldEntityID.(string) != "" {
+			return fmt.Errorf("change %s in entity id is not allowed post creation", newEntityID)
 		}
 	}
 	if d.HasChange("entity_type") {
@@ -231,7 +229,7 @@ func resourceVSphereEntityPermissionsCustomizeDiff(_ context.Context, d *schema.
 	return nil
 }
 
-func permissionsDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+func permissionsDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
 	oldPermissions, newPermissions := d.GetChange("permissions")
 	oldPermissionsArr := oldPermissions.([]interface{})
 	newPermissionsArr := newPermissions.([]interface{})

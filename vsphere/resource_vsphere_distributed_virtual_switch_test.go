@@ -621,7 +621,7 @@ func testAccResourceVSphereDistributedVirtualSwitchCheckTags(tagResName string) 
 		if err != nil {
 			return err
 		}
-		tagsClient, err := testAccProvider.Meta().(*VSphereClient).TagsManager()
+		tagsClient, err := testAccProvider.Meta().(*Client).TagsManager()
 		if err != nil {
 			return err
 		}

@@ -453,7 +453,7 @@ func testAccResourceVSphereComputeClusterCheckAdmissionControlFailoverHost(expec
 			return errors.New("no failover hosts")
 		}
 
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
+		client := testAccProvider.Meta().(*Client).vimClient
 		hs, err := hostsystem.FromID(client, failoverHostsPolicy.FailoverHosts[0].Value)
 		if err != nil {
 			return err
@@ -505,27 +505,13 @@ func testAccResourceVSphereComputeClusterMatchInventoryPath(expected string) res
 	}
 }
 
-func testAccResourceVSphereComputeClusterCheckDRSDefaultAutomationLevel(expected types.DrsBehavior) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		props, err := testGetComputeClusterProperties(s, "compute_cluster")
-		if err != nil {
-			return err
-		}
-		actual := props.ConfigurationEx.(*types.ClusterConfigInfoEx).DrsConfig.DefaultVmBehavior
-		if expected != actual {
-			return fmt.Errorf("expected default automation level to be %q got %q", expected, actual)
-		}
-		return nil
-	}
-}
-
 func testAccResourceVSphereComputeClusterCheckTags(tagResName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		cluster, err := testGetComputeCluster(s, "compute_cluster", resourceVSphereComputeClusterName)
 		if err != nil {
 			return err
 		}
-		tagsClient, err := testAccProvider.Meta().(*VSphereClient).TagsManager()
+		tagsClient, err := testAccProvider.Meta().(*Client).TagsManager()
 		if err != nil {
 			return err
 		}

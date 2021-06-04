@@ -38,7 +38,7 @@ func dataSourceVSphereDynamic() *schema.Resource {
 
 func dataSourceVSphereDynamicRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] dataSourceDynamic: Beggining dynamic data source read.")
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func filterObjectsByName(d *schema.ResourceData, meta interface{}, matches []tag
 			// Skip this object because the type does not match
 			continue
 		}
-		attachedObject := object.NewCommon(meta.(*VSphereClient).vimClient.Client, match.Reference())
+		attachedObject := object.NewCommon(meta.(*Client).vimClient.Client, match.Reference())
 		name, err := attachedObject.ObjectName(context.TODO())
 		if err != nil {
 			return nil, err

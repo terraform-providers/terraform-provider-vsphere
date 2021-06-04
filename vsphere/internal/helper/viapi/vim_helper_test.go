@@ -134,18 +134,15 @@ func (tc *testCompareVersion) Test(t *testing.T) {
 		actual = append(actual, testCompareVersionEqual)
 	}
 
-	if len(actual) < 1 {
+	switch {
+	case len(actual) == 0:
 		if tc.expected == testCompareVersionUnknown {
 			return
 		}
 		t.Fatalf("expected %s but result was unknown", tc.expected)
-	}
-
-	if len(actual) > 1 {
+	case len(actual) > 1:
 		t.Fatalf("expected only one result, got %s", actual)
-	}
-
-	if tc.expected != actual[0] {
+	case tc.expected != actual[0]:
 		t.Fatalf("expected %s, got %s", tc.expected, actual)
 	}
 }

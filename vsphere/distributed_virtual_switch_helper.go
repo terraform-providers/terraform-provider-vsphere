@@ -104,15 +104,11 @@ func upgradeDVS(client *govmomi.Client, dvs *object.VmwareDistributedVirtualSwit
 	task := object.NewTask(client.Client, resp.Returnval)
 	tctx, tcancel := context.WithTimeout(context.Background(), defaultAPITimeout)
 	defer tcancel()
-	if err := task.Wait(tctx); err != nil {
-		return err
-	}
-
-	return nil
+	return task.Wait(tctx)
 }
 
 // updateDVSConfiguration contains the atomic update/wait operation for a DVS.
-func updateDVSConfiguration(client *govmomi.Client, dvs *object.VmwareDistributedVirtualSwitch, spec *types.VMwareDVSConfigSpec) error {
+func updateDVSConfiguration(dvs *object.VmwareDistributedVirtualSwitch, spec *types.VMwareDVSConfigSpec) error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultAPITimeout)
 	defer cancel()
 	task, err := dvs.Reconfigure(ctx, spec)
@@ -121,10 +117,7 @@ func updateDVSConfiguration(client *govmomi.Client, dvs *object.VmwareDistribute
 	}
 	tctx, tcancel := context.WithTimeout(context.Background(), defaultAPITimeout)
 	defer tcancel()
-	if err := task.Wait(tctx); err != nil {
-		return err
-	}
-	return nil
+	return task.Wait(tctx)
 }
 
 // enableDVSNetworkResourceManagement exposes the

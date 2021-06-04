@@ -361,7 +361,7 @@ func resourceVSphereDPMHostOverrideFetchObjects(
 }
 
 func resourceVSphereDPMHostOverrideClient(meta interface{}) (*govmomi.Client, error) {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	if err := viapi.ValidateVirtualCenter(client); err != nil {
 		return nil, err
 	}

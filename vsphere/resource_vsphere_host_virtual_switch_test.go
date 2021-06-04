@@ -187,9 +187,8 @@ func testAccResourceVSphereHostVirtualSwitchExists(expected bool) resource.TestC
 		if err != nil {
 			if expected {
 				return errors.New("vsphere_host_virtual_switch.switch not found in state")
-			} else {
-				return nil
 			}
+			return nil
 		}
 
 		hsID, name, err := splitHostVirtualSwitchID(vars.resourceID)

@@ -41,10 +41,6 @@ var networkInterfaceSubresourceTypeAllowedValues = []string{
 	networkInterfaceSubresourceTypeVmxnet3,
 }
 
-var networkInterfaceSubresourceMACAddressTypeAllowedValues = []string{
-	string(types.VirtualEthernetCardMacTypeManual),
-}
-
 // NetworkInterfaceSubresourceSchema returns the schema for the disk
 // sub-resource.
 func NetworkInterfaceSubresourceSchema() map[string]*schema.Schema {
@@ -677,7 +673,10 @@ func (r *NetworkInterfaceSubresource) Create(l object.VirtualDeviceList) ([]type
 		return nil, err
 	}
 	// Ensure the device starts connected
-	l.Connect(device)
+	err = l.Connect(device)
+	if err != nil && !strings.Contains(err.Error(), "is not connectable") {
+		return nil, err
+	}
 
 	// Set base-level card bits now
 	card := device.(types.BaseVirtualEthernetCard).GetVirtualEthernetCard()
@@ -828,8 +827,7 @@ func (r *NetworkInterfaceSubresource) Update(l object.VirtualDeviceList) ([]type
 		// Copy controller attributes and unit number
 		newCard.ControllerKey = card.ControllerKey
 		if card.UnitNumber != nil {
-			var un int32
-			un = *card.UnitNumber
+			un := *card.UnitNumber
 			newCard.UnitNumber = &un
 		}
 		// Ensure the device starts connected

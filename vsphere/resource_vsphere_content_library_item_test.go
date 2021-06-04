@@ -26,7 +26,7 @@ func TestAccResourceVSphereContentLibraryItem_localOva(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: testAccResourceVSphereContentLibraryItemGetOva,
-				Config:    testAccResourceVSphereContentLibraryItemConfig_localOva(),
+				Config:    testaccresourcevspherecontentlibraryitemconfigLocalova(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
 						"vsphere_content_library_item.item", "id", regexp.MustCompile("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"),
@@ -61,7 +61,7 @@ func TestAccResourceVSphereContentLibraryItem_remoteOvf(t *testing.T) {
 		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereContentLibraryItemConfig_remoteOvf(),
+				Config: testaccresourcevspherecontentlibraryitemconfigRemoteovf(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
 						"vsphere_content_library_item.item", "id", regexp.MustCompile("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"),
@@ -87,7 +87,7 @@ func TestAccResourceVSphereContentLibraryItem_remoteOvf(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"file_url",
 				},
-				Config: testAccResourceVSphereContentLibraryItemConfig_remoteOvf(),
+				Config: testaccresourcevspherecontentlibraryitemconfigRemoteovf(),
 			},
 		},
 	})
@@ -104,7 +104,7 @@ func TestAccResourceVSphereContentLibraryItem_remoteOva(t *testing.T) {
 		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereContentLibraryItemConfig_remoteOva(),
+				Config: testaccresourcevspherecontentlibraryitemconfigRemoteova(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
 						"vsphere_content_library_item.item", "id", regexp.MustCompile("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"),
@@ -130,29 +130,40 @@ func TestAccResourceVSphereContentLibraryItem_remoteOva(t *testing.T) {
 				ImportStateVerifyIgnore: []string{
 					"file_url",
 				},
-				Config: testAccResourceVSphereContentLibraryItemConfig_remoteOva(),
+				Config: testaccresourcevspherecontentlibraryitemconfigRemoteova(),
 			},
 		},
 	})
 }
 
 func testAccResourceVSphereContentLibraryItemGetOva() {
-	testAccResourceVSphereContentLibraryItemGetFile(os.Getenv("TF_VAR_VSPHERE_TEST_OVA"), "./testdata/test.ova")
+	_ = testAccResourceVSphereContentLibraryItemGetFile(os.Getenv("TF_VAR_VSPHERE_TEST_OVA"), "./testdata/test.ova")
 }
 
-func testAccResourceVSphereContentLibraryItemGetFile(url, file string) {
-	resp, _ := http.Get(url)
-	defer resp.Body.Close()
+func testAccResourceVSphereContentLibraryItemGetFile(url, file string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
-	out, _ := os.Create(file)
-	defer out.Close()
+	out, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer func(out *os.File) {
+		_ = out.Close()
+	}(out)
 
-	io.Copy(out, resp.Body)
+	_, err = io.Copy(out, resp.Body)
+	return err
 }
 
 func testAccResourceVSphereContentLibraryItemDestroyFile(file string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		os.Remove(file)
+		_ = os.Remove(file)
 		return nil
 	}
 }
@@ -205,7 +216,7 @@ func testAccResourceVSphereContentLibraryItemType(expected *regexp.Regexp) resou
 	}
 }
 
-func testAccResourceVSphereContentLibraryItemConfig_localOva() string {
+func testaccresourcevspherecontentlibraryitemconfigLocalova() string {
 	return fmt.Sprintf(`
 %s
 
@@ -223,11 +234,11 @@ resource "vsphere_content_library_item" "item" {
   file_url    = "./testdata/test.ova"
 }
 `,
-		testAccResourceVSphereContentLibraryItemConfig_base(),
+		testaccresourcevspherecontentlibraryitemconfigBase(),
 	)
 }
 
-func testAccResourceVSphereContentLibraryItemConfig_remoteOvf() string {
+func testaccresourcevspherecontentlibraryitemconfigRemoteovf() string {
 	return fmt.Sprintf(`
 %s
 
@@ -249,12 +260,12 @@ resource "vsphere_content_library_item" "item" {
   file_url    = var.file
 }
 `,
-		testAccResourceVSphereContentLibraryItemConfig_base(),
+		testaccresourcevspherecontentlibraryitemconfigBase(),
 		os.Getenv("TF_VAR_VSPHERE_TEST_OVF"),
 	)
 }
 
-func testAccResourceVSphereContentLibraryItemConfig_remoteOva() string {
+func testaccresourcevspherecontentlibraryitemconfigRemoteova() string {
 	return fmt.Sprintf(`
 %s
 
@@ -276,12 +287,12 @@ resource "vsphere_content_library_item" "item" {
   file_url    = var.file
 }
 `,
-		testAccResourceVSphereContentLibraryItemConfig_base(),
+		testaccresourcevspherecontentlibraryitemconfigBase(),
 		os.Getenv("TF_VAR_VSPHERE_TEST_OVA"),
 	)
 }
 
-func testAccResourceVSphereContentLibraryItemConfig_base() string {
+func testaccresourcevspherecontentlibraryitemconfigBase() string {
 	return testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1())
 }
 

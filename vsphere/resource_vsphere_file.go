@@ -76,9 +76,8 @@ func resourceVSphereFile() *schema.Resource {
 }
 
 func resourceVSphereFileCreate(d *schema.ResourceData, meta interface{}) error {
-
 	log.Printf("[DEBUG] creating file: %#v", d)
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 
 	f := file{}
 
@@ -131,9 +130,9 @@ func resourceVSphereFileCreate(d *schema.ResourceData, meta interface{}) error {
 
 func createDirectory(datastoreFileManager *object.DatastoreFileManager, f *file) error {
 	directoryPathIndex := strings.LastIndex(f.destinationFile, "/")
-	path := f.destinationFile[0:directoryPathIndex]
+	targetPath := f.destinationFile[0:directoryPathIndex]
 	err := datastoreFileManager.FileManager.MakeDirectory(context.TODO(),
-		datastoreFileManager.Datastore.Path(path), datastoreFileManager.Datacenter, true)
+		datastoreFileManager.Datastore.Path(targetPath), datastoreFileManager.Datacenter, true)
 	if err != nil {
 		return err
 	}
@@ -178,51 +177,34 @@ func createFile(client *govmomi.Client, f *file) error {
 		}
 	}
 
-	if f.copyFile {
-		// Copying file from within vSphere
+	switch {
+	case f.copyFile:
 		srcDatacenter, err := finder.Datacenter(context.TODO(), f.sourceDatacenter)
 		if err != nil {
 			return fmt.Errorf("error %s", err)
 		}
-
 		srcDatastore, err := getDatastore(finder, f.sourceDatastore)
 		if err != nil {
 			return fmt.Errorf("error %s", err)
 		}
-
 		srcDfm := srcDatastore.NewFileManager(srcDatacenter, false)
 		srcDfm.DatacenterTarget = dstDatacenter
-
 		dstFilePath := dstDfm.Path(f.destinationFile)
-
-		// govmomi datastore_file_manager Copy function properly handles
-		// copying VMDK(s) and regular files e.g. ISO(s)
-		// If the source is a VMDK the Copy method uses the correct CopyVirtualDisk_Task instead of
-		// CopyDatastoreFile_Task
 		err = srcDfm.Copy(context.TODO(), f.sourceFile, dstFilePath.String())
 		if err != nil {
 			return fmt.Errorf("error %s", err)
 		}
-	} else if path.Ext(f.sourceFile) == ".vmdk" {
+	case path.Ext(f.sourceFile) == ".vmdk":
 		tempDstFile := fmt.Sprintf("tfm-temp-%d.vmdk", time.Now().Nanosecond())
-
 		err = fileUpload(client, dstDatacenter, dstDatastore, f.sourceFile, tempDstFile)
 		if err != nil {
 			return fmt.Errorf("error %s", err)
 		}
-
-		// govmomi datastore_file_manager Move function properly handles
-		// moving VMDK(s) and regular files e.g. ISO(s)
-		// If the source is a VMDK the Move method uses the correct MoveVirtualDisk_Task instead of
-		// MoveDatastoreFile_Task
 		err = dstDfm.Move(context.TODO(), tempDstFile, f.destinationFile)
 		if err != nil {
 			return fmt.Errorf("error %s", err)
 		}
-
-	} else {
-		// If we are not copying a file or uploading a VMDK
-		// just use UploadFile alone
+	default:
 		err = fileUpload(client, dstDatacenter, dstDatastore, f.sourceFile, f.destinationFile)
 		if err != nil {
 			return fmt.Errorf("error %s", err)
@@ -233,7 +215,6 @@ func createFile(client *govmomi.Client, f *file) error {
 }
 
 func resourceVSphereFileRead(d *schema.ResourceData, meta interface{}) error {
-
 	log.Printf("[DEBUG] reading file: %#v", d)
 	f := file{}
 
@@ -267,7 +248,7 @@ func resourceVSphereFileRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("destination_file argument is required")
 	}
 
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	finder := find.NewFinder(client.Client, true)
 
 	dc, err := finder.Datacenter(context.TODO(), f.datacenter)
@@ -296,7 +277,6 @@ func resourceVSphereFileRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVSphereFileUpdate(d *schema.ResourceData, meta interface{}) error {
-
 	log.Printf("[DEBUG] updating file: %#v", d)
 
 	if d.HasChange("destination_file") || d.HasChange("datacenter") || d.HasChange("datastore") {
@@ -306,11 +286,9 @@ func resourceVSphereFileUpdate(d *schema.ResourceData, meta interface{}) error {
 			tmpOldDataceneter, tmpNewDatacenter := d.GetChange("datacenter")
 			oldDataceneter = tmpOldDataceneter.(string)
 			newDatacenter = tmpNewDatacenter.(string)
-		} else {
-			if v, ok := d.GetOk("datacenter"); ok {
-				oldDataceneter = v.(string)
-				newDatacenter = oldDataceneter
-			}
+		} else if v, ok := d.GetOk("datacenter"); ok {
+			oldDataceneter = v.(string)
+			newDatacenter = oldDataceneter
 		}
 		if d.HasChange("datastore") {
 			tmpOldDatastore, tmpNewDatastore := d.GetChange("datastore")
@@ -330,7 +308,7 @@ func resourceVSphereFileUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		// Get old and new dataceter and datastore
-		client := meta.(*VSphereClient).vimClient
+		client := meta.(*Client).vimClient
 		dcOld, err := getDatacenter(client, oldDataceneter)
 		if err != nil {
 			return err
@@ -367,7 +345,6 @@ func resourceVSphereFileUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVSphereFileDelete(d *schema.ResourceData, meta interface{}) error {
-
 	log.Printf("[DEBUG] deleting file: %#v", d)
 	f := file{}
 
@@ -393,7 +370,7 @@ func resourceVSphereFileDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("destination_file argument is required")
 	}
 
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 
 	err := deleteFile(client, &f)
 	if err != nil {
@@ -405,7 +382,6 @@ func resourceVSphereFileDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func deleteFile(client *govmomi.Client, f *file) error {
-
 	dc, err := getDatacenter(client, f.datacenter)
 	if err != nil {
 		return err
@@ -434,7 +410,6 @@ func deleteFile(client *govmomi.Client, f *file) error {
 
 // getDatastore gets datastore object
 func getDatastore(f *find.Finder, ds string) (*object.Datastore, error) {
-
 	if ds != "" {
 		dso, err := f.Datastore(context.TODO(), ds)
 		return dso, err

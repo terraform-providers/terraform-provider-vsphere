@@ -10,7 +10,7 @@ import (
 
 // defaultAPITimeout is a default timeout value that is passed to functions
 // requiring contexts, and other various waiters.
-var defaultAPITimeout time.Duration = time.Minute * 5
+var defaultAPITimeout = time.Minute * 5
 
 // Provider returns a terraform.ResourceProvider.
 func Provider() *schema.Provider {
@@ -135,7 +135,7 @@ func Provider() *schema.Provider {
 			"vsphere_virtual_machine_snapshot":                resourceVSphereVirtualMachineSnapshot(),
 			"vsphere_host":                                    resourceVsphereHost(),
 			"vsphere_vnic":                                    resourceVsphereNic(),
-			"vsphere_vm_storage_policy":                       resourceVmStoragePolicy(),
+			"vsphere_vm_storage_policy":                       resourceVMStoragePolicy(),
 			"vsphere_role":                                    resourceVsphereRole(),
 			"vsphere_entity_permissions":                      resourceVsphereEntityPermissions(),
 		},
@@ -172,7 +172,7 @@ func Provider() *schema.Provider {
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	timeoutMins := time.Duration(d.Get("api_timeout").(int))
-	defaultAPITimeout = time.Duration(timeoutMins * time.Minute)
+	defaultAPITimeout = timeoutMins * time.Minute
 
 	c, err := NewConfig(d)
 	if err != nil {

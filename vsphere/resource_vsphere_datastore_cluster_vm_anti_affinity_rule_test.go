@@ -287,7 +287,7 @@ func testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleMatchMembershipVMID
 		ids = testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleGetMultiple(s)
 	}
 
-	results, err := virtualmachine.MOIDsForUUIDs(testAccProvider.Meta().(*VSphereClient).vimClient, ids)
+	results, err := virtualmachine.MOIDsForUUIDs(testAccProvider.Meta().(*Client).vimClient, ids)
 	if err != nil {
 		return nil, err
 	}

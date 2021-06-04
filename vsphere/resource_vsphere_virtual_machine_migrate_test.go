@@ -86,7 +86,7 @@ func TestAccResourceVSphereVirtualMachine_migrateStateV3_fromV2(t *testing.T) {
 		t.Fatalf("bad: %s", err)
 	}
 
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	pth := os.Getenv("TF_VAR_VSPHERE_VM_V1_PATH")
 	dc, err := datacenter.FromPath(client, os.Getenv("TF_VAR_VSPHERE_DATACENTER"))
 	if err != nil {
@@ -129,7 +129,7 @@ func TestAccResourceVSphereVirtualMachine_migrateStateV3FromV1(t *testing.T) {
 		t.Fatalf("bad: %s", err)
 	}
 
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	pth := os.Getenv("TF_VAR_VSPHERE_VM_V1_PATH")
 	name := path.Base(pth)
 	dc, err := datacenter.FromPath(client, os.Getenv("TF_VAR_VSPHERE_DATACENTER"))
@@ -187,7 +187,7 @@ func TestAccResourceVSphereVirtualMachine_migrateStateV2(t *testing.T) {
 		t.Fatalf("bad: %s", err)
 	}
 
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	pth := os.Getenv("TF_VAR_VSPHERE_VM_V1_PATH")
 	name := path.Base(pth)
 	dc, err := datacenter.FromPath(client, os.Getenv("TF_VAR_VSPHERE_DATACENTER"))
@@ -254,7 +254,7 @@ func TestComputeInstanceMigrateState_empty(t *testing.T) {
 
 	// should handle non-nil but empty
 	is = &terraform.InstanceState{}
-	is, err = resourceVSphereVirtualMachineMigrateState(0, is, meta)
+	_, err = resourceVSphereVirtualMachineMigrateState(0, is, meta)
 
 	if err != nil {
 		t.Fatalf("err: %#v", err)

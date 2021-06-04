@@ -69,7 +69,7 @@ func resourceVSphereTagCategory() *schema.Resource {
 }
 
 func resourceVSphereTagCategoryCreate(d *schema.ResourceData, meta interface{}) error {
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func resourceVSphereTagCategoryCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceVSphereTagCategoryRead(d *schema.ResourceData, meta interface{}) error {
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
 	}
@@ -114,9 +114,9 @@ func resourceVSphereTagCategoryRead(d *schema.ResourceData, meta interface{}) er
 		}
 		return err
 	}
-	d.Set("name", category.Name)
-	d.Set("description", category.Description)
-	d.Set("cardinality", category.Cardinality)
+	_ = d.Set("name", category.Name)
+	_ = d.Set("description", category.Description)
+	_ = d.Set("cardinality", category.Cardinality)
 
 	if err := d.Set("associable_types", category.AssociableTypes); err != nil {
 		return fmt.Errorf("could not set associable type data for category: %s", err)
@@ -126,7 +126,7 @@ func resourceVSphereTagCategoryRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceVSphereTagCategoryUpdate(d *schema.ResourceData, meta interface{}) error {
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func resourceVSphereTagCategoryUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceVSphereTagCategoryDelete(d *schema.ResourceData, meta interface{}) error {
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func resourceVSphereTagCategoryDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceVSphereTagCategoryImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +200,6 @@ func resourceVSphereTagCategoryImport(d *schema.ResourceData, meta interface{}) 
 }
 
 func appendPrefix(associableTypes []string) []string {
-
 	var appendedTypes []string
 	for _, associableType := range associableTypes {
 		appendedTypes = append(appendedTypes, vim25Prefix+associableType)

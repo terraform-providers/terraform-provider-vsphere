@@ -28,7 +28,7 @@ func generateSteps(cfgFunc genTfConfig, netstack string) []resource.TestStep {
 				ipv6Snippet(ipv6),
 				netstackSnippet(netstack))
 			out = append(out, []resource.TestStep{
-				resource.TestStep{
+				{
 					Config: cfgFunc(cfg),
 					Check: resource.ComposeTestCheckFunc(
 						testAccVsphereVNicNetworkSettings("vsphere_vnic.v1", ipv4, ipv6, netstack),
@@ -48,7 +48,7 @@ func TestAccResourceVSphereVNic_dvs(t *testing.T) {
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVSphereVNicDestroy,
-		Steps:        generateSteps(testAccVSphereVNicConfig_dvs, "defaultTcpipStack"),
+		Steps:        generateSteps(testaccvspherevnicconfigDvs, "defaultTcpipStack"),
 	})
 }
 
@@ -60,7 +60,7 @@ func TestAccResourceVSphereVNic_dvs_vmotion(t *testing.T) {
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVSphereVNicDestroy,
-		Steps:        generateSteps(testAccVSphereVNicConfig_dvs, "vmotion"),
+		Steps:        generateSteps(testaccvspherevnicconfigDvs, "vmotion"),
 	})
 }
 
@@ -74,7 +74,7 @@ func TestAccResourceVSphereVNic_hvs(t *testing.T) {
 		CheckDestroy: testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVSphereVNicConfig_hvs(combineSnippets(
+				Config: testaccvspherevnicconfigHvs(combineSnippets(
 					ipv4Snippet("192.0.2.10|255.255.255.0|192.0.2.1"),
 					"",
 					netstackSnippet("defaultTcpipStack"))),
@@ -99,7 +99,7 @@ func TestAccResourceVSphereVNic_hvs_vmotion(t *testing.T) {
 		CheckDestroy: testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVSphereVNicConfig_hvs(combineSnippets(
+				Config: testaccvspherevnicconfigHvs(combineSnippets(
 					ipv4Snippet("192.0.2.10|255.255.255.0|192.0.2.1"),
 					"",
 					netstackSnippet("vmotion"))),
@@ -122,10 +122,10 @@ func testAccVsphereVNicNetworkSettings(name, ipv4State, ipv6State, netstack stri
 			return fmt.Errorf("%s key not found on the server", name)
 		}
 		idParts := strings.Split(rs.Primary.ID, "_")
-		hostId := idParts[0]
-		vmnicId := idParts[1]
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
-		vnic, err := getVnicFromHost(context.TODO(), client, hostId, vmnicId)
+		hostID := idParts[0]
+		vmnicID := idParts[1]
+		client := testAccProvider.Meta().(*Client).vimClient
+		vnic, err := getVnicFromHost(context.TODO(), client, hostID, vmnicID)
 		if err != nil {
 			return err
 		}
@@ -196,9 +196,9 @@ func testAccVsphereVNicNetworkSettings(name, ipv4State, ipv6State, netstack stri
 			// loop through ipv6 IPs until we find our own
 			addrFound := false
 			for _, ipv6addr := range vnic.Spec.Ip.IpV6Config.IpV6Address {
-				if strings.ToLower(ipv6addr.IpAddress) == strings.ToLower(ip) {
+				if strings.EqualFold(ipv6addr.IpAddress, ip) {
 					if ipv6addr.PrefixLength != int32(prefix) ||
-						strings.ToLower(routeConfig.IpV6DefaultGateway) != strings.ToLower(gw) {
+						strings.EqualFold(routeConfig.IpV6DefaultGateway, gw) {
 						return fmt.Errorf(
 							"ipv6 network error, static config mismatch. prefix length %d vs %d, gw %s vs %s",
 							prefix, ipv6addr.PrefixLength,
@@ -228,15 +228,15 @@ func testAccVSphereVNicDestroy(s *terraform.State) error {
 		if rs.Type != "vsphere_vnic" {
 			continue
 		}
-		nicId := rs.Primary.ID
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
-		res, err := nicExists(client, nicId)
+		nicID := rs.Primary.ID
+		client := testAccProvider.Meta().(*Client).vimClient
+		res, err := nicExists(client, nicID)
 		if err != nil {
 			return err
 		}
 
 		if res {
-			message += fmt.Sprintf("vNic with ID %s was found", nicId)
+			message += fmt.Sprintf("vNic with ID %s was found", nicID)
 		}
 	}
 	if message != "" {
@@ -245,13 +245,13 @@ func testAccVSphereVNicDestroy(s *terraform.State) error {
 	return nil
 }
 
-func nicExists(client *govmomi.Client, nicId string) (bool, error) {
-	toks := strings.Split(nicId, "_")
-	vmnicId := toks[1]
-	hostId := toks[0]
-	_, err := getVnicFromHost(context.TODO(), client, hostId, vmnicId)
+func nicExists(client *govmomi.Client, nicID string) (bool, error) {
+	toks := strings.Split(nicID, "_")
+	vmnicID := toks[1]
+	hostID := toks[0]
+	_, err := getVnicFromHost(context.TODO(), client, hostID, vmnicID)
 	if err != nil {
-		if err.Error() == fmt.Sprintf("vNic interface with id %s not found", vmnicId) {
+		if err.Error() == fmt.Sprintf("vNic interface with id %s not found", vmnicID) {
 			return false, nil
 		}
 		return false, err
@@ -260,7 +260,7 @@ func nicExists(client *govmomi.Client, nicId string) (bool, error) {
 	return true, nil
 }
 
-func testAccVSphereVNicConfig_hvs(netConfig string) string {
+func testaccvspherevnicconfigHvs(netConfig string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -298,7 +298,7 @@ func testAccVSphereVNicConfig_hvs(netConfig string) string {
 		netConfig)
 }
 
-func testAccVSphereVNicConfig_dvs(netConfig string) string {
+func testaccvspherevnicconfigDvs(netConfig string) string {
 	return fmt.Sprintf(`
 %s
 

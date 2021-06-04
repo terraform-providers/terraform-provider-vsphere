@@ -306,7 +306,7 @@ func testAccResourceVSphereResourcePoolCheckTags(tagResName string) resource.Tes
 		if err != nil {
 			return err
 		}
-		tagsClient, err := testAccProvider.Meta().(*VSphereClient).TagsManager()
+		tagsClient, err := testAccProvider.Meta().(*Client).TagsManager()
 		if err != nil {
 			return err
 		}
@@ -374,45 +374,6 @@ func testAccResourceVSphereResourcePoolCheckCPUShares(value int) resource.TestCh
 		}
 		if props.Config.CpuAllocation.Shares.Shares != int32(value) {
 			return fmt.Errorf("CpuAllocation.Shares.Shares check failed. Expected: %d, got: %d", props.Config.CpuAllocation.Shares.Shares, value)
-		}
-		return nil
-	}
-}
-
-func testAccResourceVSphereResourcePoolCheckMemoryReservation(value int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		props, err := testGetResourcePoolProperties(s, "resource_pool")
-		if err != nil {
-			return err
-		}
-		if *props.Config.MemoryAllocation.Reservation != *structure.Int64Ptr(int64(value)) {
-			return fmt.Errorf("MemoryAllocation.Reservation check failed. Expected: %d, got: %d", *props.Config.MemoryAllocation.Reservation, value)
-		}
-		return nil
-	}
-}
-
-func testAccResourceVSphereResourcePoolCheckMemoryExpandable(value bool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		props, err := testGetResourcePoolProperties(s, "resource_pool")
-		if err != nil {
-			return err
-		}
-		if *props.Config.MemoryAllocation.ExpandableReservation != *structure.BoolPtr(value) {
-			return fmt.Errorf("MemoryAllocation.Expandable check failed. Expected: %t, got: %t", *props.Config.MemoryAllocation.ExpandableReservation, value)
-		}
-		return nil
-	}
-}
-
-func testAccResourceVSphereResourcePoolCheckMemoryLimit(value int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		props, err := testGetResourcePoolProperties(s, "resource_pool")
-		if err != nil {
-			return err
-		}
-		if *props.Config.MemoryAllocation.Limit != *structure.Int64Ptr(int64(value)) {
-			return fmt.Errorf("MemoryAllocation.Limit check failed. Expected: %d, got: %d", *props.Config.MemoryAllocation.Limit, value)
 		}
 		return nil
 	}

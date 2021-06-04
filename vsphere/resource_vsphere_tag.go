@@ -44,7 +44,7 @@ func resourceVSphereTag() *schema.Resource {
 }
 
 func resourceVSphereTagCreate(d *schema.ResourceData, meta interface{}) error {
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func resourceVSphereTagCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVSphereTagRead(d *schema.ResourceData, meta interface{}) error {
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
 	}
@@ -85,15 +85,15 @@ func resourceVSphereTagRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		return err
 	}
-	d.Set("name", tag.Name)
-	d.Set("description", tag.Description)
-	d.Set("category_id", tag.CategoryID)
+	_ = d.Set("name", tag.Name)
+	_ = d.Set("description", tag.Description)
+	_ = d.Set("category_id", tag.CategoryID)
 
 	return nil
 }
 
 func resourceVSphereTagUpdate(d *schema.ResourceData, meta interface{}) error {
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func resourceVSphereTagUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceVSphereTagDelete(d *schema.ResourceData, meta interface{}) error {
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
 	}
@@ -155,7 +155,7 @@ func resourceVSphereTagImport(d *schema.ResourceData, meta interface{}) ([]*sche
 		return nil, errors.New("missing tag_name in input data")
 	}
 
-	tm, err := meta.(*VSphereClient).TagsManager()
+	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return nil, err
 	}

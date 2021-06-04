@@ -45,11 +45,11 @@ func TestAccResourceVSphereFolder_vmFolder(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
-					folder, err := testGetFolder(s, "folder")
+					testFolder, err := testGetFolder(s, "folder")
 					if err != nil {
 						return "", err
 					}
-					return folder.InventoryPath, nil
+					return testFolder.InventoryPath, nil
 				},
 				Config: testAccResourceVSphereFolderConfigBasic(
 					testAccResourceVSphereFolderConfigExpectedName,
@@ -485,7 +485,7 @@ func TestAccResourceVSphereFolder_preventDeleteIfNotEmpty(t *testing.T) {
 
 func testAccResourceVSphereFolderExists(expected bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		folder, err := testGetFolder(s, "folder")
+		testFolder, err := testGetFolder(s, "folder")
 		if err != nil {
 			if viapi.IsManagedObjectNotFoundError(err) && expected == false {
 				// Expected missing
@@ -494,7 +494,7 @@ func testAccResourceVSphereFolderExists(expected bool) resource.TestCheckFunc {
 			return err
 		}
 		if !expected {
-			return fmt.Errorf("expected folder %q to be missing", folder.Reference().Value)
+			return fmt.Errorf("expected folder %q to be missing", testFolder.Reference().Value)
 		}
 		return nil
 	}
@@ -540,7 +540,7 @@ func testAccResourceVSphereFolderHasParent(expectedRoot bool, expectedName strin
 		if props.Parent.Type != "Folder" && !expectedRoot {
 			return fmt.Errorf("folder %q is a root folder", props.Name)
 		}
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
+		client := testAccProvider.Meta().(*Client).vimClient
 		pfolder, err := folder.FromID(client, props.Parent.Value)
 		if err != nil {
 			return err
@@ -563,15 +563,15 @@ func testAccResourceVSphereFolderHasParent(expectedRoot bool, expectedName strin
 // attached to the folder.
 func testAccResourceVSphereFolderCheckTags(tagResName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		folder, err := testGetFolder(s, "folder")
+		testFolder, err := testGetFolder(s, "folder")
 		if err != nil {
 			return err
 		}
-		tagsClient, err := testAccProvider.Meta().(*VSphereClient).TagsManager()
+		tagsClient, err := testAccProvider.Meta().(*Client).TagsManager()
 		if err != nil {
 			return err
 		}
-		return testObjectHasTags(s, tagsClient, folder, tagResName)
+		return testObjectHasTags(s, tagsClient, testFolder, tagResName)
 	}
 }
 
@@ -581,15 +581,15 @@ func testAccResourceVSphereFolderCheckTags(tagResName string) resource.TestCheck
 // having to rely on the simple empty diff test after the final step.
 func testAccResourceVSphereFolderCheckNoTags() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		folder, err := testGetFolder(s, "folder")
+		testFolder, err := testGetFolder(s, "folder")
 		if err != nil {
 			return err
 		}
-		tagsClient, err := testAccProvider.Meta().(*VSphereClient).TagsManager()
+		tagsClient, err := testAccProvider.Meta().(*Client).TagsManager()
 		if err != nil {
 			return err
 		}
-		return testObjectHasNoTags(s, tagsClient, folder)
+		return testObjectHasNoTags(tagsClient, testFolder)
 	}
 }
 
@@ -607,13 +607,13 @@ func testAccResourceVSphereFolderHasCustomAttributes() resource.TestCheckFunc {
 // not tracked by TF. This is used in deletion checks to make sure we don't
 // perform unsafe recursive deletions.
 func testAccResourceVSphereFolderCreateOOB(s *terraform.State) error {
-	folder, err := testGetFolder(s, "folder")
+	testFolder, err := testGetFolder(s, "folder")
 	if err != nil {
 		return err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), defaultAPITimeout)
 	defer cancel()
-	if _, err := folder.CreateFolder(ctx, testAccResourceVSphereFolderConfigOOBName); err != nil {
+	if _, err := testFolder.CreateFolder(ctx, testAccResourceVSphereFolderConfigOOBName); err != nil {
 		return err
 	}
 	return nil
@@ -623,14 +623,14 @@ func testAccResourceVSphereFolderCreateOOB(s *terraform.State) error {
 // folder resource. This is used to reverse the actions of
 // testAccResourceVSphereFolderCreateOOB so we can properly clean up the test.
 func testAccResourceVSphereFolderDeleteOOB(s *terraform.State) error {
-	client := testAccProvider.Meta().(*VSphereClient).vimClient
-	folder, err := testGetFolder(s, "folder")
+	client := testAccProvider.Meta().(*Client).vimClient
+	testFolder, err := testGetFolder(s, "folder")
 	if err != nil {
 		return err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), defaultAPITimeout)
 	defer cancel()
-	refs, err := folder.Children(ctx)
+	refs, err := testFolder.Children(ctx)
 	if err != nil {
 		return err
 	}
@@ -707,26 +707,6 @@ resource "vsphere_folder" "folder" {
 		name,
 		ft,
 		testAccResourceVSphereFolderConfigExpectedParentName,
-	)
-}
-
-func testAccResourceVSphereFolderConfigDatacenter() string {
-	return fmt.Sprintf(`
-variable "folder_name" {
-  default = "%s"
-}
-
-variable "folder_type" {
-  default = "%s"
-}
-
-resource "vsphere_folder" "folder" {
-  path          = "${var.folder_name}"
-  type          = "${var.folder_type}"
-}
-`,
-		testAccResourceVSphereFolderConfigExpectedName,
-		folder.VSphereFolderTypeDatacenter,
 	)
 }
 

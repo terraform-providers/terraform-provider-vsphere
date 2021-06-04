@@ -165,7 +165,7 @@ func TestAccResourceVSphereVAppContainer_vmSDRS(t *testing.T) {
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereVAppContainerConfigVmSdrs(),
+				Config: testAccResourceVSphereVAppContainerConfigVMSdrs(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereVAppContainerCheckExists(true),
 					testAccResourceVSphereVAppContainerContainsVM("vm"),
@@ -186,7 +186,7 @@ func TestAccResourceVSphereVAppContainer_vmClone(t *testing.T) {
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereVAppContainerConfigVmClone(),
+				Config: testAccResourceVSphereVAppContainerConfigVMClone(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereVAppContainerCheckExists(true),
 					testAccResourceVSphereVAppContainerContainsVM("vm"),
@@ -207,7 +207,7 @@ func TestAccResourceVSphereVAppContainer_vmCloneSDRS(t *testing.T) {
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereVAppContainerConfigVmSdrsClone(),
+				Config: testAccResourceVSphereVAppContainerConfigVMSdrsClone(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereVAppContainerCheckExists(true),
 					testAccResourceVSphereVAppContainerContainsVM("vm"),
@@ -228,14 +228,14 @@ func TestAccResourceVSphereVAppContainer_vmMoveIntoVAppSDRS(t *testing.T) {
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereVAppContainerConfigVmSdrsNoVApp(),
+				Config: testAccResourceVSphereVAppContainerConfigVMSdrsNoVApp(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereVAppContainerCheckExists(true),
 					testAccResourceVSphereVAppContainerContainsVM("vm"),
 				),
 			},
 			{
-				Config: testAccResourceVSphereVAppContainerConfigVmSdrs(),
+				Config: testAccResourceVSphereVAppContainerConfigVMSdrs(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereVAppContainerCheckExists(true),
 					testAccResourceVSphereVAppContainerContainsVM("vm"),
@@ -390,45 +390,6 @@ func testAccResourceVSphereVAppContainerCheckCPUShares(value int) resource.TestC
 	}
 }
 
-func testAccResourceVSphereVAppContainerCheckMemoryReservation(value int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		props, err := testGetVAppContainerProperties(s, "vapp_container")
-		if err != nil {
-			return err
-		}
-		if *props.Config.MemoryAllocation.Reservation != *structure.Int64Ptr(int64(value)) {
-			return fmt.Errorf("MemoryAllocation.Reservation check failed. Expected: %d, got: %d", *props.Config.MemoryAllocation.Reservation, value)
-		}
-		return nil
-	}
-}
-
-func testAccResourceVSphereVAppContainerCheckMemoryExpandable(value bool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		props, err := testGetVAppContainerProperties(s, "vapp_container")
-		if err != nil {
-			return err
-		}
-		if *props.Config.MemoryAllocation.ExpandableReservation != *structure.BoolPtr(value) {
-			return fmt.Errorf("MemoryAllocation.Expandable check failed. Expected: %t, got: %t", *props.Config.MemoryAllocation.ExpandableReservation, value)
-		}
-		return nil
-	}
-}
-
-func testAccResourceVSphereVAppContainerCheckMemoryLimit(value int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		props, err := testGetVAppContainerProperties(s, "vapp_container")
-		if err != nil {
-			return err
-		}
-		if *props.Config.MemoryAllocation.Limit != *structure.Int64Ptr(int64(value)) {
-			return fmt.Errorf("MemoryAllocation.Limit check failed. Expected: %d, got: %d", *props.Config.MemoryAllocation.Limit, value)
-		}
-		return nil
-	}
-}
-
 func testAccResourceVSphereVAppContainerCheckMemoryShareLevel(value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		props, err := testGetVAppContainerProperties(s, "vapp_container")
@@ -490,7 +451,7 @@ resource "vsphere_vapp_container" "vapp_container" {
 	)
 }
 
-func testAccResourceVSphereVAppContainerConfigVmSdrsNoVApp() string {
+func testAccResourceVSphereVAppContainerConfigVMSdrsNoVApp() string {
 	return fmt.Sprintf(`
 %s
 
@@ -569,7 +530,7 @@ resource "vsphere_virtual_machine" "vm" {
 	)
 }
 
-func testAccResourceVSphereVAppContainerConfigVmSdrs() string {
+func testAccResourceVSphereVAppContainerConfigVMSdrs() string {
 	return fmt.Sprintf(`
 %s
 
@@ -646,7 +607,7 @@ resource "vsphere_virtual_machine" "vm" {
 	)
 }
 
-func testAccResourceVSphereVAppContainerConfigVmSdrsClone() string {
+func testAccResourceVSphereVAppContainerConfigVMSdrsClone() string {
 	x := fmt.Sprintf(`
 %s
 
@@ -742,7 +703,7 @@ resource "vsphere_virtual_machine" "vm" {
 	return x
 }
 
-func testAccResourceVSphereVAppContainerConfigVmClone() string {
+func testAccResourceVSphereVAppContainerConfigVMClone() string {
 	return fmt.Sprintf(`
 %s
 

@@ -226,20 +226,18 @@ func CdromRefreshOperation(d *schema.ResourceData, c *govmomi.Client, l object.V
 			}
 			// We should have our device -> resource match, so read now.
 			r := NewCdromSubresource(c, d, m, nil, n)
-			vApp, err := verifyVAppCdromIso(d, device.(*types.VirtualCdrom), l, c)
+			vApp, err := verifyVAppCdromIso(d, device.(*types.VirtualCdrom))
 			if err != nil {
 				return err
 			}
-			if vApp == true && r.Get("client_device") == true {
+			if vApp && r.Get("client_device") == true {
 				log.Printf("[DEBUG] CdromRefreshOperation: %s: Skipping read since CDROM is in use for vApp ISO transport", r)
 				// Set the CDROM properties to match a client device so there won't be a diff.
 				r.Set("client_device", true)
 				r.Set("datastore_id", "")
 				r.Set("path", "")
-			} else {
-				if err := r.Read(l); err != nil {
-					return fmt.Errorf("%s: %s", r.Addr(), err)
-				}
+			} else if err := r.Read(l); err != nil {
+				return fmt.Errorf("%s: %s", r.Addr(), err)
 			}
 			// Done reading, push this onto our new set and remove the device from
 			// the list
@@ -452,7 +450,10 @@ func (r *CdromSubresource) Create(l object.VirtualDeviceList) ([]types.BaseVirtu
 		return nil, err
 	}
 	// Map the CDROM to the correct device
-	r.mapCdrom(device, l)
+	err = r.mapCdrom(device, l)
+	if err != nil {
+		return nil, err
+	}
 	// Done here. Save IDs, push the device to the new device list and return.
 	if err := r.SaveDevIDs(device, ctlr); err != nil {
 		return nil, err
@@ -530,7 +531,10 @@ func (r *CdromSubresource) Update(l object.VirtualDeviceList) ([]types.BaseVirtu
 	}
 
 	// Map the CDROM to the correct device
-	r.mapCdrom(device, l)
+	err = r.mapCdrom(device, l)
+	if err != nil {
+		return nil, err
+	}
 	spec, err := object.VirtualDeviceList{device}.ConfigSpec(types.VirtualDeviceConfigSpecOperationEdit)
 	if err != nil {
 		return nil, err
@@ -582,26 +586,29 @@ func (r *CdromSubresource) mapCdrom(device *types.VirtualCdrom, l object.Virtual
 			Path:      path,
 		}
 		device = l.InsertIso(device, dsPath.String())
-		l.Connect(device)
+		err = l.Connect(device)
+		if err != nil {
+			return err
+		}
 		return nil
-	case clientDevice == true:
+	case clientDevice:
 		// If set to use the client device, then the CDROM will be mapped to a remote device.
 		device.Backing = &types.VirtualCdromRemoteAtapiBackingInfo{
 			VirtualDeviceRemoteDeviceBackingInfo: types.VirtualDeviceRemoteDeviceBackingInfo{},
 		}
 		return nil
 	}
-	panic(fmt.Sprintf("%s: no CDROM types specified", r))
+	return fmt.Errorf("%s: no CDROM types specified", r)
 }
 
 // VerifyVAppTransport validates that all the required components are included in
 // the virtual machine configuration if vApp properties are set.
-func VerifyVAppTransport(d *schema.ResourceDiff, c *govmomi.Client) error {
+func VerifyVAppTransport(d *schema.ResourceDiff) error {
 	log.Printf("[DEBUG] VAppDiffOperation: Verifying configuration meets requirements for vApp transport")
 	// Check if there is a client CDROM device configured.
 	cl := d.Get("cdrom")
 	for _, c := range cl.([]interface{}) {
-		if c.(map[string]interface{})["client_device"].(bool) == true {
+		if c.(map[string]interface{})["client_device"].(bool) {
 			// There is a device configured that can support vApp ISO transport if needed
 			log.Printf("[DEBUG] VAppDiffOperation: Client CDROM device exists which can support ISO transport")
 			return nil
@@ -623,7 +630,7 @@ func VerifyVAppTransport(d *schema.ResourceDiff, c *govmomi.Client) error {
 // that matches the vApp ISO naming pattern. If it does, then the next step is
 // to see if vApp ISO transport is supported on the VM. If both of those
 // conditions are met, then the CDROM is considered in use for vApp transport.
-func verifyVAppCdromIso(d *schema.ResourceData, device *types.VirtualCdrom, l object.VirtualDeviceList, c *govmomi.Client) (bool, error) {
+func verifyVAppCdromIso(d *schema.ResourceData, device *types.VirtualCdrom) (bool, error) {
 	log.Printf("[DEBUG] IsVAppCdrom: Checking if CDROM is using a vApp ISO")
 	// If the CDROM is using VirtualCdromIsoBackingInfo and matches the ISO
 	// naming pattern, it has been used as a vApp CDROM, and we can move on to

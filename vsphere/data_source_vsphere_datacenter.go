@@ -21,7 +21,7 @@ func dataSourceVSphereDatacenter() *schema.Resource {
 }
 
 func dataSourceVSphereDatacenterRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	datacenter := d.Get("name").(string)
 	dc, err := getDatacenter(client, datacenter)
 	if err != nil {

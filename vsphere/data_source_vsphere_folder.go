@@ -21,7 +21,7 @@ func dataSourceVSphereFolder() *schema.Resource {
 }
 
 func dataSourceVSphereFolderRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	fo, err := folder.FromAbsolutePath(client, d.Get("path").(string))
 	if err != nil {
 		return fmt.Errorf("cannot locate folder: %s", err)

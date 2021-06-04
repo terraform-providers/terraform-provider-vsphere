@@ -29,7 +29,7 @@ func dataSourceVSphereResourcePool() *schema.Resource {
 }
 
 func dataSourceVSphereResourcePoolRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 
 	name := d.Get("name").(string)
 	if err := viapi.ValidateVirtualCenter(client); err == nil {

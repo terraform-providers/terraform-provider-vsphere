@@ -45,7 +45,7 @@ func dataSourceVSphereVmfsDisks() *schema.Resource {
 }
 
 func dataSourceVSphereVmfsDisksRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	hsID := d.Get("host_system_id").(string)
 	ss, err := hostStorageSystemFromHostSystemID(client, hsID)
 	if err != nil {

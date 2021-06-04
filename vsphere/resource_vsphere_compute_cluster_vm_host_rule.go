@@ -211,7 +211,7 @@ func resourceVSphereComputeClusterVMHostRuleDelete(d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceVSphereComputeClusterVMHostRuleCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+func resourceVSphereComputeClusterVMHostRuleCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning diff customization and validation", resourceVSphereComputeClusterVMHostRuleIDString(d))
 
 	if err := resourceVSphereComputeClusterVMHostRuleValidateHostRulesSpecified(d); err != nil {
@@ -454,7 +454,7 @@ func resourceVSphereComputeClusterVMHostRuleFetchObjects(
 }
 
 func resourceVSphereComputeClusterVMHostRuleClient(meta interface{}) (*govmomi.Client, error) {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	if err := viapi.ValidateVirtualCenter(client); err != nil {
 		return nil, err
 	}

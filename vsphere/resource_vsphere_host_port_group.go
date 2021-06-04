@@ -55,7 +55,7 @@ func resourceVSphereHostPortGroup() *schema.Resource {
 }
 
 func resourceVSphereHostPortGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	name := d.Get("name").(string)
 	hsID := d.Get("host_system_id").(string)
 	ns, err := hostNetworkSystemFromHostSystemID(client, hsID)
@@ -75,7 +75,7 @@ func resourceVSphereHostPortGroupCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceVSphereHostPortGroupRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	hsID, name, err := portGroupIDsFromResourceID(d)
 	if err != nil {
 		return err
@@ -85,7 +85,7 @@ func resourceVSphereHostPortGroupRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("error loading host network system: %s", err)
 	}
 
-	pg, err := hostPortGroupFromName(meta.(*VSphereClient).vimClient, ns, name)
+	pg, err := hostPortGroupFromName(meta.(*Client).vimClient, ns, name)
 	if err != nil {
 		return fmt.Errorf("error fetching port group data: %s", err)
 	}
@@ -94,7 +94,7 @@ func resourceVSphereHostPortGroupRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("error setting resource data: %s", err)
 	}
 
-	d.Set("key", pg.Key)
+	_ = d.Set("key", pg.Key)
 	cpm, err := calculateComputedPolicy(pg.ComputedPolicy)
 	if err != nil {
 		return err
@@ -110,7 +110,7 @@ func resourceVSphereHostPortGroupRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceVSphereHostPortGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	hsID, name, err := portGroupIDsFromResourceID(d)
 	if err != nil {
 		return err
@@ -131,7 +131,7 @@ func resourceVSphereHostPortGroupUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceVSphereHostPortGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 	hsID, name, err := portGroupIDsFromResourceID(d)
 	if err != nil {
 		return err
@@ -150,8 +150,11 @@ func resourceVSphereHostPortGroupDelete(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceVSphereHostPortGroupImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceVSphereHostPortGroupImport(d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	hsID, name, err := portGroupIDsFromResourceID(d)
+	if err != nil {
+		return []*schema.ResourceData{}, err
+	}
 
 	err = d.Set("host_system_id", hsID)
 	if err != nil {

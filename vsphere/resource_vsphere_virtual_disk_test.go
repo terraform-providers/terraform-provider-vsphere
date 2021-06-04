@@ -29,7 +29,7 @@ func TestAccResourceVSphereVirtualDisk_basic(t *testing.T) {
 		CheckDestroy: testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckVSphereVirtuaDiskConfig_basic(rString),
+				Config: testacccheckvspherevirtuadiskconfigBasic(rString),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", true),
 				),
@@ -55,7 +55,7 @@ func TestAccResourceVSphereVirtualDisk_multi(t *testing.T) {
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckVSphereVirtuaDiskConfig_multi(rString),
+				Config: testacccheckvspherevirtuadiskconfigMulti(rString),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo.0", true),
 					testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo.1", true),
@@ -83,7 +83,7 @@ func TestAccResourceVSphereVirtualDisk_multiWithParent(t *testing.T) {
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckVSphereVirtuaDiskConfig_multiWithParent(rString),
+				Config: testacccheckvspherevirtuadiskconfigMultiwithparent(rString),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo.0", true),
 					testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo.1", true),
@@ -107,7 +107,7 @@ func TestAccResourceVSphereVirtualDisk_withParent(t *testing.T) {
 		CheckDestroy: testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckVSphereVirtuaDiskConfig_withParent(rString),
+				Config: testacccheckvspherevirtuadiskconfigWithparent(rString),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", true),
 				),
@@ -135,7 +135,7 @@ func testAccVSphereVirtualDiskExists(name string, expected bool) resource.TestCh
 			return fmt.Errorf("No ID is set")
 		}
 
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
+		client := testAccProvider.Meta().(*Client).vimClient
 		finder := find.NewFinder(client.Client, true)
 
 		dc, err := finder.Datacenter(context.TODO(), rs.Primary.Attributes["datacenter"])
@@ -174,7 +174,7 @@ func testAccCheckVSphereVirtualDiskIsFileNotFoundError(err error) bool {
 	return false
 }
 
-func testAccCheckVSphereVirtuaDiskConfig_basic(rName string) string {
+func testacccheckvspherevirtuadiskconfigBasic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -196,7 +196,7 @@ resource "vsphere_virtual_disk" "foo" {
 	)
 }
 
-func testAccCheckVSphereVirtuaDiskConfig_multi(rName string) string {
+func testacccheckvspherevirtuadiskconfigMulti(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -224,7 +224,7 @@ resource "vsphere_virtual_disk" "foo" {
 	)
 }
 
-func testAccCheckVSphereVirtuaDiskConfig_multiWithParent(rName string) string {
+func testacccheckvspherevirtuadiskconfigMultiwithparent(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -253,7 +253,7 @@ resource "vsphere_virtual_disk" "foo" {
 	)
 }
 
-func testAccCheckVSphereVirtuaDiskConfig_withParent(rName string) string {
+func testacccheckvspherevirtuadiskconfigWithparent(rName string) string {
 	return fmt.Sprintf(`
 %s
 

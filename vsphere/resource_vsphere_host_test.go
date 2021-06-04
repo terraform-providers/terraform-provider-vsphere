@@ -38,7 +38,7 @@ func TestAccResourceVSphereHost_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccVSphereHostConfig_import(),
+				Config: testaccvspherehostconfigImport(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 				),
@@ -47,7 +47,6 @@ func TestAccResourceVSphereHost_basic(t *testing.T) {
 			},
 		},
 	})
-
 }
 
 func TestAccResourceVSphereHost_rootFolder(t *testing.T) {
@@ -61,14 +60,13 @@ func TestAccResourceVSphereHost_rootFolder(t *testing.T) {
 		CheckDestroy: testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVSphereHostConfig_rootFolder(),
+				Config: testaccvspherehostconfigRootfolder(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 				),
 			},
 		},
 	})
-
 }
 
 func TestAccResourceVSphereHost_connection(t *testing.T) {
@@ -82,14 +80,14 @@ func TestAccResourceVSphereHost_connection(t *testing.T) {
 		CheckDestroy: testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVSphereHostConfig_connection(false),
+				Config: testaccvspherehostconfigConnection(false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 					testAccVSphereHostConnected("vsphere_host.h1", false),
 				),
 			},
 			{
-				Config: testAccVSphereHostConfig_connection(true),
+				Config: testaccvspherehostconfigConnection(true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 					testAccVSphereHostConnected("vsphere_host.h1", true),
@@ -97,7 +95,6 @@ func TestAccResourceVSphereHost_connection(t *testing.T) {
 			},
 		},
 	})
-
 }
 
 func TestAccResourceVSphereHost_maintenance(t *testing.T) {
@@ -111,14 +108,14 @@ func TestAccResourceVSphereHost_maintenance(t *testing.T) {
 		CheckDestroy: testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVSphereHostConfig_maintenance(true),
+				Config: testaccvspherehostconfigMaintenance(true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 					testAccVSphereHostMaintenanceState("vsphere_host.h1", true),
 				),
 			},
 			{
-				Config: testAccVSphereHostConfig_maintenance(false),
+				Config: testaccvspherehostconfigMaintenance(false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 					testAccVSphereHostMaintenanceState("vsphere_host.h1", false),
@@ -126,11 +123,9 @@ func TestAccResourceVSphereHost_maintenance(t *testing.T) {
 			},
 		},
 	})
-
 }
 
 func TestAccResourceVSphereHost_lockdown(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -141,21 +136,21 @@ func TestAccResourceVSphereHost_lockdown(t *testing.T) {
 		CheckDestroy: testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVSphereHostConfig_lockdown("strict"),
+				Config: testaccvspherehostconfigLockdown("strict"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 					testAccVSphereHostLockdownState("vsphere_host.h1", "strict"),
 				),
 			},
 			{
-				Config: testAccVSphereHostConfig_lockdown("normal"),
+				Config: testaccvspherehostconfigLockdown("normal"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 					testAccVSphereHostLockdownState("vsphere_host.h1", "normal"),
 				),
 			},
 			{
-				Config: testAccVSphereHostConfig_lockdown("disabled"),
+				Config: testaccvspherehostconfigLockdown("disabled"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 					testAccVSphereHostLockdownState("vsphere_host.h1", "disabled"),
@@ -163,11 +158,9 @@ func TestAccResourceVSphereHost_lockdown(t *testing.T) {
 			},
 		},
 	})
-
 }
 
 func TestAccResourceVSphereHost_lockdown_invalid(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -178,12 +171,11 @@ func TestAccResourceVSphereHost_lockdown_invalid(t *testing.T) {
 		CheckDestroy: testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccVSphereHostConfig_lockdown("invalidvalue"),
-				ExpectError: regexp.MustCompile("be one of \\[disabled normal strict\\], got invalidvalue"),
+				Config:      testaccvspherehostconfigLockdown("invalidvalue"),
+				ExpectError: regexp.MustCompile(`be one of \[disabled normal strict\], got invalidvalue`),
 			},
 		},
 	})
-
 }
 
 func TestAccResourceVSphereHost_emptyLicense(t *testing.T) {
@@ -197,14 +189,13 @@ func TestAccResourceVSphereHost_emptyLicense(t *testing.T) {
 		CheckDestroy: testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVSphereHostConfig_emptyLicense(),
+				Config: testaccvspherehostconfigEmptylicense(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccVSphereHostExists("vsphere_host.h1"),
 				),
 			},
 		},
 	})
-
 }
 
 func testAccVSphereHostExists(name string) resource.TestCheckFunc {
@@ -215,7 +206,7 @@ func testAccVSphereHostExists(name string) resource.TestCheckFunc {
 			return fmt.Errorf("%s key not found on the server", name)
 		}
 		hostID := rs.Primary.ID
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
+		client := testAccProvider.Meta().(*Client).vimClient
 		res, err := hostExists(client, hostID)
 		if err != nil {
 			return err
@@ -237,7 +228,7 @@ func testAccVSphereHostConnected(name string, shouldBeConnected bool) resource.T
 			return fmt.Errorf("%s key not found on the server", name)
 		}
 		hostID := rs.Primary.ID
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
+		client := testAccProvider.Meta().(*Client).vimClient
 		res, err := hostConnected(client, hostID)
 		if err != nil {
 			return err
@@ -259,7 +250,7 @@ func testAccVSphereHostMaintenanceState(name string, inMaintenance bool) resourc
 			return fmt.Errorf("%s key not found on the server", name)
 		}
 		hostID := rs.Primary.ID
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
+		client := testAccProvider.Meta().(*Client).vimClient
 		res, err := hostInMaintenance(client, hostID)
 		if err != nil {
 			return err
@@ -281,7 +272,7 @@ func testAccVSphereHostLockdownState(name string, lockdown string) resource.Test
 			return fmt.Errorf("%s key not found on the server", name)
 		}
 		hostID := rs.Primary.ID
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
+		client := testAccProvider.Meta().(*Client).vimClient
 		res, err := checkHostLockdown(client, hostID, lockdown)
 		if err != nil {
 			return err
@@ -302,7 +293,7 @@ func testAccVSphereHostDestroy(s *terraform.State) error {
 			continue
 		}
 		hostID := rs.Primary.ID
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
+		client := testAccProvider.Meta().(*Client).vimClient
 		res, err := hostExists(client, hostID)
 		if err != nil {
 			return err
@@ -343,7 +334,7 @@ func hostConnected(client *govmomi.Client, hostID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return (connectionState == types.HostSystemConnectionStateConnected), nil
+	return connectionState == types.HostSystemConnectionStateConnected, nil
 }
 
 func hostInMaintenance(client *govmomi.Client, hostID string) (bool, error) {
@@ -380,7 +371,7 @@ func checkHostLockdown(client *govmomi.Client, hostID, lockdownMode string) (boo
 		return false, fmt.Errorf("Unknown lockdown mode found: %s", hostProps.Config.LockdownMode)
 	}
 
-	return (modeString == lockdownMode), nil
+	return modeString == lockdownMode, nil
 }
 
 func testAccVSphereHostConfig() string {
@@ -411,7 +402,7 @@ func testAccVSphereHostConfig() string {
 		os.Getenv("TF_VAR_VSPHERE_LICENSE"))
 }
 
-func testAccVSphereHostConfig_rootFolder() string {
+func testaccvspherehostconfigRootfolder() string {
 	return fmt.Sprintf(`
 	%s
 
@@ -432,7 +423,7 @@ func testAccVSphereHostConfig_rootFolder() string {
 		os.Getenv("TF_VAR_VSPHERE_LICENSE"))
 }
 
-func testAccVSphereHostConfig_emptyLicense() string {
+func testaccvspherehostconfigEmptylicense() string {
 	return fmt.Sprintf(`
 	%s 
 	resource "vsphere_host" "h1" {
@@ -452,7 +443,7 @@ func testAccVSphereHostConfig_emptyLicense() string {
 	)
 }
 
-func testAccVSphereHostConfig_import() string {
+func testaccvspherehostconfigImport() string {
 	return fmt.Sprintf(`
 	%s
 
@@ -480,7 +471,7 @@ func testAccVSphereHostConfig_import() string {
 		os.Getenv("TF_VAR_VSPHERE_LICENSE"))
 }
 
-func testAccVSphereHostConfig_connection(connection bool) string {
+func testaccvspherehostconfigConnection(connection bool) string {
 	return fmt.Sprintf(`
 	%s
 
@@ -508,7 +499,7 @@ func testAccVSphereHostConfig_connection(connection bool) string {
 		strconv.FormatBool(connection))
 }
 
-func testAccVSphereHostConfig_maintenance(maintenance bool) string {
+func testaccvspherehostconfigMaintenance(maintenance bool) string {
 	return fmt.Sprintf(`
 	%s
 
@@ -537,7 +528,7 @@ func testAccVSphereHostConfig_maintenance(maintenance bool) string {
 		strconv.FormatBool(maintenance))
 }
 
-func testAccVSphereHostConfig_lockdown(lockdown string) string {
+func testaccvspherehostconfigLockdown(lockdown string) string {
 	return fmt.Sprintf(`
 	%s
 

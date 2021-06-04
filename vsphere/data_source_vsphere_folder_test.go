@@ -57,7 +57,3 @@ data "vsphere_folder" "folder" {
 }
 `, os.Getenv("TF_VAR_VSPHERE_DATACENTER"))
 }
-
-const testAccDataSourceVSphereFolderConfigDefault = `
-data "vsphere_datacenter" "dc" {}
-`

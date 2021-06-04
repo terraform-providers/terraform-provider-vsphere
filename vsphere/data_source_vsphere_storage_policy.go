@@ -19,7 +19,7 @@ func dataSourceVSphereStoragePolicy() *schema.Resource {
 }
 
 func dataSourceVSphereStoragePolicyRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*VSphereClient).vimClient
+	client := meta.(*Client).vimClient
 
 	id, err := spbm.PolicyIDByName(client, d.Get("name").(string))
 	if err != nil {

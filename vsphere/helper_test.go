@@ -80,13 +80,13 @@ func testClientVariablesForResource(s *terraform.State, addr string) (testCheckV
 		return testCheckVariables{}, fmt.Errorf("%s not found in state", addr)
 	}
 
-	tm, err := testAccProvider.Meta().(*VSphereClient).TagsManager()
+	tm, err := testAccProvider.Meta().(*Client).TagsManager()
 	if err != nil {
 		return testCheckVariables{}, err
 	}
 	return testCheckVariables{
-		client:             testAccProvider.Meta().(*VSphereClient).vimClient,
-		restClient:         testAccProvider.Meta().(*VSphereClient).restClient,
+		client:             testAccProvider.Meta().(*Client).vimClient,
+		restClient:         testAccProvider.Meta().(*Client).restClient,
 		tagsManager:        tm,
 		resourceID:         rs.Primary.ID,
 		resourceAttributes: rs.Primary.Attributes,
@@ -436,7 +436,7 @@ func testRenameVMFirstDisk(s *terraform.State, resourceName string, new string) 
 // testDeleteVMDisk deletes a VMDK file from the virtual machine directory. It
 // doesn't check configuration other than to look for the directory the VMX
 // file is in and is mainly meant to serve as a cleanup method.
-func testDeleteVMDisk(s *terraform.State, resourceName string, name string) error {
+func testDeleteVMDisk(s *terraform.State, name string) error {
 	tVars, err := testClientVariablesForResource(s, "vsphere_virtual_machine.vm")
 	if err != nil {
 		return err
@@ -567,7 +567,7 @@ func testObjectHasTags(s *terraform.State, tm *tags.Manager, obj object.Referenc
 // testObjectHasNoTags checks to make sure that an object has no tags attached
 // to it. The parameters are the same as testObjectHasTags, but no tag resource
 // needs to be supplied.
-func testObjectHasNoTags(s *terraform.State, tm *tags.Manager, obj object.Reference) error {
+func testObjectHasNoTags(tm *tags.Manager, obj object.Reference) error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultAPITimeout)
 	defer cancel()
 	actualIDs, err := tm.ListAttachedTags(ctx, obj)
@@ -614,7 +614,7 @@ func testAccResourceVSphereDatastoreCheckTags(dsResAddr, tagResName string) reso
 		if err != nil {
 			return err
 		}
-		tagsClient, err := testAccProvider.Meta().(*VSphereClient).TagsManager()
+		tagsClient, err := testAccProvider.Meta().(*Client).TagsManager()
 		if err != nil {
 			return err
 		}
@@ -763,7 +763,7 @@ func testDeleteDatastoreFile(client *govmomi.Client, dsID string, path string) e
 			return err
 		}
 	} else {
-		dc, err = datacenter.DatacenterFromInventoryPath(client, ds.InventoryPath)
+		dc, err = datacenter.FromInventoryPath(client, ds.InventoryPath)
 		if err != nil {
 			return err
 		}
@@ -1141,31 +1141,30 @@ func testGetDatastoreClusterVMAntiAffinityRule(s *terraform.State, resourceName 
 	return resourceVSphereDatastoreClusterVMAntiAffinityRuleFindEntry(pod, key)
 }
 
-func testGetVmStoragePolicy(s *terraform.State, resourceName string) (string, error) {
-
+func testGetVMStoragePolicy(s *terraform.State, resourceName string) (string, error) {
 	tVars, err := testClientVariablesForResource(s, fmt.Sprintf("vsphere_vm_storage_policy.%s", resourceName))
 	if err != nil {
 		return "", err
 	}
-	policyId, ok := tVars.resourceAttributes["id"]
+	policyID, ok := tVars.resourceAttributes["id"]
 	if !ok {
 		return "", fmt.Errorf("resource %q has no id", resourceName)
 	}
 
-	return spbm.PolicyNameByID(tVars.client, policyId)
+	return spbm.PolicyNameByID(tVars.client, policyID)
 }
 
 func RunSweepers() {
-	tagSweep("")
-	dcSweep("")
-	vmSweep("")
-	rpSweep("")
-	dsSweep("")
-	netSweep("")
-	folderSweep("")
+	_ = tagSweep("")
+	_ = dcSweep("")
+	_ = vmSweep("")
+	_ = rpSweep("")
+	_ = dsSweep("")
+	_ = netSweep("")
+	_ = folderSweep("")
 }
 
-func tagSweep(r string) error {
+func tagSweep(string) error {
 	ctx := context.TODO()
 	client, err := sweepVSphereClient()
 	if err != nil {
@@ -1181,13 +1180,13 @@ func tagSweep(r string) error {
 	}
 	for _, cat := range cats {
 		if regexp.MustCompile("testacc").Match([]byte(cat.Name)) {
-			tm.DeleteCategory(ctx, &cat)
+			_ = tm.DeleteCategory(ctx, &cat)
 		}
 	}
 	return nil
 }
 
-func dcSweep(r string) error {
+func dcSweep(string) error {
 	client, err := sweepVSphereClient()
 	if err != nil {
 		return err
@@ -1207,7 +1206,7 @@ func dcSweep(r string) error {
 	return nil
 }
 
-func vmSweep(r string) error {
+func vmSweep(string) error {
 	client, err := sweepVSphereClient()
 	if err != nil {
 		return err
@@ -1218,14 +1217,14 @@ func vmSweep(r string) error {
 	}
 	for _, vm := range vms {
 		if regexp.MustCompile("testacc").Match([]byte(vm.Name())) {
-			virtualmachine.PowerOff(vm)
-			virtualmachine.Destroy(vm)
+			_ = virtualmachine.PowerOff(vm)
+			_ = virtualmachine.Destroy(vm)
 		}
 	}
 	return nil
 }
 
-func rpSweep(r string) error {
+func rpSweep(string) error {
 	client, err := sweepVSphereClient()
 	if err != nil {
 		return err
@@ -1242,7 +1241,7 @@ func rpSweep(r string) error {
 	return nil
 }
 
-func dsSweep(r string) error {
+func dsSweep(string) error {
 	client, err := sweepVSphereClient()
 	if err != nil {
 		return err
@@ -1259,7 +1258,7 @@ func dsSweep(r string) error {
 	return nil
 }
 
-func dspSweep(r string) error {
+func dspSweep(string) error {
 	client, err := sweepVSphereClient()
 	if err != nil {
 		return err
@@ -1276,7 +1275,7 @@ func dspSweep(r string) error {
 	return nil
 }
 
-func ccSweep(r string) error {
+func ccSweep(string) error {
 	client, err := sweepVSphereClient()
 	if err != nil {
 		return err
@@ -1293,7 +1292,7 @@ func ccSweep(r string) error {
 	return nil
 }
 
-func netSweep(r string) error {
+func netSweep(string) error {
 	client, err := sweepVSphereClient()
 	if err != nil {
 		return err
@@ -1313,25 +1312,7 @@ func netSweep(r string) error {
 	return nil
 }
 
-func folderSweep(r string) error {
-	client, err := sweepVSphereClient()
-	if err != nil {
-		return err
-	}
-	folders, err := folder.List(client.vimClient)
-	if err != nil {
-		return err
-	}
-	for _, f := range folders {
-		if regexp.MustCompile("testacc").Match([]byte(f.Name())) {
-			_, err = f.Destroy(context.TODO())
-			return err
-		}
-	}
-	return nil
-}
-
-func sessionSweep(r string) error {
+func folderSweep(string) error {
 	client, err := sweepVSphereClient()
 	if err != nil {
 		return err
@@ -1378,7 +1359,6 @@ func testGetVsphereEntityPermission(s *terraform.State, resourceName string) (st
 }
 
 func testGetVsphereRole(s *terraform.State, resourceName string) (string, error) {
-
 	tVars, err := testClientVariablesForResource(s, fmt.Sprintf("vsphere_role.%s", resourceName))
 	if err != nil {
 		return "", err
@@ -1388,18 +1368,18 @@ func testGetVsphereRole(s *terraform.State, resourceName string) (string, error)
 		return "", fmt.Errorf("resource %q has no id", resourceName)
 	}
 
-	roleIdInt, err := strconv.ParseInt(id, 10, 32)
+	roleIDInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return "", fmt.Errorf("error while coverting role id %s from string to int %s", id, err)
 	}
-	roleId := int32(roleIdInt)
+	roleID := int32(roleIDInt)
 	authorizationManager := object.NewAuthorizationManager(tVars.client.Client)
 	roleList, err := authorizationManager.RoleList(context.Background())
 
 	if err != nil {
 		return "", fmt.Errorf("error while reading the role list %s", err)
 	}
-	role := roleList.ById(roleId)
+	role := roleList.ById(roleID)
 	if role == nil {
 		return "", fmt.Errorf("role not found")
 	}

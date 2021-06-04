@@ -56,7 +56,7 @@ func TestAccResourceVSphereContentLibrary_subscribed(t *testing.T) {
 		CheckDestroy: testAccResourceVSphereContentLibraryCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereContentLibraryConfig_subscribed(),
+				Config: testaccresourcevspherecontentlibraryconfigSubscribed(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
 						"vsphere_content_library.library", "id", regexp.MustCompile("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"),
@@ -82,7 +82,7 @@ func TestAccResourceVSphereContentLibrary_authenticated(t *testing.T) {
 		CheckDestroy: testAccResourceVSphereContentLibraryCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereContentLibraryConfig_authenticated(),
+				Config: testaccresourcevspherecontentlibraryconfigAuthenticated(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestMatchResourceAttr(
 						"vsphere_content_library.library", "id", regexp.MustCompile("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"),
@@ -128,11 +128,11 @@ func testAccResourceVSphereContentLibraryName(expected *regexp.Regexp) resource.
 	}
 }
 
-func testAccResourceVSphereContentLibraryConfig_base() string {
+func testaccresourcevspherecontentlibraryconfigBase() string {
 	return testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1())
 }
 
-func testAccResourceVSphereContentLibraryConfig_authenticated() string {
+func testaccresourcevspherecontentlibraryconfigAuthenticated() string {
 	return fmt.Sprintf(`
 %s
 
@@ -160,9 +160,9 @@ resource "vsphere_content_library" "library" {
 	}
 }
 `,
-		testAccResourceVSphereContentLibraryConfig_base())
+		testaccresourcevspherecontentlibraryconfigBase())
 }
-func testAccResourceVSphereContentLibraryConfig_subscribed() string {
+func testaccresourcevspherecontentlibraryconfigSubscribed() string {
 	return fmt.Sprintf(`
 %s
 
@@ -184,7 +184,7 @@ resource "vsphere_content_library" "library" {
 	}
 }
 `,
-		testAccResourceVSphereContentLibraryConfig_base())
+		testaccresourcevspherecontentlibraryconfigBase())
 }
 
 func testAccResourceVSphereContentLibraryConfig() string {
@@ -197,7 +197,7 @@ resource "vsphere_content_library" "library" {
   description     = "Library Description"
 }
 `,
-		testAccResourceVSphereContentLibraryConfig_base())
+		testaccresourcevspherecontentlibraryconfigBase())
 }
 
 func testAccResourceVSphereContentLibraryCheckExists(expected bool) resource.TestCheckFunc {

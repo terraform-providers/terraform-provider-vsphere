@@ -641,7 +641,7 @@ connections.
   Can be one of `bios` or `EFI`. Default: `bios`.
 * `extra_config` - (Optional) Extra configuration data for this virtual
   machine. Can be used to supply advanced parameters not normally in
-  configuration, such as instance metadata.
+  configuration, such as instance metadata. 
 
 ~> **NOTE:** Do not use `extra_config` when working with a template imported
 from OVF or OVA as more than likely your settings will be ignored. Use the
@@ -649,6 +649,10 @@ from OVF or OVA as more than likely your settings will be ignored. Use the
 supply OVF/OVA
 configuration](#using-vapp-properties-to-supply-ovf-ova-configuration).
 
+* `replace_trigger` - (Optional) Triggers replacement of resource whenever it changes.
+  `replace_trigger = sha256(format("%s-%s",data.template_file.cloud_init_metadata.rendered,data.template_file.cloud_init_userdata.rendered))`
+  will fingerprint the changes in cloud_init metadata and userdata templates. This will enable a replacement
+  of the resource whenever the dependant template renders a new configuration. (Forces a replacement)
 * `scsi_type` - (Optional) The type of SCSI bus this virtual machine will have.
   Can be one of lsilogic (LSI Logic Parallel), lsilogic-sas (LSI Logic SAS) or
   pvscsi (VMware Paravirtual). Defualt: `pvscsi`.
@@ -895,19 +899,6 @@ machine. For more information, see the section on [importing](#importing).
 `orphaned_disk_0`), as this prefix is reserved for disks that Terraform does
 not recognize, such as disks that are attached externally. Terraform will issue
 an error if you try to label a disk with this prefix. 
-
-* `name` - (Optional) An alias for both `label` and `path`, the latter when
-  using `attach`. Required if not using `label`.
-
-~> **NOTE:** This parameter has been deprecated and will be removed in future
-versions of the vSphere provider. You cannot use `name` on a disk that has
-previously had a `label`, and using this argument is not recommend for new
-configurations.
-
-~> **NOTE:** In previous versions of the vSphere provider this argument
-controlled file names for non-attached disks - this behavior has now been
-removed, and the only time this controls path is when attaching a disk
-externally with `attach` when the `path` field is not specified.
 
 * `size` - (Required) The size of the disk, in GB.
 * `unit_number` - (Optional) The disk number on the storage bus. The maximum 

@@ -77,7 +77,7 @@ func snapshotExists(n string, s *terraform.State) (bool, error) {
 	if rs.Primary.ID == "" {
 		return false, fmt.Errorf("No Vm Snapshot ID is set")
 	}
-	client := testAccProvider.Meta().(*VSphereClient).vimClient
+	client := testAccProvider.Meta().(*Client).vimClient
 
 	vm, err := virtualmachine.FromUUID(client, rs.Primary.Attributes["virtual_machine_uuid"])
 	if err != nil {
@@ -91,7 +91,6 @@ func snapshotExists(n string, s *terraform.State) (bool, error) {
 	}
 
 	return true, nil
-
 }
 
 func testAccCheckVirtualMachineSnapshotExists(n string, exists bool) resource.TestCheckFunc {
@@ -119,7 +118,7 @@ func testAccCheckVirtualMachineHasNoSnapshots(n string) resource.TestCheckFunc {
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No VM ID is set")
 		}
-		client := testAccProvider.Meta().(*VSphereClient).vimClient
+		client := testAccProvider.Meta().(*Client).vimClient
 
 		vm, err := virtualmachine.FromUUID(client, rs.Primary.Attributes["uuid"])
 		if err != nil {
