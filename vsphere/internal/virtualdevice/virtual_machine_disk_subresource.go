@@ -56,6 +56,11 @@ var diskSubresourceSharingAllowedValues = []string{
 	string(types.VirtualDiskSharingSharingMultiWriter),
 }
 
+var diskSubresourceCompatibilityModeAllowedValues = []string{
+	string(types.VirtualDiskCompatibilityModeVirtualMode),
+	string(types.VirtualDiskCompatibilityModePhysicalMode),
+}
+
 // DiskSubresourceSchema represents the schema for the disk sub-resource.
 func DiskSubresourceSchema() map[string]*schema.Schema {
 	s := map[string]*schema.Schema{
@@ -199,6 +204,17 @@ func DiskSubresourceSchema() map[string]*schema.Schema {
 			Default:     "scsi",
 			Optional:    true,
 			Description: "The type of controller the disk should be connected to. Must be 'scsi', 'sata', or 'ide'.",
+		},
+		"rdm_lun_path": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "The path to the Lun to be used for RDM disk.",
+		},
+		"compatibility_mode": {
+			Type:         schema.TypeString,
+			Optional:     true,
+			ValidateFunc: validation.StringInSlice(diskSubresourceCompatibilityModeAllowedValues, false),
+			Description:  "compatibility mode for rdm disk {physical or virtual}.",
 		},
 	}
 	structure.MergeSchema(s, subresourceSchema())
@@ -1097,9 +1113,9 @@ func DiskImportOperation(d *schema.ResourceData, l object.VirtualDeviceList) err
 		// this is a VMDK-backed virtual disk to make sure we aren't importing RDM
 		// disks or what not. The device should have already been validated as a
 		// virtual disk via SelectDisks.
-		if _, ok := device.(*types.VirtualDisk).Backing.(*types.VirtualDiskFlatVer2BackingInfo); !ok {
+		if _, ok := GetBackingForDisk(device.(*types.VirtualDisk)); !ok {
 			return fmt.Errorf(
-				"disk.%d: unsupported disk type at %s (expected flat VMDK version 2, got %T)",
+				"disk.%d: unsupported disk type at %s (expected flat VMDK version 2 or RDM version 1, got %T)",
 				i,
 				addr,
 				device.(*types.VirtualDisk).Backing,
@@ -1150,17 +1166,17 @@ func ReadDiskAttrsForDataSource(l object.VirtualDeviceList, d *schema.ResourceDa
 	var out []map[string]interface{}
 	for i, device := range devices {
 		disk := device.(*types.VirtualDisk)
-		backing, ok := disk.Backing.(*types.VirtualDiskFlatVer2BackingInfo)
+		backing, ok := GetBackingForDisk(disk)
 		if !ok {
-			return nil, fmt.Errorf("disk number %d has an unsupported backing type (expected flat VMDK version 2, got %T)", i, disk.Backing)
+			return nil, fmt.Errorf("disk number %d has an unsupported backing type (expected flat VMDK version 2 or RDM version 1, got %T)", i, disk.Backing)
 		}
 		m := make(map[string]interface{})
 		var eager, thin bool
-		if backing.EagerlyScrub != nil {
-			eager = *backing.EagerlyScrub
+		if backing.GetEagerlyScrub() != nil {
+			eager = *backing.GetEagerlyScrub()
 		}
-		if backing.ThinProvisioned != nil {
-			thin = *backing.ThinProvisioned
+		if backing.GetThinProvisioned() != nil {
+			thin = *backing.GetThinProvisioned()
 		}
 		if di, ok := disk.DeviceInfo.(*types.Description); ok {
 			m["label"] = di.Label
@@ -1257,13 +1273,14 @@ func (r *DiskSubresource) Read(l object.VirtualDeviceList) error {
 		attach = r.Get("attach").(bool)
 	}
 	// Save disk backing settings
-	b, ok := disk.Backing.(*types.VirtualDiskFlatVer2BackingInfo)
+	b, ok := GetBackingForDisk(disk)
 	if !ok {
 		return fmt.Errorf("disk backing at %s is of an unsupported type (type %T)", r.Get("device_address").(string), disk.Backing)
 	}
-	r.Set("uuid", b.Uuid)
-	r.Set("disk_mode", b.DiskMode)
-	r.Set("write_through", b.WriteThrough)
+	r.Set("uuid", b.GetUuid())
+	r.Set("disk_mode", b.GetDiskMode())
+	r.Set("write_through", b.GetWriteThrough())
+	r.Set("compatibility_mode", b.GetCompatibilityMode())
 
 	// Only use disk_sharing if we are on vSphere 6.0 and higher. In addition,
 	// skip if the value is unset - this prevents spurious diffs during upgrade
@@ -1271,21 +1288,21 @@ func (r *DiskSubresource) Read(l object.VirtualDeviceList) error {
 	// sharing. In this situation, the value will be blank, and setting it will
 	// actually result in an error.
 	version := viapi.ParseVersionFromClient(r.client)
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) && b.Sharing != "" {
-		r.Set("disk_sharing", b.Sharing)
+	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) && b.GetSharing() != "" {
+		r.Set("disk_sharing", b.GetSharing())
 	}
 
 	if !attach {
-		r.Set("thin_provisioned", b.ThinProvisioned)
-		r.Set("eagerly_scrub", b.EagerlyScrub)
+		r.Set("thin_provisioned", b.GetThinProvisioned())
+		r.Set("eagerly_scrub", b.GetEagerlyScrub())
 	}
-	r.Set("datastore_id", b.Datastore.Value)
+	r.Set("datastore_id", b.GetDatastore().Value)
 
 	// Disk settings
 	if !attach {
 		dp := &object.DatastorePath{}
-		if ok := dp.FromString(b.FileName); !ok {
-			return fmt.Errorf("could not parse path from filename: %s", b.FileName)
+		if ok := dp.FromString(b.GetFileName()); !ok {
+			return fmt.Errorf("could not parse path from filename: %s", b.GetFileName())
 		}
 		r.Set("path", dp.Path)
 		r.Set("size", diskCapacityInGiB(disk))
@@ -1543,6 +1560,14 @@ func (r *DiskSubresource) DiffGeneral() error {
 	if r.Get("eagerly_scrub").(bool) && r.Get("thin_provisioned").(bool) {
 		return fmt.Errorf("%s: eagerly_scrub and thin_provisioned cannot both be set to true", name)
 	}
+	if r.Get("rdm_lun_path").(string) != "" && r.Get("compatibility_mode").(string) == "" {
+		return fmt.Errorf("%s: To add a RDM Disk, compatibility_mode is a required parameter", name)
+	}
+	if r.Get("rdm_lun_path").(string) != "" && r.Get("compatibility_mode").(string) == string(types.VirtualDiskCompatibilityModePhysicalMode) {
+		if r.Get("disk_mode").(string) != string(types.VirtualDiskModeIndependent_persistent) {
+			return fmt.Errorf("%s: To add RDM Disks in physical compatibility mode, only independent persistent disk mode is supported", name)
+		}
+	}
 	log.Printf("[DEBUG] %s: Diff validation complete", r)
 	return nil
 }
@@ -1669,10 +1694,14 @@ func (r *DiskSubresource) Relocate(l object.VirtualDeviceList, clone bool) (type
 	if r.rdd.Id() == "" {
 		log.Printf("[DEBUG] %s: Adding additional options to relocator for cloning", r)
 
-		backing := disk.Backing.(*types.VirtualDiskFlatVer2BackingInfo)
-		backing.FileName = ds.Path("")
-		backing.Datastore = &dsref
-		relocate.DiskBackingInfo = backing
+		backing, ok := GetBackingForDisk(disk)
+		if !ok {
+			return relocate, fmt.Errorf("disk has an unsupported backing type (expected flat VMDK version 2 or RDM version 1, got %T)", disk.Backing)
+		}
+		targetBacking := ToVirtualDiskFlatVer2BackingInfo(backing)
+		targetBacking.FileName = ds.Path("")
+		targetBacking.Datastore = &dsref
+		relocate.DiskBackingInfo = &targetBacking
 	}
 
 	// Attach the SPBM storage policy if specified
@@ -1702,14 +1731,19 @@ func (r *DiskSubresource) String() string {
 // configuration.
 func (r *DiskSubresource) expandDiskSettings(disk *types.VirtualDisk) error {
 	// Backing settings
-	b := disk.Backing.(*types.VirtualDiskFlatVer2BackingInfo)
-	b.DiskMode = r.GetWithRestart("disk_mode").(string)
-	b.WriteThrough = structure.BoolPtr(r.GetWithRestart("write_through").(bool))
+	b, ok := GetBackingForDisk(disk)
+	if !ok {
+		return fmt.Errorf("disk has an unsupported backing type (expected flat VMDK version 2 or RDM version 1, got %T)", disk.Backing)
+	}
+	b.SetDiskMode(r.GetWithRestart("disk_mode").(string))
+	b.SetWriteThrough(structure.BoolPtr(r.GetWithRestart("write_through").(bool)))
+	b.SetDeviceName(r.Get("rdm_lun_path").(string))
+	b.SetCompatibilityMode(r.Get("compatibility_mode").(string))
 
 	// Only use disk_sharing if we are on vSphere 6.0 and higher
 	version := viapi.ParseVersionFromClient(r.client)
 	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		b.Sharing = r.GetWithRestart("disk_sharing").(string)
+		b.SetSharing(r.GetWithRestart("disk_sharing").(string))
 	}
 
 	// This settings are only set for internal disks
@@ -1719,12 +1753,12 @@ func (r *DiskSubresource) expandDiskSettings(disk *types.VirtualDisk) error {
 		if v, err = r.GetWithVeto("thin_provisioned"); err != nil {
 			return err
 		}
-		b.ThinProvisioned = structure.BoolPtr(v.(bool))
+		b.SetThinProvisioned(structure.BoolPtr(v.(bool)))
 
 		if v, err = r.GetWithVeto("eagerly_scrub"); err != nil {
 			return err
 		}
-		b.EagerlyScrub = structure.BoolPtr(v.(bool))
+		b.SetEagerlyScrub(structure.BoolPtr(v.(bool)))
 
 		// Disk settings
 		os, ns := r.GetChange("size")
@@ -1751,7 +1785,11 @@ func (r *DiskSubresource) expandDiskSettings(disk *types.VirtualDisk) error {
 // createDisk performs all of the logic for a base virtual disk creation.
 func (r *DiskSubresource) createDisk(l object.VirtualDeviceList) (*types.VirtualDisk, error) {
 	disk := new(types.VirtualDisk)
-	disk.Backing = new(types.VirtualDiskFlatVer2BackingInfo)
+	if r.Get("rdm_lun_path").(string) == "" {
+		disk.Backing = new(types.VirtualDiskFlatVer2BackingInfo)
+	} else {
+		disk.Backing = new(types.VirtualDiskRawDiskMappingVer1BackingInfo)
+	}
 
 	// Only assign backing info if a datastore cluster is not specified. If one
 	// is, skip this step.
@@ -1802,9 +1840,12 @@ func (r *DiskSubresource) assignBackingInfo(disk *types.VirtualDisk) error {
 		diskName = getDiskPath(r.data)
 	}
 
-	backing := disk.Backing.(*types.VirtualDiskFlatVer2BackingInfo)
-	backing.FileName = ds.Path(diskName)
-	backing.Datastore = &dsref
+	backing, ok := GetBackingForDisk(disk)
+	if !ok {
+		return fmt.Errorf("disk has an unsupported backing type (expected flat VMDK version 2 or RDM version 1, got %T)", disk.Backing)
+	}
+	backing.SetFileName(ds.Path(diskName))
+	backing.SetDatastore(&dsref)
 
 	return nil
 }
@@ -1977,8 +2018,8 @@ func diskRelocateListString(relocators []types.VirtualMachineRelocateSpecDiskLoc
 func diskRelocateString(relocate types.VirtualMachineRelocateSpecDiskLocator) string {
 	key := relocate.DiskId
 	var locstring string
-	if backing, ok := relocate.DiskBackingInfo.(*types.VirtualDiskFlatVer2BackingInfo); ok && backing != nil {
-		locstring = backing.FileName
+	if backing, ok := GetBacking(relocate.DiskBackingInfo); ok && backing != nil {
+		locstring = backing.GetFileName()
 	} else {
 		locstring = relocate.Datastore.Value
 	}
@@ -2143,11 +2184,11 @@ func diskUUIDMatch(device types.BaseVirtualDevice, uuid string) bool {
 	if !ok {
 		return false
 	}
-	backing, ok := disk.Backing.(*types.VirtualDiskFlatVer2BackingInfo)
+	backing, ok := GetBackingForDisk(disk)
 	if !ok {
 		return false
 	}
-	if backing.Uuid != uuid {
+	if backing.GetUuid() != uuid {
 		return false
 	}
 	return true
