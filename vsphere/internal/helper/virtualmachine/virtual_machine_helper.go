@@ -543,6 +543,30 @@ func Clone(c *govmomi.Client, src *object.VirtualMachine, f *object.Folder, name
 	return FromMOID(c, result.Result.(types.ManagedObjectReference).Value)
 }
 
+// InstantClone wraps the creation of a virtual machine instantly and the subsequent waiting of
+// the task. A higher-level virtual machine object is returned.
+func InstantClone(c *govmomi.Client, src *object.VirtualMachine, f *object.Folder, name string, spec types.VirtualMachineInstantCloneSpec, timeout int) (*object.VirtualMachine, error) {
+	log.Printf("[DEBUG] Instant Cloning virtual machine %q", fmt.Sprintf("%s/%s", f.InventoryPath, name))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*time.Duration(timeout))
+	defer cancel()
+	task, err := src.InstantClone(ctx, spec)
+	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			err = errors.New("timeout waiting for Instant clone to complete")
+		}
+		return nil, err
+	}
+	result, err := task.WaitForResult(ctx, nil)
+	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			err = errors.New("timeout waiting for Instant clone to complete")
+		}
+		return nil, err
+	}
+	log.Printf("[DEBUG] Virtual machine %q: Instant clone complete (MOID: %q)", fmt.Sprintf("%s/%s", f.InventoryPath, name), result.Result.(types.ManagedObjectReference).Value)
+	return FromMOID(c, result.Result.(types.ManagedObjectReference).Value)
+}
+
 // Deploy clones a virtual machine from a content library item.
 func Deploy(deployData *VCenterDeploy) (*types.ManagedObjectReference, error) {
 	log.Printf("[DEBUG] virtualmachine.Deploy: Deploying VM from Content Library item.")

@@ -7,8 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/datastore"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/folder"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/resourcepool"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/storagepod"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/virtualmachine"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/virtualdevice"
 	"github.com/vmware/govmomi"
@@ -33,6 +35,11 @@ func VirtualMachineCloneSchema() map[string]*schema.Schema {
 			Type:        schema.TypeBool,
 			Optional:    true,
 			Description: "Whether or not to create a linked clone when cloning. When this option is used, the source VM must have a single snapshot associated with it.",
+		},
+		"instant_clone": {
+			Type:        schema.TypeBool,
+			Optional:    true,
+			Description: "Whether or not to create a instant clone when cloning. When this option is used, the source VM must be in a running state.",
 		},
 		"timeout": {
 			Type:         schema.TypeInt,
@@ -253,5 +260,72 @@ func ExpandVirtualMachineCloneSpec(d *schema.ResourceData, c *govmomi.Client) (t
 	}
 	spec.Location.Disk = relocators
 	log.Printf("[DEBUG] ExpandVirtualMachineCloneSpec: Clone spec prep complete")
+	return spec, vm, nil
+}
+
+// ExpandVirtualMachineInstantCloneSpec creates an Instant clone spec for an existing virtual machine.
+//
+// The clone spec built by this function for the clone contains the target
+// datastore, the source snapshot in the event of linked clones, and a relocate
+// spec that contains the new locations and configuration details of the new
+// virtual disks.
+func ExpandVirtualMachineInstantCloneSpec(d *schema.ResourceData, client *govmomi.Client) (types.VirtualMachineInstantCloneSpec, *object.VirtualMachine, error) {
+
+	var spec types.VirtualMachineInstantCloneSpec
+	log.Printf("[DEBUG] ExpandVirtualMachineInstantCloneSpec: Preparing InstantClone spec for VM")
+
+	//find parent vm
+	tUUID := d.Get("clone.0.template_uuid").(string) // uuid moid or parent VM name
+	log.Printf("[DEBUG] ExpandVirtualMachineInstantCloneSpec: Instant Cloning from UUID: %s", tUUID)
+	vm, err := virtualmachine.FromUUID(client, tUUID)
+	if err != nil {
+		return spec, nil, fmt.Errorf("cannot locate virtual machine with UUID %q: %s", tUUID, err)
+	}
+	// Populate the datastore only if we have a datastore ID. The ID may not be
+	// specified in the event a datastore cluster is specified instead.
+	if dsID, ok := d.GetOk("datastore_id"); ok {
+		ds, err := datastore.FromID(client, dsID.(string))
+		if err != nil {
+			return spec, nil, fmt.Errorf("error locating datastore for VM: %s", err)
+		}
+		spec.Location.Datastore = types.NewReference(ds.Reference())
+	}
+	// Set the target resource pool.
+	poolID := d.Get("resource_pool_id").(string)
+	pool, err := resourcepool.FromID(client, poolID)
+	if err != nil {
+		return spec, nil, fmt.Errorf("could not find resource pool ID %q: %s", poolID, err)
+	}
+	poolRef := pool.Reference()
+	spec.Location.Pool = &poolRef
+
+	// set the folder // when folder specified
+	fo, err := folder.VirtualMachineFolderFromObject(client, pool, d.Get("folder").(string))
+	if err != nil {
+		return spec, nil, err
+	}
+	folderRef := fo.Reference()
+	spec.Location.Folder = &folderRef
+
+	//  else if
+	// datastore cluster
+	var ds *object.Datastore
+	if _, ok := d.GetOk("datastore_cluster_id"); ok {
+		pod, err := storagepod.FromID(client, d.Get("datastore_cluster_id").(string))
+		if err != nil {
+			return spec, nil, fmt.Errorf("error getting datastore cluster: %s", err)
+		}
+		if pod != nil {
+			ds, err = storagepod.Get_recommended_Datastore(client, fo, d.Get("datastore_cluster_id").(string), 100, pod)
+			if err != nil {
+				return spec, nil, err
+			}
+			spec.Location.Datastore = types.NewReference(ds.Reference())
+		}
+	}
+	// set the name
+	spec.Name = d.Get("name").(string)
+
+	log.Printf("[DEBUG] ExpandVirtualMachineInstantCloneSpec: Instant Clone spec prep complete")
 	return spec, vm, nil
 }

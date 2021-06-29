@@ -15,6 +15,7 @@ import (
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
 )
@@ -517,4 +518,57 @@ func IsMember(pod *object.StoragePod, ds *object.Datastore) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+// get_recommended_datastore from storagePod
+func Get_recommended_Datastore(client *govmomi.Client,
+	fo *object.Folder,
+	name string,
+	timeout int,
+	pod *object.StoragePod,
+) (*object.Datastore, error) {
+	sdrsEnabled, err := StorageDRSEnabled(pod)
+	if err != nil {
+		return nil, err
+	}
+	if !sdrsEnabled {
+		return nil, fmt.Errorf("storage DRS is not enabled on datastore cluster %q", pod.Name())
+	}
+	log.Printf(
+		"[DEBUG] Instant Cloning virtual machine to %q on datastore cluster %q",
+		fmt.Sprintf("%s/%s", fo.InventoryPath, name),
+		pod.Name(),
+	)
+	sps := types.StoragePlacementSpec{
+		Type: string(types.StoragePlacementSpecPlacementTypeCreate),
+		PodSelectionSpec: types.StorageDrsPodSelectionSpec{
+			StoragePod: types.NewReference(pod.Reference()),
+		},
+	}
+	log.Printf("[DEBUG] Acquiring Storage DRS recommendations (type: %q)", sps.Type)
+	srm := object.NewStorageResourceManager(client.Client)
+	ctx, cancel := context.WithTimeout(context.Background(), 100)
+	defer cancel()
+
+	placement, err := srm.RecommendDatastores(ctx, sps)
+	if err != nil {
+		return nil, err
+	}
+	recs := placement.Recommendations
+	if len(recs) < 1 {
+		return nil, fmt.Errorf("no storage DRS recommendations were found for the requested action (type: %q)", sps.Type)
+	}
+	// result to pin disks to recommended datastores
+	ds := recs[0].Action[0].(*types.StoragePlacementAction).Destination
+
+	var mds mo.Datastore
+	err = property.DefaultCollector(client.Client).RetrieveOne(ctx, ds, []string{"name"}, &mds)
+	if err != nil {
+		return nil, err
+	}
+
+	datastore := object.NewDatastore(client.Client, ds)
+	datastore.InventoryPath = mds.Name
+	return datastore, nil
+
 }

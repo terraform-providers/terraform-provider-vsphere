@@ -52,6 +52,7 @@ export TF_VAR_VSPHERE_ADAPTER_TYPE          =  lsiLogic
 export TF_VAR_VSPHERE_DC_FOLDER             =  dc-folder
 export TF_VAR_VSPHERE_DS_FOLDER             =  datastore-folder/foo
 export TF_VAR_VSPHERE_USE_LINKED_CLONE      =  true
+export TF_VAR_VSPHERE_USE_INSTANT_CLONE     =  true
 export TF_VAR_VSPHERE_PERSIST_SESSION       =  true
 export TF_VAR_VSPHERE_CLONED_VM_DISK_SIZE   =  32
 export TF_VAR_VSPHERE_CONTENT_LIBRARY_FILES =  '[ "https://acctest-images.storage.googleapis.com/template_test.ovf", "https://acctest-images.storage.googleapis.com/template_test.mf", "https://acctest-images.storage.googleapis.com/template_test-1.vmdk" ]'
