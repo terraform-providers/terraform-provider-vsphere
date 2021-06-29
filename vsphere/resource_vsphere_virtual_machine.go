@@ -921,8 +921,10 @@ func resourceVSphereVirtualMachineCustomizeDiff(_ context.Context, d *schema.Res
 
 	// Validate and normalize disk sub-resources when not deploying from ovf
 	if len(d.Get("ovf_deploy").([]interface{})) == 0 {
-		if err := virtualdevice.DiskDiffOperation(d, client); err != nil {
-			return err
+		if len(d.Get("clone").([]interface{})) == 0 {
+			if err := virtualdevice.DiskDiffOperation(d, client); err != nil {
+				return err
+			}
 		}
 	}
 	// When a VM is a member of a vApp container, it is no longer part of the VM
