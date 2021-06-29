@@ -1036,7 +1036,7 @@ The options are:
 * `network_id` - (Required) The [managed object reference
   ID][docs-about-morefs] of the network to connect this interface to.
 * `adapter_type` - (Optional) The network interface type. Can be one of
-  `e1000`, `e1000e`, or `vmxnet3`. Default: `vmxnet3`.
+  `e1000`, `e1000e`, `sriov` or `vmxnet3`. Default: `vmxnet3`.
 * `use_static_mac` - (Optional) If true, the `mac_address` field is treated as
   a static MAC address and set accordingly. Setting this to `true` requires
   `mac_address` to be set. Default: `false`.
@@ -1044,17 +1044,58 @@ The options are:
   only be manually set if `use_static_mac` is true, otherwise this is a
   computed value that gives the current MAC address of this interface.
 * `bandwidth_limit` - (Optional) The upper bandwidth limit of this network
-  interface, in Mbits/sec. The default is no limit.
+  interface, in Mbits/sec. The default is no limit. Ignored if `adapter_type` is set to `sriov`.
 * `bandwidth_reservation` - (Optional) The bandwidth reservation of this
-  network interface, in Mbits/sec. The default is no reservation.
+  network interface, in Mbits/sec. The default is no reservation. Ignored if `adapter_type` is set to `sriov`.
 * `bandwidth_share_level` - (Optional) The bandwidth share allocation level for
   this interface. Can be one of `low`, `normal`, `high`, or `custom`. Default:
-  `normal`.
+  `normal`. Ignored if `adapter_type` is set to `sriov`.
 * `bandwidth_share_count` - (Optional) The share count for this network
-  interface when the share level is `custom`.
+  interface when the share level is `custom`. Ignored if `adapter_type` is set to `sriov`.
 * `ovf_mapping` - (Optional) Specifies which OVF NIC the `network_interface`
   should be associated with. Only applies at creation and only when deploying
   from an OVF source.
+
+#### Using SR-IOV network interfaces
+
+In order to attach your virtual machine to an SR-IOV network interface, 
+there are a few requirements
+
+* SR-IOV network interfaces must be declared after all non-SRIOV network interfaces
+* The target host must be known, if creating a VM from scratch, this means setting the `host_system_id` option
+* SR-IOV must be enabled on the relevant physical adapter on the host
+* The `memory_reservation` must be fully set (that is, equal to the `memory`) for the VM
+* The `network_interface` sub-resource takes a `physical_function` argument:
+  * This **must** be set if your adapter type is `sriov`
+  * This **must not** be set if your adapter type is not `sriov`
+  * This can be found by navigating to the relevant host in the vSphere Client,
+    going to the 'Configure' tab followed by 'Networking' then 'Physical adapters' and finding the 
+    relevant physical network adapter; one of the properties of the NIC is its PCI Location
+  * This is usally of the form "0000:ab:cd.e"
+* The `bandwidth_*` options on the network interface are not permitted 
+* Adding, modifying and deleting SR-IOV NICs is supported, though will require a VM restart
+* Modifying the number of non-SR-IOV (e.g. VMXNET3) interfaces when there are SR-IOV interfaces existing is
+  explicitly blocked (as terraform_vsphere_plugin doesn't support modifying an interface at the same index from 
+  non-SR-IOV to SR-IOV or vice-versa). To work around this delete all SRIOV NICs for one terraform apply, and re-add 
+  them with any change to the number of non-SRIOV NICs on a second terraform apply.
+
+An example is below:
+
+```hcl
+resource "vsphere_virtual_machine" "vm" {
+  # ... other configuration ...
+  host_system_id      = data.vsphere_host.host.id
+  memory              = var.memory
+  memory_reservation  = var.memory
+  network_interface  {
+    network_id        = data.vsphere_network.network.id
+    adapter_type      = sriov
+    physical_function = "0000:3b:00.1" 
+  }
+  ... other network_interfaces... 
+}
+```
+
 
 ### CDROM options
 

@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/dvportgroup"
+	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/network"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/nsx"
 	"github.com/hashicorp/terraform-provider-vsphere/vsphere/internal/helper/provider"
@@ -25,6 +26,12 @@ import (
 // networkInterfacePciDeviceOffset defines the PCI offset for virtual NICs on a vSphere PCI bus.
 const networkInterfacePciDeviceOffset = 7
 
+// sriovNetworkInterfacePciDeviceOffset defines the PCI offset for virtual SR-IOV NICs on a vSphere PCI bus.
+// sriov NICs have unitNumber 45-36 descending.
+const sriovNetworkInterfacePciDeviceOffset = 45
+
+const maxNetworkInterfaceCount = 10
+
 const (
 	networkInterfaceSubresourceTypeE1000   = "e1000"
 	networkInterfaceSubresourceTypeE1000e  = "e1000e"
@@ -35,9 +42,15 @@ const (
 	networkInterfaceSubresourceTypeUnknown = "unknown"
 )
 
+const defaultBandwidthLimit = -1
+const defaultBandwidthReservation = 0
+
+var defaultBandwidthShareLevel = string(types.SharesLevelNormal)
+
 var networkInterfaceSubresourceTypeAllowedValues = []string{
 	networkInterfaceSubresourceTypeE1000,
 	networkInterfaceSubresourceTypeE1000e,
+	networkInterfaceSubresourceTypeSriov,
 	networkInterfaceSubresourceTypeVmxnet3,
 }
 
@@ -49,21 +62,21 @@ func NetworkInterfaceSubresourceSchema() map[string]*schema.Schema {
 		"bandwidth_limit": {
 			Type:         schema.TypeInt,
 			Optional:     true,
-			Default:      -1,
+			Default:      defaultBandwidthLimit,
 			Description:  "The upper bandwidth limit of this network interface, in Mbits/sec.",
-			ValidateFunc: validation.IntAtLeast(-1),
+			ValidateFunc: validation.IntAtLeast(defaultBandwidthLimit),
 		},
 		"bandwidth_reservation": {
 			Type:         schema.TypeInt,
 			Optional:     true,
-			Default:      0,
+			Default:      defaultBandwidthReservation,
 			Description:  "The bandwidth reservation of this network interface, in Mbits/sec.",
-			ValidateFunc: validation.IntAtLeast(0),
+			ValidateFunc: validation.IntAtLeast(defaultBandwidthReservation),
 		},
 		"bandwidth_share_level": {
 			Type:         schema.TypeString,
 			Optional:     true,
-			Default:      string(types.SharesLevelNormal),
+			Default:      defaultBandwidthShareLevel,
 			Description:  "The bandwidth share allocation level for this interface. Can be one of low, normal, high, or custom.",
 			ValidateFunc: validation.StringInSlice(sharesLevelAllowedValues, false),
 		},
@@ -86,8 +99,13 @@ func NetworkInterfaceSubresourceSchema() map[string]*schema.Schema {
 			Type:         schema.TypeString,
 			Optional:     true,
 			Default:      networkInterfaceSubresourceTypeVmxnet3,
-			Description:  "The controller type. Can be one of e1000, e1000e, or vmxnet3.",
+			Description:  "The controller type. Can be one of e1000, e1000e, sriov, or vmxnet3.",
 			ValidateFunc: validation.StringInSlice(networkInterfaceSubresourceTypeAllowedValues, false),
+		},
+		"physical_function": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "The ID of the Physical SR-IOV NIC to attach to, e.g. '0000:d8:00.0'",
 		},
 		"use_static_mac": {
 			Type:        schema.TypeBool,
@@ -144,6 +162,7 @@ func NewNetworkInterfaceSubresource(client *govmomi.Client, rdd resourceDataDiff
 // returned as a slice of BaseVirtualDeviceConfigSpec.
 func NetworkInterfaceApplyOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) (object.VirtualDeviceList, []types.BaseVirtualDeviceConfigSpec, error) {
 	log.Printf("[DEBUG] NetworkInterfaceApplyOperation: Beginning apply operation")
+
 	o, n := d.GetChange(subresourceTypeNetworkInterface)
 	ods := o.([]interface{})
 	nds := n.([]interface{})
@@ -206,6 +225,7 @@ nextOld:
 		if err != nil {
 			return nil, nil, fmt.Errorf("%s: %s", r.Addr(), err)
 		}
+		// Update the VirtualDeviceList l with the newly created resource cspec
 		l = applyDeviceChange(l, cspec)
 		spec = append(spec, cspec...)
 		updates = append(updates, r.Data())
@@ -223,7 +243,7 @@ nextOld:
 }
 
 // NetworkInterfaceRefreshOperation processes a refresh operation for all of
-// the disks in the resource.
+// the network interfaces attached to this resource.
 //
 // This functions similar to NetworkInterfaceApplyOperation, but nothing to
 // change is returned, all necessary values are just set and committed to
@@ -239,12 +259,15 @@ func NetworkInterfaceRefreshOperation(d *schema.ResourceData, c *govmomi.Client,
 	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Network devices located: %s", DeviceListString(devices))
 	curSet := d.Get(subresourceTypeNetworkInterface).([]interface{})
 	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Current resource set from state: %s", subresourceListString(curSet))
-	urange, err := nicUnitRange(devices)
-	if err != nil {
-		return fmt.Errorf("error calculating network device range: %s", err)
-	}
-	newSet := make([]interface{}, urange)
-	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: %d devices over a %d unit range", len(devices), urange)
+
+	// Create arrays for the refreshed set of network interfaces which we will now populate. We have a maximum number
+	// of 10 network interfaces for each of non-SRIOV and SRIOV, so for simplicity create arrays of this length. We will
+	// combine these into a final array with just the interfaces that we find, in order non-SRIOV then SRIOV.  This is
+	// easier to deal with than trying to populate one big array based on unit number, as we ultimately want the SRIOV
+	// NICs in decreasing order from 45.
+	newSetNonSriov := make([]interface{}, maxNetworkInterfaceCount)
+	newSetSriov := make([]interface{}, maxNetworkInterfaceCount)
+
 	// First check for negative keys. These are freshly added devices that are
 	// usually coming into read post-create.
 	//
@@ -263,11 +286,22 @@ func NetworkInterfaceRefreshOperation(d *schema.ResourceData, c *govmomi.Client,
 				// creation/update logic failed somehow that we were not able to track.
 				return fmt.Errorf("device %d with address %s still unaccounted for after update/read", r.Get("key").(int), r.Get("device_address").(string))
 			}
+
 			_, _, idx, err := splitDevAddr(r.Get("device_address").(string))
 			if err != nil {
 				return fmt.Errorf("%s: error parsing device address: %s", r, err)
 			}
-			newSet[idx-networkInterfacePciDeviceOffset] = r.Data()
+
+			// Separately populate non-SRIOV and SRIOV arrays for refreshed network interfaces for simplicity, to avoid
+			// complications with non-SRIOV indexes being from 7 ascending, and SRIOV indexes being from 45 descending
+			if r.Get("adapter_type").(string) != networkInterfaceSubresourceTypeSriov {
+				newSetNonSriov[idx-networkInterfacePciDeviceOffset] = r.Data()
+			} else {
+				// newSetSriov will have elements populated in order of unitNumber 45, 44, 43, 42, 41...
+				newSetSriov[sriovNetworkInterfacePciDeviceOffset-idx] = r.Data()
+			}
+
+			// Remove the device we've dealt with from the working set
 			for i := 0; i < len(devices); i++ {
 				device := devices[i]
 				if device.GetVirtualDevice().Key == int32(r.Get("key").(int)) {
@@ -277,8 +311,9 @@ func NetworkInterfaceRefreshOperation(d *schema.ResourceData, c *govmomi.Client,
 			}
 		}
 	}
+
 	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Network devices after freshly-created device search: %s", DeviceListString(devices))
-	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Resource set to write after freshly-created device search: %s", subresourceListString(newSet))
+	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Resource sets to write after freshly-created device search: non-SRIOV %s and SRIOV %s", subresourceListString(newSetNonSriov), subresourceListString(newSetSriov))
 
 	// Go over the remaining devices, refresh via key, and then remove their
 	// entries as well.
@@ -300,18 +335,23 @@ func NetworkInterfaceRefreshOperation(d *schema.ResourceData, c *govmomi.Client,
 			if err := r.Read(l); err != nil {
 				return fmt.Errorf("%s: %s", r.Addr(), err)
 			}
-			// Done reading, push this onto our new set and remove the device from
+			// Done reading, push this onto our new sets and remove the device from
 			// the list
 			_, _, idx, err := splitDevAddr(r.Get("device_address").(string))
 			if err != nil {
 				return fmt.Errorf("%s: error parsing device address: %s", r, err)
 			}
-			newSet[idx-networkInterfacePciDeviceOffset] = r.Data()
+			if r.Get("adapter_type").(string) != networkInterfaceSubresourceTypeSriov {
+				newSetNonSriov[idx-networkInterfacePciDeviceOffset] = r.Data()
+			} else {
+				newSetSriov[sriovNetworkInterfacePciDeviceOffset-idx] = r.Data()
+			}
+
 			devices = append(devices[:i], devices[i+1:]...)
 			i--
 		}
 	}
-	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Resource set to write after known device search: %s", subresourceListString(newSet))
+	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Resource sets to write after known device search: non-SRIOV %s and SRIOV %s", subresourceListString(newSetNonSriov), subresourceListString(newSetSriov))
 	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Probable orphaned network interfaces: %s", DeviceListString(devices))
 
 	// Finally, any device that is still here is orphaned. They should be added
@@ -338,36 +378,195 @@ func NetworkInterfaceRefreshOperation(d *schema.ResourceData, c *govmomi.Client,
 		if err != nil {
 			return fmt.Errorf("%s: error parsing device address: %s", r, err)
 		}
-		newSet[idx-networkInterfacePciDeviceOffset] = r.Data()
-	}
 
-	// Prune any nils from the new device state. This could potentially happen in
-	// edge cases where device unit numbers are not 100% sequential.
-	for i := 0; i < len(newSet); i++ {
-		if newSet[i] == nil {
-			newSet = append(newSet[:i], newSet[i+1:]...)
-			i--
+		// Add the orphaned device to the new sets
+		if r.Get("adapter_type").(string) != networkInterfaceSubresourceTypeSriov {
+			newSetNonSriov[idx-networkInterfacePciDeviceOffset] = r.Data()
+		} else {
+			newSetSriov[sriovNetworkInterfacePciDeviceOffset-idx] = r.Data()
 		}
 	}
 
-	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Resource set to write after adding orphaned devices: %s", subresourceListString(newSet))
+	// Create the newSet of all devices from the combination of first the non-SRIOV devices and then the SRIOV devices
+	// with any nils so far (which could occur if there are gaps in the unit numbers of each) in the arrays removed.
+	// (so it might look like this in terms of unit numbers [7, 8, 9, 45, 44, 43])
+	var newSetAll []interface{}
+	for i := 0; i < len(newSetNonSriov); i++ {
+		if newSetNonSriov[i] != nil {
+			newSetAll = append(newSetAll, newSetNonSriov[i])
+		}
+	}
+	for i := 0; i < len(newSetSriov); i++ {
+		if newSetSriov[i] != nil {
+			newSetAll = append(newSetAll, newSetSriov[i])
+		}
+	}
+
+	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: %d devices and a new set of length %d", len(devices), len(newSetAll))
+
+	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Resource set to write after adding orphaned devices: %s", subresourceListString(newSetAll))
 	log.Printf("[DEBUG] NetworkInterfaceRefreshOperation: Refresh operation complete, sending new resource set")
-	return d.Set(subresourceTypeNetworkInterface, newSet)
+	return d.Set(subresourceTypeNetworkInterface, newSetAll)
 }
 
 // NetworkInterfaceDiffOperation performs operations relevant to managing the
 // diff on network_interface sub-resources.
 func NetworkInterfaceDiffOperation(d *schema.ResourceDiff, c *govmomi.Client) error {
-	// We just need the new values for now, as all we are doing is validating some values based on API version
-	n := d.Get(subresourceTypeNetworkInterface)
+	o, n := d.GetChange(subresourceTypeNetworkInterface)
+	ods := o.([]interface{})
+	nds := n.([]interface{})
 	log.Printf("[DEBUG] NetworkInterfaceDiffOperation: Beginning diff validation")
-	for ni, ne := range n.([]interface{}) {
+
+	for ni, ne := range nds {
 		nm := ne.(map[string]interface{})
-		r := NewNetworkInterfaceSubresource(c, d, nm, nil, ni)
-		if err := r.ValidateDiff(); err != nil {
-			return fmt.Errorf("%s: %s", r.Addr(), err)
+		if len(ods) > ni {
+			oe := ods[ni]
+			om := oe.(map[string]interface{})
+			r := NewNetworkInterfaceSubresource(c, d, nm, om, ni)
+			if err := r.ValidateDiff(); err != nil {
+				return fmt.Errorf("%s: %s", r.Addr(), err)
+			}
+		} else {
+			r := NewNetworkInterfaceSubresource(c, d, nm, nil, ni)
+			if err := r.ValidateDiff(); err != nil {
+				return fmt.Errorf("%s: %s", r.Addr(), err)
+			}
 		}
 	}
+
+	// Various steps related to using SR-IOV NICs:
+	// First we want to check that the declaration of nics in the config isn't interleaved with
+	// nonSriov amongst sriov (they should be groups of all non-sriov, then sriov).
+	// We allow a maximum of 20 interfaces in the terraform file, 10 of each type.
+	maxNonSriovIndex := -1
+	minSriovIndex := (maxNetworkInterfaceCount * 2) + 1
+	countNonSriov := 0
+	countSriov := 0
+	var sriovPhysicalAdapters []string
+	nInt := d.Get("network_interface")
+loopInterfaces:
+	for ni, ne := range nInt.([]interface{}) {
+		nm := ne.(map[string]interface{})
+		r := NewNetworkInterfaceSubresource(c, d, nm, nil, ni)
+		// If the resource adapter_type is sriov then add to our array of physical
+		// adapters the name of the physical_function found on the resource, if
+		// not there already
+		if r.Get("adapter_type").(string) == networkInterfaceSubresourceTypeSriov {
+			countSriov++
+			if ni < minSriovIndex {
+				minSriovIndex = ni
+			}
+			for _, adapter := range sriovPhysicalAdapters {
+				if adapter == r.Get("physical_function").(string) {
+					// It is a duplicate so go to the next interface
+					continue loopInterfaces
+				}
+			}
+
+			sriovPhysicalAdapters = append(sriovPhysicalAdapters, r.Get("physical_function").(string))
+		} else {
+			countNonSriov++
+			if ni > maxNonSriovIndex {
+				maxNonSriovIndex = ni
+			}
+		}
+	}
+
+	// Explicitly check for too many interfaces, as the schema MaxItems doesn't differentiate between non-SRIOV and SRIOV
+	if countSriov > maxNetworkInterfaceCount || countNonSriov > maxNetworkInterfaceCount {
+		return fmt.Errorf("network_interface list exceeded max items of %d non-sriov adapter_types and %d sriov adapter_types."+
+			" Config has %d and %d declared.", maxNetworkInterfaceCount, maxNetworkInterfaceCount, countNonSriov, countSriov)
+	}
+
+	if countSriov > 0 {
+		// Check that all the sriov NICs are declared after the non-sriov ones
+		if maxNonSriovIndex > minSriovIndex {
+			log.Printf("[DEBUG] network_interfaces out of order. First SRIOV index %d, Last non-SRIOV index %d", minSriovIndex, maxNonSriovIndex)
+			return fmt.Errorf("network_interfaces out of order.\n" +
+				"network_interfaces with adapter_type 'sriov' must be declared after all network_interfaces with " +
+				"other adapter_types. Please reorder the network_interface sections.")
+		}
+
+		// Relevant SRIOV checks from https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-898A3D66-9415-4854-8413-B40F2CB6FF8D.html
+		// First check that the host system is known
+		host, err := hostsystem.FromID(c, d.Get("host_system_id").(string))
+		if err != nil {
+			return fmt.Errorf("Trying to use an SR-IOV network interface but target host is not known")
+		}
+		hprops, err := hostsystem.Properties(host)
+		if err != nil {
+			return err
+		}
+		pnics := hprops.Config.Network.Pnic
+
+		// Next, loop through the sriovPhysicalAdapters and check they exist on the host
+	loopAdapters:
+		for _, sriovPhysicalAdapter := range sriovPhysicalAdapters {
+			foundPhysicalNic := false
+			for _, pnic := range pnics {
+				if pnic.Pci == sriovPhysicalAdapter {
+					log.Printf("[DEBUG] Found physical NIC with name %s", sriovPhysicalAdapter)
+					foundPhysicalNic = true
+					continue loopAdapters
+				}
+			}
+			if !foundPhysicalNic {
+				return fmt.Errorf("Unable to find SR-IOV physical adapter %s on host %s", sriovPhysicalAdapter, host.Name())
+			}
+		}
+		// Check the physical adapters have SRIOV enabled
+		// Sort the sriovPhysicalAdapter addresses so we can look for each in the pciPassthru list without starting
+		// from the beginning each time.
+		pciPassthru := hprops.Config.PciPassthruInfo
+		sort.Strings(sriovPhysicalAdapters)
+		adapterIdx := 0
+		pciIdx := 0
+
+		// As the pciPassthru list can be quite long, avoid looping through from the top for each adapter.
+		// This relies upon the pciPassthruInfo being sorted in id order, which it does appear to be.
+		for adapterIdx < len(sriovPhysicalAdapters) {
+			foundAdapter := false
+			foundSriovEnabled := false
+
+			if pciIdx >= len(pciPassthru) {
+				return fmt.Errorf("Unable to find SR-IOV physical adapter PCI passthrough Id %s on host %s", sriovPhysicalAdapters[adapterIdx], host.Name())
+			}
+			switch nicType := pciPassthru[pciIdx].(type) {
+			case *types.HostSriovInfo:
+				// Check for the SriovEnabled property of the SRIOV PCIPassthrough
+				if nicType.Id == sriovPhysicalAdapters[adapterIdx] {
+					foundAdapter = true
+					if nicType.SriovEnabled == true {
+						foundSriovEnabled = true
+						log.Printf("[DEBUG] Found SRIOV enabled NIC with name %s", sriovPhysicalAdapters[adapterIdx])
+						adapterIdx++
+					}
+				}
+				pciIdx++
+			case *types.HostPciPassthruInfo:
+				// If the PciPassthruInfo type isn't HostSriovInfo and it matches our configured sriov adapter ID,
+				// then SRIOV cannot be enabled on the nic, which is an error. This will be thrown below.
+				if nicType.Id == sriovPhysicalAdapters[adapterIdx] {
+					foundAdapter = true
+				}
+				pciIdx++
+			default:
+				// This would be most unexpected but just carry on, we will error out later
+				log.Printf("[DEBUG] Diff customization and validation: Found a different type PCI passthrough info %T", nicType)
+				pciIdx++
+			}
+
+			if foundAdapter && !foundSriovEnabled {
+				return fmt.Errorf("SR-IOV physical adapter %s on host %s has SRIOV function disabled so cannot be used as the physical_function of a sriov network_interface.", sriovPhysicalAdapters[adapterIdx], host.Name())
+			}
+		}
+
+		// Next check Memory reservations have been locked to max
+		if d.Get("memory_reservation").(int) != d.Get("memory").(int) {
+			return fmt.Errorf("Trying to use SR-IOV NIC but memory reservation is not equal to memory, set memory_reservation equal to memory on VM")
+		}
+	}
+
 	log.Printf("[DEBUG] NetworkInterfaceDiffOperation: Diff validation complete")
 	return nil
 }
@@ -390,12 +589,12 @@ func NetworkInterfacePostCloneOperation(d *schema.ResourceData, c *govmomi.Clien
 	log.Printf("[DEBUG] NetworkInterfacePostCloneOperation: Network devices located: %s", DeviceListString(devices))
 	curSet := d.Get(subresourceTypeNetworkInterface).([]interface{})
 	log.Printf("[DEBUG] NetworkInterfacePostCloneOperation: Current resource set from configuration: %s", subresourceListString(curSet))
-	urange, err := nicUnitRange(devices)
-	if err != nil {
-		return nil, nil, fmt.Errorf("error calculating network device range: %s", err)
-	}
-	srcSet := make([]interface{}, urange)
-	log.Printf("[DEBUG] NetworkInterfacePostCloneOperation: Layout from source: %d devices over a %d unit range", len(devices), urange)
+	// Create arrays for the refreshed set of network interfaces which we will now populate. We have a maximum number
+	// of 10 network interfaces, so for simplicity create arrays of this length. The final array is the length of
+	// the count of network interfaces though.
+	srcSetNonSriov := make([]interface{}, maxNetworkInterfaceCount)
+	srcSetSriov := make([]interface{}, maxNetworkInterfaceCount)
+	log.Printf("[DEBUG] NetworkInterfacePostCloneOperation: Layout from source: %d devices", len(devices))
 
 	// Populate the source set as if the devices were orphaned. This give us a
 	// base to diff off of.
@@ -417,11 +616,40 @@ func NetworkInterfacePostCloneOperation(d *schema.ResourceData, c *govmomi.Clien
 		if err := r.Read(l); err != nil {
 			return nil, nil, fmt.Errorf("%s: %s", r.Addr(), err)
 		}
+
+		// This will give idx as the 7 in pci:0:7, or in the case of SRIOV it will give 45 from pci:0:45
 		_, _, idx, err := splitDevAddr(r.Get("device_address").(string))
 		if err != nil {
 			return nil, nil, fmt.Errorf("%s: error parsing device address: %s", r, err)
 		}
-		srcSet[idx-networkInterfacePciDeviceOffset] = r.Data()
+
+		// Ultimately populate srcSet from the start with non-SRIOV ids 7-16 and from the end backwards with
+		// SRIOV ids 45-36
+		// Separately populate non-SRIOV and SRIOV arrays for source network interfaces for simplicity, to avoid
+		// complications with non-SRIOV indexes being from 7 ascending, and SRIOV indexes being from 45 descending
+		if r.Get("adapter_type").(string) != networkInterfaceSubresourceTypeSriov {
+			srcSetNonSriov[idx-networkInterfacePciDeviceOffset] = r.Data()
+
+		} else {
+			srcSetSriov[sriovNetworkInterfacePciDeviceOffset-idx] = r.Data()
+		}
+	}
+
+	// Create the srcSet of all devices from the combination of first the
+	// non-SRIOV devices and then the SRIOV devices with any nils so far
+	// (which could occur in edge cases where device unit numbers are not
+	// 100% sequential) in the arrays removed.
+	// (so it might look like this in terms of unit numbers [7, 8, 9, 45, 44, 43])
+	var srcSet []interface{}
+	for i := 0; i < len(srcSetNonSriov); i++ {
+		if srcSetNonSriov[i] != nil {
+			srcSet = append(srcSet, srcSetNonSriov[i])
+		}
+	}
+	for i := 0; i < len(srcSetSriov); i++ {
+		if srcSetSriov[i] != nil {
+			srcSet = append(srcSet, srcSetSriov[i])
+		}
 	}
 
 	// Now go over our current set, kind of treating it like an apply:
@@ -460,6 +688,7 @@ func NetworkInterfacePostCloneOperation(d *schema.ResourceData, c *govmomi.Clien
 			}
 			nm[k] = v
 		}
+
 		r := NewNetworkInterfaceSubresource(c, d, nm, sm, i)
 		if !reflect.DeepEqual(sm, nm) {
 			// Update
@@ -574,12 +803,21 @@ func ReadNetworkInterfaces(l object.VirtualDeviceList) ([]map[string]interface{}
 		}
 
 		// Set properties
+		switch v := interface{}(device).(type) {
+		case *types.VirtualSriovEthernetCard:
+			sriovBacking := v.SriovBacking
+			if sriovBacking.PhysicalFunctionBacking != nil {
+				m["physical_function"] = sriovBacking.PhysicalFunctionBacking.Id
+			}
+		default:
+			// Set the bandwidth properties
+			m["bandwidth_limit"] = ethernetCard.ResourceAllocation.Limit
+			m["bandwidth_reservation"] = ethernetCard.ResourceAllocation.Reservation
+			m["bandwidth_share_level"] = ethernetCard.ResourceAllocation.Share.Level
+			m["bandwidth_share_count"] = ethernetCard.ResourceAllocation.Share.Shares
+		}
 
 		m["adapter_type"] = virtualEthernetCardString(device.(types.BaseVirtualEthernetCard))
-		m["bandwidth_limit"] = ethernetCard.ResourceAllocation.Limit
-		m["bandwidth_reservation"] = ethernetCard.ResourceAllocation.Reservation
-		m["bandwidth_share_level"] = ethernetCard.ResourceAllocation.Share.Level
-		m["bandwidth_share_count"] = ethernetCard.ResourceAllocation.Share.Shares
 		m["mac_address"] = ethernetCard.MacAddress
 		m["network_id"] = networkID
 
@@ -659,9 +897,21 @@ func (r *NetworkInterfaceSubresource) Create(l object.VirtualDeviceList) ([]type
 	if err != nil {
 		return nil, err
 	}
+
 	device, err := l.CreateEthernetCard(r.Get("adapter_type").(string), backing)
 	if err != nil {
 		return nil, err
+	}
+
+	// Add SRIOV physical function if this network interface resource has it defined
+	if len(r.Get("physical_function").(string)) > 0 {
+		device, err = r.addPhysicalFunction(device)
+	}
+
+	// SRIOV device creation requires a restart
+	if r.Get("adapter_type").(string) == networkInterfaceSubresourceTypeSriov {
+		log.Printf("[DEBUG] Create: SRIOV so set to restart")
+		r.SetRestart("<device sriov create>")
 	}
 
 	// CreateEthernetCard does not attach stuff, however, assuming that you will
@@ -687,14 +937,28 @@ func (r *NetworkInterfaceSubresource) Create(l object.VirtualDeviceList) ([]type
 		card.AddressType = string(types.VirtualEthernetCardMacTypeManual)
 		card.MacAddress = r.Get("mac_address").(string)
 	}
+
 	version := viapi.ParseVersionFromClient(r.client)
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
+	if (version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) && r.Get("adapter_type") != networkInterfaceSubresourceTypeSriov) {
+		bandwidth_limit := structure.Int64Ptr(-1)
+		bandwidth_reservation := structure.Int64Ptr(0)
+		bandwidth_share_level := types.SharesLevelNormal
+		if r.Get("bandwidth_limit") != nil {
+			bandwidth_limit = structure.Int64Ptr(int64(r.Get("bandwidth_limit").(int)))
+		}
+		if r.Get("bandwidth_reservation") != nil {
+			bandwidth_reservation = structure.Int64Ptr(int64(r.Get("bandwidth_reservation").(int)))
+		}
+		if r.Get("bandwidth_share_level") != nil {
+			bandwidth_share_level = types.SharesLevel(r.Get("bandwidth_share_level").(string))
+		}
+
 		alloc := &types.VirtualEthernetCardResourceAllocation{
-			Limit:       structure.Int64Ptr(int64(r.Get("bandwidth_limit").(int))),
-			Reservation: structure.Int64Ptr(int64(r.Get("bandwidth_reservation").(int))),
+			Limit:       bandwidth_limit,
+			Reservation: bandwidth_reservation,
 			Share: types.SharesInfo{
 				Shares: int32(r.Get("bandwidth_share_count").(int)),
-				Level:  types.SharesLevel(r.Get("bandwidth_share_level").(string)),
+				Level:  bandwidth_share_level,
 			},
 		}
 		card.ResourceAllocation = alloc
@@ -721,6 +985,7 @@ func (r *NetworkInterfaceSubresource) Read(l object.VirtualDeviceList) error {
 	if err != nil {
 		return fmt.Errorf("cannot find network device: %s", err)
 	}
+
 	device, err := baseVirtualDeviceToBaseVirtualEthernetCard(vd)
 	if err != nil {
 		return err
@@ -765,18 +1030,39 @@ func (r *NetworkInterfaceSubresource) Read(l object.VirtualDeviceList) error {
 	default:
 		return fmt.Errorf("unknown network interface backing %T", card.Backing)
 	}
-	r.Set("network_id", netID)
 
+	switch v := interface{}(device).(type) {
+	case *types.VirtualSriovEthernetCard:
+		sriovBacking := v.SriovBacking
+		if sriovBacking.PhysicalFunctionBacking == nil {
+			return fmt.Errorf("could not determine SRIOV physical_function from NIC")
+		}
+		r.Set("physical_function", sriovBacking.PhysicalFunctionBacking.Id)
+		log.Printf("[DEBUG] Read: Adapter type IS SRIOV. Read the physical function and set to %s", r.Get("physical_function"))
+	default:
+		log.Printf("[DEBUG] Read: Adapter type non SRIOV")
+	}
+
+	r.Set("network_id", netID)
 	r.Set("use_static_mac", card.AddressType == string(types.VirtualEthernetCardMacTypeManual))
 	r.Set("mac_address", card.MacAddress)
 
 	version := viapi.ParseVersionFromClient(r.client)
 	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		if card.ResourceAllocation != nil {
-			r.Set("bandwidth_limit", card.ResourceAllocation.Limit)
-			r.Set("bandwidth_reservation", card.ResourceAllocation.Reservation)
-			r.Set("bandwidth_share_count", card.ResourceAllocation.Share.Shares)
-			r.Set("bandwidth_share_level", card.ResourceAllocation.Share.Level)
+		if r.Get("adapter_type") != networkInterfaceSubresourceTypeSriov {
+			if card.ResourceAllocation != nil {
+				r.Set("bandwidth_limit", card.ResourceAllocation.Limit)
+				r.Set("bandwidth_reservation", card.ResourceAllocation.Reservation)
+				r.Set("bandwidth_share_count", card.ResourceAllocation.Share.Shares)
+				r.Set("bandwidth_share_level", card.ResourceAllocation.Share.Level)
+			}
+		} else {
+			// SRIOV adapters don't support bandwidth properties. Set them to the defaults on the read resource
+			// to ensure that import and such work (as the schema has defaults for them). The bandwidth_share_count
+			// is computed and has no default, so doesn't need setting.
+			r.Set("bandwidth_limit", defaultBandwidthLimit)
+			r.Set("bandwidth_reservation", defaultBandwidthReservation)
+			r.Set("bandwidth_share_level", defaultBandwidthShareLevel)
 		}
 	}
 
@@ -809,20 +1095,39 @@ func (r *NetworkInterfaceSubresource) Update(l object.VirtualDeviceList) ([]type
 	// ones with different device types.
 	var spec []types.BaseVirtualDeviceConfigSpec
 
-	// A change in adapter_type is essentially a ForceNew. We would normally veto
+	// A change in adapter_type or physical_function is essentially a ForceNew.
+	// We would normally veto
 	// this, but network devices are not extremely mission critical if they go
 	// away, so we can support in-place modification of them in configuration by
 	// just pushing a delete of the old device and adding a new version of the
 	// device, with the old device unit number preserved so that it (hopefully)
 	// gets the same device position as its previous incarnation, allowing old
 	// device aliases to work, etc.
-	if r.HasChange("adapter_type") {
-		log.Printf("[DEBUG] %s: Device type changing to %s, re-creating device", r, r.Get("adapter_type").(string))
+	// The one change that is vetoed is changing adapter type to or from sriov,
+	// because the device unit numbers for sriov are from 45 downwards, and
+	// those for other networks are from 7 upwards, so it is too fiddly to support
+	// in-place modification.
+	// A result of this is that if you have any SRIOV network interfaces, you
+	// cannot Update the count of non-SRIOV network interfaces.
+	if r.HasChange("adapter_type") || r.HasChange("physical_function") {
+		// Ensure network interfaces aren't changing adapter_type to or from sriov
+		if err := r.blockAdapterTypeChangeSriov(); err != nil {
+			return nil, err
+		}
+		if r.HasChange("adapter_type") {
+			log.Printf("[DEBUG] %s: Device type changing to %s, re-creating device", r, r.Get("adapter_type").(string))
+		} else if r.HasChange("physical_function") {
+			log.Printf("[DEBUG] %s: SRIOV Physical function changing to %s, re-creating device", r, r.Get("physical_function").(string))
+		}
 		card := device.GetVirtualEthernetCard()
 		newDevice, err := l.CreateEthernetCard(r.Get("adapter_type").(string), card.Backing)
 		if err != nil {
 			return nil, err
 		}
+		if len(r.Get("physical_function").(string)) > 0 {
+			newDevice, err = r.addPhysicalFunction(newDevice)
+		}
+
 		newCard := newDevice.(types.BaseVirtualEthernetCard).GetVirtualEthernetCard()
 		// Copy controller attributes and unit number
 		newCard.ControllerKey = card.ControllerKey
@@ -835,7 +1140,12 @@ func (r *NetworkInterfaceSubresource) Update(l object.VirtualDeviceList) ([]type
 		newCard.Key = l.NewKey()
 		// If VMware tools is not running, this operation requires a reboot
 		if r.rdd.Get("vmware_tools_status").(string) != string(types.VirtualMachineToolsRunningStatusGuestToolsRunning) {
-			r.SetRestart("adapter_type")
+			r.SetRestart("<adapter_type>")
+		}
+
+		if r.HasChange("physical_function") {
+			// If SRIOV physical function has changed, this operation requires a reboot
+			r.SetRestart("<physical_function>")
 		}
 		// Push the delete of the old device
 		bvd := baseVirtualEthernetCardToBaseVirtualDevice(device)
@@ -885,14 +1195,28 @@ func (r *NetworkInterfaceSubresource) Update(l object.VirtualDeviceList) ([]type
 			card.MacAddress = ""
 		}
 	}
+
 	version := viapi.ParseVersionFromClient(r.client)
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
+	if (version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) && r.Get("adapter_type") != networkInterfaceSubresourceTypeSriov) {
+		bandwidth_limit := structure.Int64Ptr(-1)
+		bandwidth_reservation := structure.Int64Ptr(0)
+		bandwidth_share_level := types.SharesLevelNormal
+		if r.Get("bandwidth_limit") != nil {
+			bandwidth_limit = structure.Int64Ptr(int64(r.Get("bandwidth_limit").(int)))
+		}
+		if r.Get("bandwidth_reservation") != nil {
+			bandwidth_reservation = structure.Int64Ptr(int64(r.Get("bandwidth_reservation").(int)))
+		}
+		if r.Get("bandwidth_share_level") != nil {
+			bandwidth_share_level = types.SharesLevel(r.Get("bandwidth_share_level").(string))
+		}
+
 		alloc := &types.VirtualEthernetCardResourceAllocation{
-			Limit:       structure.Int64Ptr(int64(r.Get("bandwidth_limit").(int))),
-			Reservation: structure.Int64Ptr(int64(r.Get("bandwidth_reservation").(int))),
+			Limit:       bandwidth_limit,
+			Reservation: bandwidth_reservation,
 			Share: types.SharesInfo{
 				Shares: int32(r.Get("bandwidth_share_count").(int)),
-				Level:  types.SharesLevel(r.Get("bandwidth_share_level").(string)),
+				Level:  bandwidth_share_level,
 			},
 		}
 		card.ResourceAllocation = alloc
@@ -917,6 +1241,33 @@ func (r *NetworkInterfaceSubresource) Update(l object.VirtualDeviceList) ([]type
 	return spec, nil
 }
 
+// Add SRIOV physical function setting the device to a VirtualSriovEthernetCard
+// and by adding VirtualSriovEthernetCardSriovBackingInfo
+func (r *NetworkInterfaceSubresource) addPhysicalFunction(device types.BaseVirtualDevice) (types.BaseVirtualDevice, error) {
+	// Based off https://vdc-download.vmware.com/vmwb-repository/dcr-public/b50dcbbf-051d-4204-a3e7-e1b618c1e384/538cf2ec-b34f-4bae-a332-3820ef9e7773/vim.vm.device.VirtualSriovEthernetCard.SriovBackingInfo.html
+	log.Printf("[DEBUG] We have physical function")
+	var d2 interface{} = device
+
+	// These seem to be the correct DeviceId, SystemId and VendorId settings if you
+	// investigate a manually created vSphere SRIOV network interface
+	physical_function_conf := &types.VirtualPCIPassthroughDeviceBackingInfo{
+		Id:       r.Get("physical_function").(string),
+		DeviceId: "0",
+		SystemId: "BYPASS",
+		VendorId: 0,
+	}
+	sriov_conf := &types.VirtualSriovEthernetCardSriovBackingInfo{
+		PhysicalFunctionBacking: physical_function_conf,
+	}
+
+	device = &types.VirtualSriovEthernetCard{
+		VirtualEthernetCard: *d2.(types.BaseVirtualEthernetCard).GetVirtualEthernetCard(),
+		SriovBacking:        sriov_conf,
+	}
+
+	return device, nil
+}
+
 // Delete deletes a vsphere_virtual_machine network_interface sub-resource.
 func (r *NetworkInterfaceSubresource) Delete(l object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, error) {
 	log.Printf("[DEBUG] %s: Beginning delete", r)
@@ -925,6 +1276,7 @@ func (r *NetworkInterfaceSubresource) Delete(l object.VirtualDeviceList) ([]type
 		return nil, fmt.Errorf("cannot find network device: %s", err)
 	}
 	device, err := baseVirtualDeviceToBaseVirtualEthernetCard(vd)
+
 	if err != nil {
 		return nil, err
 	}
@@ -932,6 +1284,11 @@ func (r *NetworkInterfaceSubresource) Delete(l object.VirtualDeviceList) ([]type
 	if r.rdd.Get("vmware_tools_status").(string) != string(types.VirtualMachineToolsRunningStatusGuestToolsRunning) {
 		r.SetRestart("<device delete>")
 	}
+	// Sriov network interfaces require a reboot to delete
+	if r.Get("adapter_type").(string) == networkInterfaceSubresourceTypeSriov {
+		r.SetRestart("<sriov device delete>")
+	}
+
 	bvd := baseVirtualEthernetCardToBaseVirtualDevice(device)
 	spec, err := object.VirtualDeviceList{bvd}.ConfigSpec(types.VirtualDeviceConfigSpecOperationRemove)
 	if err != nil {
@@ -942,18 +1299,85 @@ func (r *NetworkInterfaceSubresource) Delete(l object.VirtualDeviceList) ([]type
 	return spec, nil
 }
 
+// A change that is vetoed is changing adapter type to or from sriov,
+// because the device unit numbers for sriov are from 45 downwards, and
+// those for other networks are from 7 upwards, and when we Update a network
+// interface it copies the unit number from the old one, so it is too fiddly to support
+// in-place modification.
+// A result of this is that if you have any SRIOV network interfaces, you
+// cannot Update the count of non-SRIOV network interfaces.
+func (r *NetworkInterfaceSubresource) blockAdapterTypeChangeSriov() error {
+	if r.HasChange("adapter_type") {
+		oldAdapterType, newAdapterType := r.GetChange("adapter_type")
+		if (oldAdapterType != networkInterfaceSubresourceTypeSriov && newAdapterType == networkInterfaceSubresourceTypeSriov) ||
+			(oldAdapterType == networkInterfaceSubresourceTypeSriov && newAdapterType != networkInterfaceSubresourceTypeSriov) {
+			log.Printf("[DEBUG] blockAdapterTypeChangeSriov: Network interface %s index %d changing type from %s to %s. "+
+				"Block this", r, r.Index, oldAdapterType, newAdapterType)
+			return fmt.Errorf("Changing the network_interface list such that there is a change in adapter_type to"+
+				" or from sriov for a particular index of network_interface is not supported.\n"+
+				"Index %d, old adapter_type %s, new adapter_type %s\n"+
+				"Delete all the sriov network interfaces, apply, and then re-add network interfaces and reapply instead.", r.Index, oldAdapterType, newAdapterType)
+		}
+		return nil
+	}
+
+	return nil
+}
+
+// Bandwidth settings are irrelevant for SR-IOV interfaces so we should warn if the user is trying
+// to set them.
+func (r *NetworkInterfaceSubresource) blockBandwidthSettingsSriov() error {
+	if r.Get("adapter_type") == networkInterfaceSubresourceTypeSriov {
+		if r.Get("bandwidth_limit") != defaultBandwidthLimit ||
+			r.Get("bandwidth_reservation") != defaultBandwidthReservation ||
+			r.Get("bandwidth_share_level") != defaultBandwidthShareLevel {
+			log.Printf("SUNNY Bandwidths %d %d %s", r.Get("bandwidth_limit"), r.Get("bandwidth_reservation"), r.Get("bandwidth_share_level"))
+			return fmt.Errorf("Invalid bandwidth properties on sriov network interface. " +
+				"Bandwidth settings do not apply to SRIOV interfaces. Please remove them.")
+		}
+
+		return nil
+	}
+
+	return nil
+}
+
 // ValidateDiff performs any complex validation of an individual
 // network_interface sub-resource that can't be done in schema alone.
 func (r *NetworkInterfaceSubresource) ValidateDiff() error {
 	log.Printf("[DEBUG] %s: Beginning diff validation", r)
 
 	// Ensure that network resource allocation options are only set on vSphere
-	// 6.0 and higher.
+	// 6.0 and higher. They are not relevant for SRIOV networks in either case.
 	version := viapi.ParseVersionFromClient(r.client)
-	if version.Older(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
+	if (version.Older(viapi.VSphereVersion{Product: version.Product, Major: 6}) &&
+		r.Get("adapter_type") != networkInterfaceSubresourceTypeSriov) {
 		if err := r.restrictResourceAllocationSettings(); err != nil {
 			return err
 		}
+	}
+
+	// Ensure physical adapter is set on all (and only on) SR-IOV NICs
+	if r.Get("adapter_type").(string) == networkInterfaceSubresourceTypeSriov {
+		if len(r.Get("physical_function").(string)) == 0 {
+			return fmt.Errorf("physical_function must be set on SR-IOV Network interface")
+		}
+	} else {
+		if len(r.Get("physical_function").(string)) > 0 {
+			return fmt.Errorf("cannot set physical_function on non SR-IOV Network interface")
+		}
+
+	}
+
+	// Ensure network interfaces aren't changing adapter_type to or from sriov - this is too hard
+	// to cope with given the discrepancy in unit number ranges
+	if err := r.blockAdapterTypeChangeSriov(); err != nil {
+		return err
+	}
+
+	// Don't allow bandwidth settings on SRIOV that aren't the defaults
+	if err := r.blockBandwidthSettingsSriov(); err != nil {
+		return err
 	}
 
 	log.Printf("[DEBUG] %s: Diff validation complete", r)
@@ -981,64 +1405,103 @@ func (r *NetworkInterfaceSubresource) restrictResourceAllocationSettings() error
 }
 
 // assignEthernetCard is a subset of the logic that goes into AssignController
-// right now but with an unit offset of 7. This is based on what we have
-// observed on vSphere in terms of reserved PCI unit numbers (the first NIC
-// automatically gets re-assigned to unit number 7 if it's not that already.)
+// right now but with an unit offset that reflects the type of network interface.
+// (7 ascending or 45 descending)
+// This is based on what we have observed on vSphere in terms of reserved PCI
+// unit numbers (the first non-SRIOV NIC automatically gets re-assigned to unit number 7
+// if it's not that already.)
+// SRIOV NICs which get re-assigned to unit number 45 descending
+// This function makes sure that our state matches that unit number that vSphere will assign.
 func (r *NetworkInterfaceSubresource) assignEthernetCard(l object.VirtualDeviceList, device types.BaseVirtualDevice, c types.BaseVirtualController) error {
-	// The PCI device offset. This seems to be where vSphere starts assigning
-	// virtual NICs on the PCI controller.
-	pciDeviceOffset := int32(networkInterfacePciDeviceOffset)
+	var newUnit int32
 
 	// The first part of this is basically the private newUnitNumber function
 	// from VirtualDeviceList, with a maximum unit count of 10. This basically
-	// means that no more than 10 virtual NICs can be assigned right now, which
-	// hopefully should be plenty.
-	units := make([]bool, 10)
+	// means that no more than 10 virtual SRIOV NICs or 10 virtual non-SRIOV NICs
+	// can be assigned right now, which hopefully should be plenty.
 
-	ckey := c.GetVirtualController().Key
+	// Work out the unit number of the network interface
+	if r.Get("adapter_type").(string) == networkInterfaceSubresourceTypeSriov {
+		// For SRIOV units we don't use the resource index as a guide, we just find
+		// the next available unit number and assign that. Otherwise non-SRIOV
+		// resource indexes cloud the picture
 
-	for _, device := range l {
-		d := device.GetVirtualDevice()
-		if d.ControllerKey != ckey || d.UnitNumber == nil || *d.UnitNumber < pciDeviceOffset || *d.UnitNumber >= pciDeviceOffset+10 {
-			continue
+		// The PCI device offset. This seems to be where vSphere starts assigning
+		// virtual NICs on the PCI controller.
+		// SR-IOV NICs are assigned the next free unitNumber from 45 descending.
+		sriovPciDeviceOffset := int32(sriovNetworkInterfacePciDeviceOffset)
+
+		// For simplicity, create an array of available sriov units 45, 44, 43, ... 36
+		sriovAvailableUnits := make([]int32, maxNetworkInterfaceCount)
+		for idx := int32(0); idx < maxNetworkInterfaceCount; idx++ {
+			sriovAvailableUnits[idx] = sriovNetworkInterfacePciDeviceOffset - idx
 		}
-		units[*d.UnitNumber-pciDeviceOffset] = true
-	}
 
-	// Now that we know which units are used, we can pick one
-	newUnit := int32(r.Index) + pciDeviceOffset
-	if units[newUnit-pciDeviceOffset] {
-		return fmt.Errorf("device unit at %d is currently in use on the PCI bus", newUnit)
+		ckey := c.GetVirtualController().Key
+
+		// Work out which SRIOV unit numbers are already in use
+		for _, device := range l {
+			d := device.GetVirtualDevice()
+			if d.ControllerKey != ckey || d.UnitNumber == nil || *d.UnitNumber > sriovPciDeviceOffset || *d.UnitNumber <= sriovPciDeviceOffset-maxNetworkInterfaceCount {
+				continue
+			}
+
+			// Remove in-use units from the list of available units
+			for indx, value := range sriovAvailableUnits {
+				if value == *d.UnitNumber {
+					sriovAvailableUnits = append(sriovAvailableUnits[:indx], sriovAvailableUnits[indx+1:]...)
+					break
+				}
+			}
+		}
+
+		// Now that we know which units are used, we can pick one
+		if len(sriovAvailableUnits) == 0 {
+			return fmt.Errorf("All ten SRIOV device units are currently in use on the PCI bus. Cannot assign SRIOV network.")
+		}
+		newUnit = sriovAvailableUnits[0]
+	} else {
+
+		// Non-SRIOV NIC are assigned the next free unitNumber from 7. We use the index
+		// of the resource to match assigned unit numbers from 7 up.
+
+		// The PCI device offset. This seems to be where vSphere starts assigning
+		// virtual NICs on the PCI controller.
+		pciDeviceOffset := int32(networkInterfacePciDeviceOffset)
+
+		// No more than 10 virtual non-SRIOV NICs can be assigned right now, which
+		// hopefully should be plenty.
+		units := make([]bool, maxNetworkInterfaceCount)
+		ckey := c.GetVirtualController().Key
+
+		// Work out which units are already used
+		for _, device := range l {
+			d := device.GetVirtualDevice()
+			if d.ControllerKey != ckey || d.UnitNumber == nil || *d.UnitNumber < pciDeviceOffset || *d.UnitNumber >= pciDeviceOffset+maxNetworkInterfaceCount {
+				continue
+			}
+			units[*d.UnitNumber-pciDeviceOffset] = true
+		}
+
+		// Create a new unit number based on the index of the network interface resource offset from 7
+		// and check that it isn't in use already
+		newUnit = int32(r.Index) + pciDeviceOffset
+		if units[newUnit-pciDeviceOffset] {
+			return fmt.Errorf("device unit at %d is currently in use on the PCI bus", newUnit)
+		}
 	}
 
 	d := device.GetVirtualDevice()
 	d.ControllerKey = c.GetVirtualController().Key
+	log.Printf("[DEBUG] assignEthernetCard: Set unit number of device %s to %d", device, newUnit)
+
+	// It seems that setting this UnitNumber has no effect on actually which UnitNumber the network interface gets,
+	// that is down to the vSphere vagaries of non-SRIOV being 7+ in order of addition,  and SRIOV being 45-, so this
+	// must just be for our tracking purposes.
 	d.UnitNumber = &newUnit
+
 	if d.Key == 0 {
 		d.Key = -1
 	}
 	return nil
-}
-
-// nicUnitRange calculates a range of units given a certain VirtualDeviceList,
-// which should be network interfaces.  It's used in network interface refresh
-// logic to determine how many subresources may end up in state.
-func nicUnitRange(l object.VirtualDeviceList) (int, error) {
-	// No NICs means no range
-	if len(l) < 1 {
-		return 0, nil
-	}
-
-	high := int32(networkInterfacePciDeviceOffset)
-
-	for _, v := range l {
-		d := v.GetVirtualDevice()
-		if d.UnitNumber == nil {
-			return 0, fmt.Errorf("device at key %d has no unit number", d.Key)
-		}
-		if *d.UnitNumber > high {
-			high = *d.UnitNumber
-		}
-	}
-	return int(high - networkInterfacePciDeviceOffset + 1), nil
 }

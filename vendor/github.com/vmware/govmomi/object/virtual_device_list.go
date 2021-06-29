@@ -384,6 +384,7 @@ func (l VirtualDeviceList) PickController(kind types.BaseVirtualController) type
 }
 
 // newUnitNumber returns the unit number to use for attaching a new device to the given controller.
+// This is not used for network interfaces - see the logic in assignEthernetCard instead.
 func (l VirtualDeviceList) newUnitNumber(c types.BaseVirtualController) int32 {
 	units := make([]bool, 30)
 
@@ -885,7 +886,16 @@ func (l VirtualDeviceList) Name(device types.BaseVirtualDevice) string {
 	dtype := l.Type(device)
 	switch dtype {
 	case DeviceTypeEthernet:
-		key = fmt.Sprintf("%d", UnitNumber-7)
+		// Ethernet devices of UnitNumber 7-19 are non-SRIOV. Ethernet devices of UnitNumber 45-36 descending are
+		// SRIOV
+		// See constants networkInterfacePciDeviceOffset and sriovNetworkInterfacePciDeviceOffset in
+		// virtual_machine_network_interface_subresource.go
+		if UnitNumber <= 45 && UnitNumber >= 36 {
+			key = fmt.Sprintf("(sriov)-%d", 45-UnitNumber)
+		} else {
+			key = fmt.Sprintf("%d", UnitNumber-7)
+		}
+
 	case DeviceTypeDisk:
 		key = fmt.Sprintf("%d-%d", d.ControllerKey, UnitNumber)
 	default:
