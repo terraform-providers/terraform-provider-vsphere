@@ -195,12 +195,22 @@ func createFile(client *govmomi.Client, f *file) error {
 			return fmt.Errorf("error %s", err)
 		}
 	case path.Ext(f.sourceFile) == ".vmdk":
-		tempDstFile := fmt.Sprintf("tfm-temp-%d.vmdk", time.Now().Nanosecond())
+		_, fileName := path.Split(f.destinationFile)
+		// Temporary directory path to upload VMDK file.
+		tempDstFile := fmt.Sprintf("tfm-temp-%d/%s", time.Now().Nanosecond(), fileName)
+
 		err = fileUpload(client, dstDatacenter, dstDatastore, f.sourceFile, tempDstFile)
 		if err != nil {
 			return fmt.Errorf("error %s", err)
 		}
 		err = dstDfm.Move(context.TODO(), tempDstFile, f.destinationFile)
+		if err != nil {
+			return fmt.Errorf("error %s", err)
+		}
+
+		// Delete temporary directory where VMDK was uploaded.
+		tempDstDir, _ := path.Split(tempDstFile)
+		err = dstDfm.Delete(context.TODO(), tempDstDir)
 		if err != nil {
 			return fmt.Errorf("error %s", err)
 		}
