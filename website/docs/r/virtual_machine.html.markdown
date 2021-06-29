@@ -33,8 +33,7 @@ of this resource.
 ### Disks
 
 The `vsphere_virtual_machine` resource currently only supports standard
-VMDK-backed virtual disks - it does not support other special kinds of disk
-devices like RDM disks.
+VMDK-backed virtual disks and RDM disks.
 
 Disks are managed by an arbitrary label supplied to the [`label`](#label)
 attribute of a [`disk` block](#disk-options). This is separate from the
@@ -887,6 +886,14 @@ resource "vsphere_virtual_machine" "vm" {
     size        = "100"
     unit_number = 1
   }
+  
+  disk {
+      label       = "disk2"
+      size        = "10"
+      unit_number = 2
+      rdm_lun_path = "//Target LUN path to add a RDM Disk"
+      compatibility_mode = "physicalMode"
+    }
 
   # ... other configuration ...
 }
@@ -969,6 +976,11 @@ an error if you try to label a disk with this prefix.
 * `controller_type` - (Optional) The type of storage controller to attach the 
   disk to. Can be `scsi`, `sata`, or `ide`. You must have the appropriate
   number of controllers enabled for the selected type. Default `scsi`.
+* `rdm_lun_path` - (Optional) Target LUN path when adding a RDM disk. Datasource `vsphere_vmfs_disks` can be used 
+  to discover LUNs attached to a host.
+* `compatibility_mode` - (Optional) The compatibility mode for the RDM disk. The allowed values
+  are `virtualMode` and `physicalMode`. When compatibility is in `physicalMode`, the disk
+  mode has to be `independent_persistent`.   
 
 #### Computed disk attributes
 
@@ -1001,6 +1013,9 @@ the options, and subsequent plans will fail with an appropriate error message
 until the settings are corrected.
 
 ~> **NOTE:** The disk type cannot be changed once set.
+
+~> **NOTE:** When adding a RDM disk, some options like `eagerly_scrub` and `thin_provisioned` are 
+not available and size of the disk should be the capacity of the LUN.
 
 ### Network interface options
 

@@ -540,6 +540,29 @@ func TestAccResourceVSphereVirtualMachine_highDiskUnitsToRegularSingleController
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_RDMDisk(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+			testAccResourceVSphereVirtualMachinePreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigRDMDisk(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					testAccResourceVSphereVirtualMachineCheckDiskBus("testacc-test.vmdk", 0, 0),
+					testAccResourceVSphereVirtualMachineCheckDiskBus("testacc-test_1.vmdk", 0, 1),
+					testAccResourceVSphereVirtualMachineCheckRDMDiskAtNumber(1),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereVirtualMachine_scsiBusSharing(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -2550,6 +2573,9 @@ func testAccResourceVSphereVirtualMachinePreCheck(t *testing.T) {
 	if os.Getenv("TF_VAR_VSPHERE_CONTENT_LIBRARY_FILES") == "" {
 		t.Skip("set TF_VAR_VSPHERE_CONTENT_LIBRARY_FILES to run vsphere_virtual_machine acceptance tests")
 	}
+	if os.Getenv("TF_VAR_VSPHERE_RDM_DISK_LUN_PATH") == "" {
+		t.Skip("set TF_VAR_VSPHERE_RDM_DISK_LUN_PATH to run vsphere_virtual_machine acceptance tests")
+	}
 }
 
 func testAccResourceVSphereVirtualMachineCheckExists(expected bool) resource.TestCheckFunc {
@@ -2607,10 +2633,10 @@ func testAccResourceVSphereVirtualMachineCheckDiskBus(name string, expectedBus, 
 
 		for _, dev := range props.Config.Hardware.Device {
 			if disk, ok := dev.(*types.VirtualDisk); ok {
-				if info, ok := disk.Backing.(*types.VirtualDiskFlatVer2BackingInfo); ok {
+				if info, ok := virtualdevice.GetBackingForDisk(disk); ok {
 					dp := new(object.DatastorePath)
-					if ok := dp.FromString(info.FileName); !ok {
-						return fmt.Errorf("could not parse datastore path %q", info.FileName)
+					if ok := dp.FromString(info.GetFileName()); !ok {
+						return fmt.Errorf("could not parse datastore path %q", info.GetFileName())
 					}
 					if path.Base(dp.Path) != name {
 						continue
@@ -2639,6 +2665,32 @@ func testAccResourceVSphereVirtualMachineCheckDiskBus(name string, expectedBus, 
 		}
 
 		return fmt.Errorf("could not find disk path %q", name)
+	}
+}
+
+func testAccResourceVSphereVirtualMachineCheckRDMDiskAtNumber(diskNumber int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		props, err := testGetVirtualMachineProperties(s, "vm")
+		if err != nil {
+			return err
+		}
+
+		currIndex := 0
+		for _, dev := range props.Config.Hardware.Device {
+			if disk, ok := dev.(*types.VirtualDisk); ok {
+				if currIndex == diskNumber {
+					switch disk.Backing.(type) {
+					case *types.VirtualDiskRawDiskMappingVer1BackingInfo:
+						return nil
+					default:
+						return fmt.Errorf("incorrect disk backing found, expected RDM disk, found %s", disk.Backing)
+					}
+				}
+				currIndex++
+			}
+		}
+
+		return fmt.Errorf("could not find RDM disk")
 	}
 }
 
@@ -3693,6 +3745,51 @@ resource "vsphere_virtual_machine" "vm" {
 `,
 
 		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigRDMDisk() string {
+	return fmt.Sprintf(`
+
+
+%s  // Mix and match config
+
+resource "vsphere_virtual_machine" "vm" {
+ name             = "testacc-test"
+ resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
+ datastore_id     = data.vsphere_datastore.rootds1.id
+
+ scsi_controller_count = 3
+
+ num_cpus = 2
+ memory   = 2048
+ guest_id = "other3xLinux64Guest"
+ wait_for_guest_ip_timeout = 0
+ wait_for_guest_net_timeout = 0
+
+ network_interface {
+   network_id            = data.vsphere_network.network1.id
+   bandwidth_share_level = "normal"
+ }
+
+ disk {
+   label = "disk0"
+   size  = 20
+ }
+
+ disk {
+   label       = "disk1"
+   unit_number = 1
+   size        = 2
+   disk_mode = "independent_persistent"
+   compatibility_mode = "physicalMode"
+   rdm_lun_path = "%s"
+ }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+		os.Getenv("TF_VAR_VSPHERE_RDM_DISK_LUN_PATH"),
 	)
 }
 

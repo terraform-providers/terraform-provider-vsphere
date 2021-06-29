@@ -57,3 +57,8 @@ the output `disks` attribute below, which is lexicographically sorted.
 
 * `disks` - A lexicographically sorted list of devices discovered by the
   operation, matching the supplied `filter`, if provided.
+  
+* `disks_info` - List of disks discovered by the operation with more details about them.
+  * `name`           - Display name of the disk 
+  * `path`           - The path of the volume of the disk.
+  * `capacity_in_gb` - Capacity of the disk in GB.
